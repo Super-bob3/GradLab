@@ -96,6 +96,29 @@ canvas {
     z-index: 10;
 }
 
+.pan-hud {
+    position: absolute;
+    bottom: 14px;
+    left: 16px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 10px;
+    letter-spacing: 0.8px;
+    color: rgba(255, 255, 255, 0.75);
+    background: rgba(0, 0, 0, 0.35);
+    padding: 3px 8px;
+    border-radius: 3px;
+    pointer-events: none;
+    z-index: 20;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.pan-hud.visible {
+    opacity: 1;
+}
+
 .card::after {
     content: '';
     position: absolute;

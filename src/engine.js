@@ -237,6 +237,17 @@ function _captureFrame(canvasEl, noiseOverlayEl) {
 
 // ── Camera / Input ────────────────────────────────────────────
 function _setupInput(containerEl, cardEl, canvasEl) {
+    const hud = document.getElementById('panHud');
+    let hudFadeTimer = null;
+
+    function showHud() {
+        if (!hud) return;
+        hud.textContent = `X ${cameraX.toFixed(3)}   Y ${cameraY.toFixed(3)}`;
+        hud.classList.add('visible');
+        clearTimeout(hudFadeTimer);
+        hudFadeTimer = setTimeout(() => hud.classList.remove('visible'), 1200);
+    }
+
     function startPan(clientX, clientY) {
         isDraggingCanvas = true;
         startMouseX = clientX; startMouseY = clientY;
@@ -255,6 +266,7 @@ function _setupInput(containerEl, cardEl, canvasEl) {
         const currentZoom = parseFloat(_ctrl('zoom').value) * 0.028 + 0.2;
         cameraX = startCameraX - normX / currentZoom;
         cameraY = startCameraY + normY / currentZoom;
+        showHud();
     }
 
     const CARD_TRANSITION = 'transform 0.1s ease-out, border-radius 0.2s ease, box-shadow 0.3s ease';
@@ -286,11 +298,13 @@ function _setupInput(containerEl, cardEl, canvasEl) {
         let val = parseFloat(_ctrl('zoom').value);
         val -= e.deltaY * 0.1;
         syncSlider('zoom', val);
+        showHud();
     }, { passive: false });
 
     containerEl.addEventListener('dblclick', () => {
         cameraX = 0.0; cameraY = 0.0;
         syncSlider('zoom', 36);
+        showHud();
     });
 }
 
