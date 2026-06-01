@@ -16,53 +16,18 @@ let activeMarker = null;
 // Full theme presets — each theme stores colors + all shader/post parameters
 const themePresets = {
     theme1: {
-        // Aurora — warm organic fluid, silky smooth
-        colors:       ['#FFB3C6', '#FF6B35', '#7B2FBE', '#FFF1E6'],
+        colors:       ['#FB7C47', '#E1B8FF', '#0883F7'],
         colorMode:    '1',
-        blendBias:    '45',
+        blendBias:    '65',
         blendSharp:   '0',
-        type:         '3',   // Domain Warp (Marble)
-        zoom:         '40',
-        speed:        '12',
-        liquid:       '55',
-        morph:        '0',
-        rotation:     '0',
+        type:         '11',  // Nested SDF Shape (Core Glow)
+        zoom:         '18',
+        speed:        '25',
+        liquid:       '25',
+        morph:        '69',
+        rotation:     '80',
         grain:        '20',
         grainBlend:   'overlay',
-        artEnable:    false,
-        artType:      '3',
-        artSize:      '5.3',
-        artShape:     '1',
-        artContrast:  '30',
-        asciiEnable:  false,
-        asciiMode:    '1',
-        asciiDither:  'none',
-        asciiSize:    '22',
-        asciiSpacing: '1.0',
-        asciiFont:    '14',
-        asciiColor:   '#FFB3C6',
-        asciiBlend:   'overlay',
-        asciiDecay:   '20',
-        asciiRadius:  '200',
-        asciiSmooth:  '60',
-        asciiGravity: '0',
-        asciiCharset: 'standard',
-        asciiCustom:  '',
-    },
-    theme2: {
-        // Neon Abyss — dark cyberpunk, glowing ASCII trails
-        colors:       ['#00FFFF', '#FF00FF', '#0A0A2E', '#7700FF'],
-        colorMode:    '1',
-        blendBias:    '50',
-        blendSharp:   '15',
-        type:         '4',   // Curl Noise (Vortex)
-        zoom:         '30',
-        speed:        '28',
-        liquid:       '70',
-        morph:        '0',
-        rotation:     '0',
-        grain:        '25',
-        grainBlend:   'screen',
         artEnable:    false,
         artType:      '3',
         artSize:      '5.3',
@@ -72,57 +37,146 @@ const themePresets = {
         asciiMode:    '1',
         asciiDither:  'none',
         asciiSize:    '22',
-        asciiSpacing: '1.0',
+        asciiSpacing: '1',
         asciiFont:    '14',
-        asciiColor:   '#00FFFF',
-        asciiBlend:   'screen',
-        asciiDecay:   '15',
-        asciiRadius:  '180',
+        asciiColor:   '#ffffff',
+        asciiBlend:   'overlay',
+        asciiDecay:   '20',
+        asciiRadius:  '50',
+        asciiSmooth:  '60',
+        asciiGravity: '0',
+        asciiCharset: 'code',
+        asciiCustom:  '',
+        panX:         -1.411,
+        panY:         0.640,
+    },
+    theme2: {
+        colors:       ['#FFFFFF', '#DCB8FF', '#295EFF', '#FF666E'],
+        colorMode:    '1',
+        blendBias:    '87',
+        blendSharp:   '0',
+        type:         '7',   // Radial Topography (Rings)
+        zoom:         '52',
+        speed:        '70',
+        liquid:       '100',
+        morph:        '12',
+        rotation:     '194',
+        grain:        '25',
+        grainBlend:   'screen',
+        artEnable:    true,
+        artType:      '3',
+        artSize:      '6',
+        artShape:     '0',
+        artContrast:  '20',
+        asciiEnable:  true,
+        asciiMode:    '1',
+        asciiDither:  'none',
+        asciiSize:    '22',
+        asciiSpacing: '1',
+        asciiFont:    '14',
+        asciiColor:   '#ffffff',
+        asciiBlend:   'overlay',
+        asciiDecay:   '20',
+        asciiRadius:  '50',
         asciiSmooth:  '50',
         asciiGravity: '0',
         asciiCharset: 'code',
         asciiCustom:  '',
+        panX:         0.548,
+        panY:         0.468,
     },
     theme3: {
-        // Topography — cool structured rings with halftone
-        colors:       ['#00C9B1', '#1A1A2E', '#9B5DE5', '#00F5D4'],
+        colors:       ['#FFC8DD', '#FF9E00', '#0033FF'],
         colorMode:    '1',
-        blendBias:    '50',
-        blendSharp:   '30',
-        type:         '7',   // Radial Topography (Rings)
-        zoom:         '45',
+        blendBias:    '1',
+        blendSharp:   '0',
+        type:         '0',   // Sin/Cos (Classic)
+        zoom:         '33',
         speed:        '8',
         liquid:       '25',
-        morph:        '50',
+        morph:        '0',
         rotation:     '0',
-        grain:        '10',
-        grainBlend:   'soft-light',
-        artEnable:    true,
+        grain:        '15',
+        grainBlend:   'overlay',
+        artEnable:    false,
         artType:      '3',
         artSize:      '6.0',
-        artShape:     '1',   // Circle
+        artShape:     '1',
         artContrast:  '40',
-        asciiEnable:  false,
-        asciiMode:    '0',
-        asciiDither:  'bayer',
-        asciiSize:    '20',
+        asciiEnable:  true,
+        asciiMode:    '1',
+        asciiDither:  'none',
+        asciiSize:    '22',
         asciiSpacing: '1.0',
-        asciiFont:    '20',
-        asciiColor:   '#00F5D4',
-        asciiBlend:   'source-over',
+        asciiFont:    '14',
+        asciiColor:   '#ffffff',
+        asciiBlend:   'overlay',
         asciiDecay:   '20',
-        asciiRadius:  '240',
-        asciiSmooth:  '75',
-        asciiGravity: '10',
-        asciiCharset: 'blocks',
+        asciiRadius:  '50',
+        asciiSmooth:  '50',
+        asciiGravity: '5',
+        asciiCharset: 'code',
         asciiCustom:  '',
+        panX:         1.256,
+        panY:         0.502,
     },
 };
 
 export function getCurrentColors() { return currentColors; }
 
 function saveToCurrentTheme() {
-    if (currentThemeKey) themePresets[currentThemeKey].colors = [...currentColors];
+    if (currentThemeKey) themeStates[currentThemeKey].colors = [...currentColors];
+}
+
+// Runtime state per theme — starts as deep copy of presets, updated as user edits
+const themeStates = {
+    theme1: JSON.parse(JSON.stringify(themePresets.theme1)),
+    theme2: JSON.parse(JSON.stringify(themePresets.theme2)),
+    theme3: JSON.parse(JSON.stringify(themePresets.theme3)),
+};
+
+// Snapshot all current control values into themeStates[key]
+function _saveThemeState(key) {
+    if (!themeStates[key]) return;
+    const s = themeStates[key];
+    function r(id) { const el = document.getElementById('ctrl-' + id); return el ? el.value : undefined; }
+    function rb(id) { const el = document.getElementById('ctrl-' + id); return el ? el.checked : false; }
+    s.colors      = [...currentColors];
+    s.colorMode   = r('color-mode');
+    s.blendBias   = r('blend-bias');
+    s.blendSharp  = r('blend-sharp');
+    s.type        = r('type');
+    s.zoom        = r('zoom');
+    s.speed       = r('speed');
+    s.liquid      = r('liquid');
+    s.morph       = r('morph');
+    s.rotation    = r('rotation');
+    s.grain       = r('grain');
+    s.grainBlend  = r('grain-blend');
+    s.artEnable   = rb('art-enable');
+    s.artType     = r('art-type');
+    s.artSize     = r('art-size');
+    s.artShape    = r('art-shape');
+    s.artContrast = r('art-contrast');
+    s.asciiEnable  = rb('ascii-enable');
+    s.asciiMode    = r('ascii-mode');
+    s.asciiDither  = r('ascii-dither');
+    s.asciiSize    = r('ascii-size');
+    s.asciiSpacing = r('ascii-spacing');
+    s.asciiFont    = r('ascii-font');
+    s.asciiColor   = r('ascii-color');
+    s.asciiBlend   = r('ascii-blend');
+    s.asciiDecay   = r('ascii-decay');
+    s.asciiRadius  = r('ascii-radius');
+    s.asciiSmooth  = r('ascii-smooth');
+    s.asciiGravity = r('ascii-gravity');
+    s.asciiCharset = r('ascii-charset');
+    s.asciiCustom  = r('ascii-custom');
+    if (window._getCameraPos) {
+        const pos = window._getCameraPos();
+        s.panX = pos.x;
+        s.panY = pos.y;
+    }
 }
 
 function rgb2hex(r, g, b) {
@@ -197,7 +251,7 @@ function toggleLanguage() {
 
 // ── Init Controls ─────────────────────────────────────────────
 export function initControls(onMatrixRebuild) {
-    // Initial colors
+    // Initial colors (full theme applied later in main.js after engine init)
     currentColors = [...themePresets[currentThemeKey].colors];
     renderColorList();
 
@@ -223,8 +277,14 @@ export function initControls(onMatrixRebuild) {
 
     // Preset buttons — apply full theme (colors + all parameters)
     window.applyColorPreset = function(name, btnEl) {
+        // Save current theme's live state before switching
+        if (currentThemeKey && currentThemeKey !== name) {
+            _saveThemeState(currentThemeKey);
+        }
         currentThemeKey = name;
-        const t = themePresets[name];
+
+        // Load from runtime state (preserves user edits; falls back to preset defaults)
+        const t = themeStates[name];
 
         // Colors
         currentColors = [...t.colors];
@@ -256,27 +316,43 @@ export function initControls(onMatrixRebuild) {
         setCtrl('art-size',      t.artSize);
         setCtrl('art-shape',     t.artShape);
         setCtrl('art-contrast',  t.artContrast);
-        setCtrl('ascii-enable',  t.asciiEnable);
-        setCtrl('ascii-mode',    t.asciiMode);
-        setCtrl('ascii-dither',  t.asciiDither);
-        setCtrl('ascii-size',    t.asciiSize);
-        setCtrl('ascii-spacing', t.asciiSpacing);
-        setCtrl('ascii-font',    t.asciiFont);
-        setCtrl('ascii-color',   t.asciiColor);
-        setCtrl('ascii-blend',   t.asciiBlend);
-        setCtrl('ascii-decay',   t.asciiDecay);
-        setCtrl('ascii-radius',  t.asciiRadius);
-        setCtrl('ascii-smooth',  t.asciiSmooth);
-        setCtrl('ascii-gravity', t.asciiGravity);
-        setCtrl('ascii-charset', t.asciiCharset);
-        setCtrl('ascii-custom',  t.asciiCustom);
+        setCtrl('ascii-enable', t.asciiEnable);
+
+        // Trigger ascii-mode change first so internal currentAsciiMode is correct,
+        // then override all sub-controls and fire input to sync asciiModeStates
+        setCtrl('ascii-mode', t.asciiMode);
+        document.getElementById('ctrl-ascii-mode').dispatchEvent(new Event('change'));
+
+        // Helper: set value + fire input so asciiModeStates stays in sync
+        function setCtrlSync(id, val) {
+            const el = document.getElementById('ctrl-' + id);
+            if (!el) return;
+            el.value = val;
+            const span = document.getElementById('val-' + id);
+            if (span) span.innerText = val;
+            el.dispatchEvent(new Event('input'));
+        }
+        setCtrlSync('ascii-dither',  t.asciiDither);
+        setCtrlSync('ascii-size',    t.asciiSize);
+        setCtrlSync('ascii-spacing', t.asciiSpacing);
+        setCtrlSync('ascii-font',    t.asciiFont);
+        setCtrlSync('ascii-color',   t.asciiColor);
+        setCtrlSync('ascii-blend',   t.asciiBlend);
+        setCtrlSync('ascii-decay',   t.asciiDecay);
+        setCtrlSync('ascii-radius',  t.asciiRadius);
+        setCtrlSync('ascii-smooth',  t.asciiSmooth);
+        setCtrlSync('ascii-gravity', t.asciiGravity);
+        setCtrlSync('ascii-charset', t.asciiCharset);
+        setCtrlSync('ascii-custom',  t.asciiCustom);
+
+        // Pan position
+        if (window._setCameraPos) window._setCameraPos(t.panX || 0, t.panY || 0);
 
         // Sync grain overlay opacity & blend
         document.getElementById('noiseOverlay').style.opacity      = (t.grain / 100) * 0.6;
         document.getElementById('noiseOverlay').style.mixBlendMode = t.grainBlend;
 
-        // Sync ASCII mode UI (dither/radius/smooth/decay visibility)
-        document.getElementById('ctrl-ascii-mode').dispatchEvent(new Event('change'));
+        // ASCII mode visibility is handled by the change event dispatched above
 
         // Sync context-aware UI (morph/rotation visibility)
         document.getElementById('ctrl-type').dispatchEvent(new Event('change'));

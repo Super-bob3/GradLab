@@ -3,7 +3,7 @@
  * Wires together: engine, matrix, controls, and export modules.
  */
 
-import { initEngine, uploadBgTexture, syncSlider } from './engine.js';
+import { initEngine, uploadBgTexture, syncSlider, setCameraPos, getCameraPos } from './engine.js';
 import { initMatrixCanvas, initMatrix } from './matrix.js';
 import { initControls, getCurrentColors } from './controls.js';
 import { initDownload, initRecording, initCodeExport } from './export.js';
@@ -25,6 +25,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 3. WebGL engine + render loop
     initEngine(glCanvas, noiseOverlay, cardContainer, shaderCard, getCurrentColors);
+
+    // Expose camera helpers for theme presets
+    window._setCameraPos = setCameraPos;
+    window._getCameraPos = getCameraPos;
+
+    // Apply full default theme (colors + all params) now that all modules are ready
+    const defaultBtn = document.querySelector('.preset-btn.active');
+    if (window.applyColorPreset) window.applyColorPreset('theme1', defaultBtn);
 
     // 4. Background image upload
     document.getElementById('bg-upload').addEventListener('change', (e) => {

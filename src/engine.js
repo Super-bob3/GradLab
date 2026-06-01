@@ -346,6 +346,7 @@ export function syncSlider(id, val) {
 export function getGl() { return gl; }
 export function getCameraPos() { return { x: cameraX, y: cameraY }; }
 export function resetCamera() { cameraX = 0; cameraY = 0; }
+export function setCameraPos(x, y) { cameraX = x; cameraY = y; }
 
 // Generate sharp noise at exact target resolution — avoids scaling/interpolation artifacts
 export function _buildFullNoise(w, h) {
