@@ -31,6 +31,16 @@ export let capturedFrames = [];
 export let recordSeconds = 0;
 let recordTimer = null;
 
+// Render loop pause (used during video encoding)
+let _renderPaused = false;
+let _renderArgs = null;
+export function pauseRendering()  { _renderPaused = true; }
+export function resumeRendering() {
+    if (!_renderPaused) return;
+    _renderPaused = false;
+    if (_renderArgs) requestAnimationFrame((t) => render(t, ..._renderArgs));
+}
+
 // ── Shader Compilation ────────────────────────────────────────
 function createShader(type, src) {
     const shader = gl.createShader(type);
@@ -133,6 +143,7 @@ export function initEngine(canvasEl, noiseOverlayEl, containerEl, cardEl, getCol
     _setupInput(containerEl, cardEl, canvasEl);
 
     // Start loop
+    _renderArgs = [canvasEl, noiseOverlayEl, getColors];
     requestAnimationFrame((t) => render(t, canvasEl, noiseOverlayEl, getColors));
 }
 
@@ -210,7 +221,7 @@ function render(time, canvasEl, noiseOverlayEl, getColors) {
         _captureFrame(canvasEl, noiseOverlayEl);
     }
 
-    requestAnimationFrame((t) => render(t, canvasEl, noiseOverlayEl, getColors));
+    if (!_renderPaused) requestAnimationFrame((t) => render(t, canvasEl, noiseOverlayEl, getColors));
 }
 
 function _captureFrame(canvasEl, noiseOverlayEl) {

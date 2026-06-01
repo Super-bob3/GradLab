@@ -5,7 +5,7 @@
 import {
     isRecording, capturedFrames, hasBgTextureFlag, bgTextureDataURLStored,
     startRecording, stopRecording, getRecordSeconds, pickMime,
-    _buildFullNoise,
+    _buildFullNoise, pauseRendering, resumeRendering,
 } from './engine.js';
 import { VERTEX_SHADER_SRC, FRAGMENT_SHADER_SRC } from './shaders.js';
 
@@ -79,10 +79,16 @@ function _encodeAndDownload(glCanvas, btn) {
     const ext      = mimeType.includes('mp4') ? 'mp4' : 'webm';
     const pingpong = document.getElementById('ctrl-pingpong').checked;
 
-    const frames = [...capturedFrames];
+    // Downsample captured frames to 30fps based on actual recording rate
+    const rawFrames = [...capturedFrames];
+    if (rawFrames.length === 0) return;
+    const captureFPS = rawFrames.length / Math.max(getRecordSeconds(), 0.1);
+    const keepEvery  = Math.max(1, Math.round(captureFPS / 30));
+    const sampled    = rawFrames.filter((_, i) => i % keepEvery === 0);
+
     const allFrames = pingpong
-        ? frames.concat(frames.slice(0, -1).reverse())
-        : frames;
+        ? sampled.concat(sampled.slice(0, -1).reverse())
+        : sampled;
 
     if (allFrames.length === 0) return;
 
@@ -90,8 +96,7 @@ function _encodeAndDownload(glCanvas, btn) {
     tmpCanvas.width  = glCanvas.width;
     tmpCanvas.height = glCanvas.height;
     const tmpCtx = tmpCanvas.getContext('2d');
-    const stream  = tmpCanvas.captureStream(0);
-    const track   = stream.getVideoTracks()[0];
+    const stream  = tmpCanvas.captureStream(30);
     const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 40_000_000 });
     const chunks  = [];
 
@@ -103,14 +108,19 @@ function _encodeAndDownload(glCanvas, btn) {
         allFrames.forEach(bmp => { if (bmp.close) bmp.close(); });
     };
 
+    pauseRendering();
     recorder.start();
     let i = 0;
     const total = allFrames.length;
     const FPS_INTERVAL = 1000 / 30;
+
     function drawNext() {
-        if (i >= total) { recorder.stop(); return; }
+        if (i >= total) {
+            recorder.stop();
+            resumeRendering();
+            return;
+        }
         tmpCtx.drawImage(allFrames[i], 0, 0);
-        if (track.requestFrame) track.requestFrame();
         i++;
         const pct = Math.round((i / total) * 100);
         btn.innerText = isChinese ? `⏳ 编码中 ${pct}%` : `⏳ Encoding ${pct}%`;
