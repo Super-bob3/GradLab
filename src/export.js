@@ -31,11 +31,12 @@ export function initDownload(glCanvas) {
             ctx.globalCompositeOperation = 'source-over';
         }
 
+        const noiseCanvasEl = document.getElementById('noise-canvas');
         const grainVal = parseFloat(document.getElementById('ctrl-grain').value) / 100.0;
-        if (grainVal > 0) {
+        if (grainVal > 0 && noiseCanvasEl) {
             ctx.globalCompositeOperation = document.getElementById('ctrl-grain-blend').value;
             ctx.globalAlpha = grainVal * 0.6;
-            ctx.drawImage(_buildFullNoise(tempCanvas.width, tempCanvas.height), 0, 0);
+            ctx.drawImage(noiseCanvasEl, 0, 0);
         }
 
         const link = document.createElement('a');

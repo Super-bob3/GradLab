@@ -124,15 +124,16 @@ export function initEngine(canvasEl, noiseOverlayEl, containerEl, cardEl, getCol
         blendSharp: gl.getUniformLocation(program, 'u_blend_sharp'),
     };
 
-    // Noise grain overlay
-    noiseCanvas = createSharpNoiseCanvas(256);
-    noiseOverlayEl.style.backgroundImage = `url(${noiseCanvas.toDataURL('image/png')})`;
+    // Noise grain — driven by canvas, not CSS overlay
+    noiseCanvas = document.getElementById('noise-canvas');
 
     // Resize
     function resize() {
         canvasEl.width  = canvasEl.clientWidth * 2;
         canvasEl.height = canvasEl.clientHeight * 2;
         gl.viewport(0, 0, canvasEl.width, canvasEl.height);
+        noiseCanvas.width  = canvasEl.width;
+        noiseCanvas.height = canvasEl.height;
         // Let matrix.js know about resize
         if (window._onEngineResize) window._onEngineResize();
     }
@@ -216,15 +217,52 @@ function render(time, canvasEl, noiseOverlayEl, getColors) {
     // ASCII Matrix
     renderMatrix(canvasEl, time);
 
+    // Grain noise — draw to noise-canvas every frame
+    _renderGrain();
+
     // Recording frame capture
     if (isRecording) {
-        _captureFrame(canvasEl, noiseOverlayEl);
+        _captureFrame(canvasEl);
     }
 
     if (!_renderPaused) requestAnimationFrame((t) => render(t, canvasEl, noiseOverlayEl, getColors));
 }
 
-function _captureFrame(canvasEl, noiseOverlayEl) {
+// Shared tiled noise pattern (generated once, reused every frame)
+let _noiseTile = null;
+function _getOrCreateNoiseTile() {
+    if (_noiseTile) return _noiseTile;
+    const c = document.createElement('canvas');
+    c.width = 256; c.height = 256;
+    const ctx = c.getContext('2d');
+    const img = ctx.createImageData(256, 256);
+    for (let i = 0; i < img.data.length; i += 4) {
+        const v = Math.random() * 255 | 0;
+        img.data[i] = img.data[i+1] = img.data[i+2] = v;
+        img.data[i+3] = 255;
+    }
+    ctx.putImageData(img, 0, 0);
+    _noiseTile = c;
+    return c;
+}
+
+function _renderGrain() {
+    const grainVal = parseFloat(_ctrl('grain').value) / 100.0;
+    const nCtx = noiseCanvas.getContext('2d');
+    nCtx.clearRect(0, 0, noiseCanvas.width, noiseCanvas.height);
+    if (grainVal <= 0) {
+        noiseCanvas.style.opacity = 0;
+        return;
+    }
+    const tile = _getOrCreateNoiseTile();
+    const pattern = nCtx.createPattern(tile, 'repeat');
+    nCtx.fillStyle = pattern;
+    nCtx.fillRect(0, 0, noiseCanvas.width, noiseCanvas.height);
+    noiseCanvas.style.mixBlendMode = _ctrl('grain-blend').value;
+    noiseCanvas.style.opacity = grainVal * 0.6;
+}
+
+function _captureFrame(canvasEl) {
     const textCanvas = document.getElementById('text-canvas');
     const asciiEnabled = _ctrl('ascii-enable').checked;
     const compCanvas = document.createElement('canvas');
@@ -241,7 +279,9 @@ function _captureFrame(canvasEl, noiseOverlayEl) {
     if (grainVal > 0) {
         compCtx.globalCompositeOperation = _ctrl('grain-blend').value;
         compCtx.globalAlpha = grainVal * 0.6;
-        compCtx.drawImage(_buildFullNoise(compCanvas.width, compCanvas.height), 0, 0);
+        compCtx.drawImage(noiseCanvas, 0, 0);   // reuse same frame's noise
+        compCtx.globalCompositeOperation = 'source-over';
+        compCtx.globalAlpha = 1;
     }
     createImageBitmap(compCanvas).then(bmp => capturedFrames.push(bmp));
 }

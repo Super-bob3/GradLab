@@ -348,9 +348,7 @@ export function initControls(onMatrixRebuild) {
         // Pan position
         if (window._setCameraPos) window._setCameraPos(t.panX || 0, t.panY || 0);
 
-        // Sync grain overlay opacity & blend
-        document.getElementById('noiseOverlay').style.opacity      = (t.grain / 100) * 0.6;
-        document.getElementById('noiseOverlay').style.mixBlendMode = t.grainBlend;
+        // Grain is rendered each frame by engine._renderGrain()
 
         // ASCII mode visibility is handled by the change event dispatched above
 
@@ -379,7 +377,7 @@ export function initControls(onMatrixRebuild) {
             const valEl = document.getElementById(valId);
             if (valEl) valEl.innerText = e.target.value;
             if (e.target.id === 'ctrl-grain') {
-                document.getElementById('noiseOverlay').style.opacity = (e.target.value / 100) * 0.6;
+                // grain rendered by engine each frame
             }
         });
     });
@@ -451,13 +449,7 @@ export function initControls(onMatrixRebuild) {
     // Initialize to default mode
     document.getElementById('ctrl-ascii-mode').dispatchEvent(new Event('change'));
 
-    // Grain overlay init
-    const grainEl = document.getElementById('ctrl-grain');
-    document.getElementById('noiseOverlay').style.opacity = (grainEl.value / 100) * 0.6;
-
-    document.getElementById('ctrl-grain-blend').addEventListener('change', (e) => {
-        document.getElementById('noiseOverlay').style.mixBlendMode = e.target.value;
-    });
+    // Grain is rendered each frame by engine._renderGrain()
 
     _initImagePicker();
     _initBgDropZone();

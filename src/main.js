@@ -11,7 +11,6 @@ import { initDownload, initRecording, initCodeExport } from './export.js';
 // ── DOM References ────────────────────────────────────────────
 const glCanvas       = document.getElementById('glCanvas');
 const textCanvas     = document.getElementById('text-canvas');
-const noiseOverlay   = document.getElementById('noiseOverlay');
 const cardContainer  = document.getElementById('cardContainer');
 const shaderCard     = document.getElementById('shaderCard');
 
@@ -24,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initMatrixCanvas(glCanvas, cardContainer);
 
     // 3. WebGL engine + render loop
-    initEngine(glCanvas, noiseOverlay, cardContainer, shaderCard, getCurrentColors);
+    initEngine(glCanvas, null, cardContainer, shaderCard, getCurrentColors);
 
     // Expose camera helpers for theme presets
     window._setCameraPos = setCameraPos;
