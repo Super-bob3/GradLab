@@ -25,6 +25,20 @@
 
 <body>
 
+    <div class="layout">
+
+    <!-- ── SHADER CANVAS CARD ── -->
+    <div class="canvas-area">
+        <div class="card-container" id="cardContainer">
+            <div class="card" id="shaderCard">
+                <canvas id="glCanvas"></canvas>
+                <canvas id="text-canvas"></canvas>
+                <div class="noise-overlay" id="noiseOverlay"></div>
+                <div class="pan-hud" id="panHud">X 0.000 &nbsp; Y 0.000</div>
+            </div>
+        </div>
+    </div>
+
     <!-- ── CONTROL PANEL ── -->
     <div class="controls">
 
@@ -279,6 +293,8 @@
         <div class="control-group" style="margin-top:8px;"><label>Loop (Pingpong)</label><input type="checkbox" id="ctrl-pingpong"></div>
     </div>
 
+    </div><!-- /.layout -->
+
     <!-- ── CODE EXPORT MODAL ── -->
     <div class="modal-overlay" id="code-modal" style="display:none;">
         <div class="modal-box" style="width:90vw;max-width:900px;max-height:85vh;">
@@ -295,14 +311,6 @@
             </div>
         </div>
     </div>
-
-    <!-- ── SHADER CANVAS CARD ── -->
-    <div class="card-container" id="cardContainer">
-        <div class="card" id="shaderCard">
-            <canvas id="glCanvas"></canvas>
-            <canvas id="text-canvas"></canvas>
-            <div class="noise-overlay" id="noiseOverlay"></div>
-            <div class="pan-hud" id="panHud">X 0.000 &nbsp; Y 0.000</div>
         </div>
     </div>
 
