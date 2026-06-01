@@ -85,7 +85,6 @@ function _encodeAndDownload(glCanvas, btn) {
         : frames;
 
     if (allFrames.length === 0) return;
-    btn.innerText = isChinese ? '⏳ 编码中…' : '⏳ Encoding…';
 
     const tmpCanvas = document.createElement('canvas');
     tmpCanvas.width  = glCanvas.width;
@@ -93,7 +92,7 @@ function _encodeAndDownload(glCanvas, btn) {
     const tmpCtx = tmpCanvas.getContext('2d');
     const stream  = tmpCanvas.captureStream(0);
     const track   = stream.getVideoTracks()[0];
-    const recorder = new MediaRecorder(stream, { mimeType });
+    const recorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 40_000_000 });
     const chunks  = [];
 
     recorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
@@ -106,12 +105,15 @@ function _encodeAndDownload(glCanvas, btn) {
 
     recorder.start();
     let i = 0;
+    const total = allFrames.length;
     const FPS_INTERVAL = 1000 / 30;
     function drawNext() {
-        if (i >= allFrames.length) { recorder.stop(); return; }
+        if (i >= total) { recorder.stop(); return; }
         tmpCtx.drawImage(allFrames[i], 0, 0);
         if (track.requestFrame) track.requestFrame();
         i++;
+        const pct = Math.round((i / total) * 100);
+        btn.innerText = isChinese ? `⏳ 编码中 ${pct}%` : `⏳ Encoding ${pct}%`;
         setTimeout(drawNext, FPS_INTERVAL);
     }
     drawNext();
@@ -157,6 +159,9 @@ export function initCodeExport(getCurrentColors) {
     const closeCode = () => { document.getElementById('code-modal').style.display = 'none'; };
     document.getElementById('btn-close-code').addEventListener('click', closeCode);
     document.getElementById('btn-close-code2').addEventListener('click', closeCode);
+    document.getElementById('code-modal').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('code-modal')) closeCode();
+    });
 }
 
 function _ctrl(id) { return document.getElementById('ctrl-' + id); }
@@ -177,6 +182,11 @@ function _gatherParams(getCurrentColors) {
         artContrast: _ctrl('art-contrast').value,
         grain:       _ctrl('grain').value,
         grainBlend:  _ctrl('grain-blend').value,
+        colorMode:   _ctrl('color-mode').value,
+        blendBias:   _ctrl('blend-bias').value,
+        blendSharp:  _ctrl('blend-sharp').value,
+        panX:        window._getCameraPos ? window._getCameraPos().x : 0,
+        panY:        window._getCameraPos ? window._getCameraPos().y : 0,
         hasBgTexture: hasBgTextureFlag,
         asciiEnable: _ctrl('ascii-enable').checked,
         asciiMode:   _ctrl('ascii-mode').value,
@@ -327,7 +337,7 @@ function _buildExportCode(params) {
     gl.uniform3fv(loc('u_colors'), cd);
     gl.uniform1f(loc('u_flow_type'), FLOW_TYPE);
     gl.uniform1f(loc('u_zoom'), ZOOM);
-    gl.uniform2f(loc('u_pan'), 0, 0);
+    gl.uniform2f(loc('u_pan'), ${params.panX}, ${params.panY});
     gl.uniform1f(loc('u_flow_speed'), FLOW_SPEED);
     gl.uniform1f(loc('u_liquid_str'), LIQUID_STR);
     gl.uniform1f(loc('u_morph'), MORPH);
@@ -341,9 +351,9 @@ function _buildExportCode(params) {
     gl.bindTexture(gl.TEXTURE_2D, tex);
     gl.uniform1i(loc('u_bg_texture'), 0);
     gl.uniform1i(loc('u_has_bg_texture'), HAS_BG);
-    gl.uniform1i(loc('u_color_mode'), 1);
-    gl.uniform1f(loc('u_blend_bias'), 0.5);
-    gl.uniform1f(loc('u_blend_sharp'), 0.0);
+    gl.uniform1i(loc('u_color_mode'), ${params.colorMode});
+    gl.uniform1f(loc('u_blend_bias'), ${params.blendBias / 100.0});
+    gl.uniform1f(loc('u_blend_sharp'), ${params.blendSharp / 100.0});
     gl.drawArrays(gl.TRIANGLES, 0, 6);
     requestAnimationFrame(render);
   }

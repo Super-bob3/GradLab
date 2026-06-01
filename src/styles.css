@@ -571,18 +571,28 @@ input[type="checkbox"]:checked::after {
 
 .code-textarea {
     width: 100%;
-    height: 400px;
+    flex: 1;
+    min-height: 0;
     background: var(--bg-color, #0a0a0a);
     color: var(--text-main, #e5e5e5);
     border: 1px solid var(--border-color, #333);
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-size: 11px;
     padding: 12px;
-    resize: vertical;
+    resize: none;
     outline: none;
+    box-shadow: none;
     tab-size: 2;
     white-space: pre;
     overflow: auto;
+    box-sizing: border-box;
+    display: block;
+}
+
+.code-textarea:focus {
+    outline: none;
+    box-shadow: none;
+    border-color: var(--text-dim, #888);
 }
 
 .modal-overlay {
@@ -607,6 +617,10 @@ input[type="checkbox"]:checked::after {
     flex-direction: column;
     gap: 20px;
     box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+    max-width: 90vw;
+    max-height: 90vh;
+    overflow: hidden;
+    width: 680px;
 }
 
 .modal-header {
