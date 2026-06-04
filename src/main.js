@@ -99,41 +99,63 @@ function initBottomSheet() {
 
     const panel = wrapper.querySelector('.panel');
 
-    // When closed: the whole wrapper captures touch to drag open.
-    // When open: only the handle captures touch to drag closed;
-    //            panel content is free to scroll.
+    let startScrollTop = 0;
+
+    // When closed: whole wrapper drags to open.
+    // When open: handle drags to close; panel content at top + downward swipe also closes.
     wrapper.addEventListener('touchstart', (e) => {
         if (!isMobile()) return;
-        // If open, only the handle should start a drag
-        if (isOpen && !handle.contains(e.target)) return;
-        isDragging = true;
         dragStartY = e.touches[0].clientY;
-        dragStartTranslate = isOpen ? 0 : getCollapsedTranslate();
-        wrapper.style.transition = 'none';
+        startScrollTop = panel.scrollTop;
+
+        if (!isOpen) {
+            // Closed — always enter drag mode
+            isDragging = true;
+            dragStartTranslate = getCollapsedTranslate();
+            wrapper.style.transition = 'none';
+        } else if (handle.contains(e.target)) {
+            // Open, touching handle — enter drag mode to close
+            isDragging = true;
+            dragStartTranslate = 0;
+            wrapper.style.transition = 'none';
+        }
+        // Otherwise (open, touching panel content): wait for touchmove to decide
     }, { passive: true });
 
     wrapper.addEventListener('touchmove', (e) => {
-        if (!isDragging || !isMobile()) return;
+        if (!isMobile()) return;
         const dy = e.touches[0].clientY - dragStartY;
 
-        // When closed: block scroll, drag the sheet up
         if (!isOpen) {
+            // Closed: block scroll, drag sheet up
+            if (!isDragging) return;
             e.preventDefault();
             currentTranslate = Math.max(0, Math.min(getCollapsedTranslate(), dragStartTranslate + dy));
             wrapper.style.transform = `translateY(${currentTranslate}px)`;
             return;
         }
 
-        // When open and dragging handle downward: move sheet down
-        if (dy > 0) {
-            e.preventDefault();
-            currentTranslate = Math.min(getCollapsedTranslate(), dy);
-            wrapper.style.transform = `translateY(${currentTranslate}px)`;
+        if (isDragging) {
+            // Handle-initiated drag: move sheet down
+            if (dy > 0) {
+                e.preventDefault();
+                currentTranslate = Math.min(getCollapsedTranslate(), dy);
+                wrapper.style.transform = `translateY(${currentTranslate}px)`;
+            }
+            return;
+        }
+
+        // Open, panel content: if scrolled to top and swiping down, start closing
+        if (startScrollTop === 0 && dy > 8) {
+            isDragging = true;
+            dragStartTranslate = 0;
+            wrapper.style.transition = 'none';
         }
     }, { passive: false });
 
     wrapper.addEventListener('touchend', () => {
-        if (!isDragging || !isMobile()) return;
+        if (!isMobile()) return;
+        if (!isDragging) return;
         isDragging = false;
         wrapper.style.transition = '';
 
