@@ -170,6 +170,7 @@ body {
     padding: 6px;
     box-sizing: border-box;
     position: relative;
+    background: var(--gray-2);
 }
 
 .panel-wrapper::after {
@@ -198,7 +199,7 @@ body {
 
 
 .panel::-webkit-scrollbar { display: none; }
-.panel { scrollbar-width: none; }
+.panel { scrollbar-width: none; overscroll-behavior: contain; }
 
 /* ── Right: content area ── */
 .content-area {
