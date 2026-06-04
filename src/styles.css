@@ -170,19 +170,6 @@ body {
     padding: 6px;
     box-sizing: border-box;
     position: relative;
-    border-radius: var(--radius-2xl);
-    overflow: hidden;
-    background: var(--gray-2);
-}
-
-.panel-wrapper::after {
-    content: '';
-    position: absolute;
-    inset: 6px;
-    border-radius: var(--radius-2xl);
-    box-shadow: inset 0 0 0 1px var(--slider-stroke);
-    pointer-events: none;
-    z-index: 100;
 }
 
 .panel {
@@ -190,6 +177,7 @@ body {
     height: 100%;
     background: var(--gray-2);
     border-radius: var(--radius-2xl);
+    border: 1px solid var(--slider-stroke);
     padding: var(--space-4);
     display: flex;
     flex-direction: column;
