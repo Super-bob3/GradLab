@@ -432,6 +432,7 @@ export function initControls(onMatrixRebuild) {
         const group = document.getElementById('matrix-advanced-group');
         const btn   = document.getElementById('btn-matrix-advanced');
         const isOpen = group.classList.contains('open');
+        isOpen ? sound.close() : sound.open();
         group.classList.toggle('open', !isOpen);
         btn.classList.toggle('open', !isOpen);
     };
