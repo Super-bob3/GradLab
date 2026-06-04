@@ -4,6 +4,8 @@
  *          image color picker, and slider sync.
  */
 
+import { sound } from './sound.js';
+
 // ── Color State ───────────────────────────────────────────────
 export const MAX_COLORS = 8;
 export const MIN_COLORS = 2;
@@ -230,8 +232,7 @@ const reverseDict = Object.fromEntries(Object.entries(dict).map(([k, v]) => [v, 
 function updateThemeBtn() {
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
     const themeBtn = document.getElementById('btn-theme');
-    if (isChinese) themeBtn.innerText = isDark ? '浅色模式' : '深色模式';
-    else           themeBtn.innerText = isDark ? 'Light Mode' : 'Dark Mode';
+    themeBtn.innerHTML = isDark ? '<i class="ri-sun-line"></i>' : '<i class="ri-moon-line"></i>';
 }
 
 function toggleLanguage() {
@@ -245,7 +246,7 @@ function toggleLanguage() {
             for (let i = 0; i < node.childNodes.length; i++) walk(node.childNodes[i]);
         }
     }
-    document.querySelectorAll('.controls, .modal-box').forEach(el => walk(el));
+    document.querySelectorAll('.panel, .modal-box').forEach(el => walk(el));
     updateThemeBtn();
 }
 
@@ -266,6 +267,7 @@ export function initControls(onMatrixRebuild) {
         }
     });
     themeBtn.addEventListener('click', () => {
+        sound.tap();
         const targetTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', targetTheme);
         localStorage.setItem('pipeline-shader-theme', targetTheme);
@@ -273,10 +275,11 @@ export function initControls(onMatrixRebuild) {
     });
 
     // Language toggle
-    document.getElementById('btn-lang').addEventListener('click', toggleLanguage);
+    document.getElementById('btn-lang').addEventListener('click', () => { sound.tap(); toggleLanguage(); });
 
     // Preset buttons — apply full theme (colors + all parameters)
     window.applyColorPreset = function(name, btnEl) {
+        sound.preset();
         // Save current theme's live state before switching
         if (currentThemeKey && currentThemeKey !== name) {
             _saveThemeState(currentThemeKey);
@@ -364,21 +367,46 @@ export function initControls(onMatrixRebuild) {
     // Add color
     document.getElementById('btn-add-color').addEventListener('click', () => {
         if (currentColors.length < MAX_COLORS) {
+            sound.tap();
             currentColors.push('#ffffff');
             saveToCurrentTheme();
             renderColorList();
         }
     });
 
+    // Select auto-width: hug selected option text, max 240px
+    const _measureSpan = document.createElement('span');
+    _measureSpan.style.cssText = 'position:absolute;visibility:hidden;pointer-events:none;font-size:14px;font-family:"Geist",sans-serif;padding:0 10px;white-space:nowrap;';
+    document.body.appendChild(_measureSpan);
+
+    function autoSizeSelect(select) {
+        const text = select.options[select.selectedIndex]?.text ?? '';
+        _measureSpan.textContent = text;
+        const w = Math.min(_measureSpan.offsetWidth + 2, 240);
+        select.style.width = w + 'px';
+    }
+
+    document.querySelectorAll('select').forEach(select => {
+        autoSizeSelect(select);
+        select.addEventListener('change', (e) => { if (e.isTrusted) sound.select(); autoSizeSelect(select); });
+    });
+
     // Slider sync
+    function setSliderProgress(input) {
+        const min = parseFloat(input.min) || 0;
+        const max = parseFloat(input.max) || 100;
+        const pct = (parseFloat(input.value) - min) / (max - min) * 100;
+        input.closest('.control-group')?.style.setProperty('--progress', pct);
+    }
+
     document.querySelectorAll('input[type="range"]').forEach(input => {
+        setSliderProgress(input);
         input.addEventListener('input', (e) => {
+            if (e.isTrusted) sound.tick();
             const valId = e.target.id.replace('ctrl-', 'val-');
             const valEl = document.getElementById(valId);
             if (valEl) valEl.innerText = e.target.value;
-            if (e.target.id === 'ctrl-grain') {
-                // grain rendered by engine each frame
-            }
+            setSliderProgress(e.target);
         });
     });
 
@@ -389,6 +417,11 @@ export function initControls(onMatrixRebuild) {
         if (el && val) el.addEventListener('input', () => { val.textContent = el.value; });
     });
 
+    // Toggle sounds
+    document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        cb.addEventListener('change', (e) => sound.toggle(e.target.checked));
+    });
+
     // Context-aware UI
     const ctrlType = document.getElementById('ctrl-type');
     ctrlType.addEventListener('change', updateContextUI);
@@ -397,12 +430,10 @@ export function initControls(onMatrixRebuild) {
     // Matrix Advanced toggle
     window.toggleMatrixAdvanced = function() {
         const group = document.getElementById('matrix-advanced-group');
-        const arrow = document.getElementById('matrix-adv-arrow');
-        const isOpen = group.style.display === 'flex';
-        group.style.display   = isOpen ? 'none' : 'flex';
-        group.style.flexDirection = 'column';
-        group.style.gap       = '0';
-        arrow.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(90deg)';
+        const btn   = document.getElementById('btn-matrix-advanced');
+        const isOpen = group.classList.contains('open');
+        group.classList.toggle('open', !isOpen);
+        btn.classList.toggle('open', !isOpen);
     };
 
     // ASCII Mode states
@@ -414,11 +445,38 @@ export function initControls(onMatrixRebuild) {
     let currentAsciiMode = document.getElementById('ctrl-ascii-mode').value;
     const asciiControls  = Object.keys(asciiModeStates['0']);
 
+    // Sync Base Color pill (swatch + hex text)
+    const asciiColorInput  = document.getElementById('ctrl-ascii-color');
+    const asciiColorSwatch = document.getElementById('ascii-color-swatch');
+    const asciiColorHex    = document.getElementById('val-ascii-color');
+
+    function syncAsciiColorPill(hex) {
+        if (asciiColorSwatch) asciiColorSwatch.style.background = hex;
+        if (asciiColorHex)    asciiColorHex.value = hex.toUpperCase();
+        if (asciiColorInput)  asciiColorInput.value = hex;
+    }
+
+    if (asciiColorSwatch) asciiColorSwatch.addEventListener('click', () => asciiColorInput.click());
+
+    if (asciiColorHex) {
+        asciiColorHex.addEventListener('input', (e) => {
+            let val = e.target.value.trim();
+            if (!val.startsWith('#')) val = '#' + val;
+            if (/^#[0-9A-F]{6}$/i.test(val)) syncAsciiColorPill(val);
+        });
+        asciiColorHex.addEventListener('blur', (e) => {
+            let val = e.target.value.trim();
+            if (!val.startsWith('#')) val = '#' + val;
+            if (!/^#[0-9A-F]{6}$/i.test(val)) syncAsciiColorPill(asciiColorInput.value);
+        });
+    }
+
     asciiControls.forEach(id => {
         const el = document.getElementById(id);
         if (!el) return;
         el.addEventListener('input', (e) => {
             asciiModeStates[currentAsciiMode][id] = e.target.value;
+            if (id === 'ctrl-ascii-color') syncAsciiColorPill(e.target.value);
             if (id === 'ctrl-ascii-charset') {
                 document.getElementById('group-custom-text').style.display = e.target.value === 'custom' ? 'flex' : 'none';
             }
@@ -526,19 +584,29 @@ function renderColorList() {
             renderColorList();
         });
 
-        const leftWrap   = document.createElement('div'); leftWrap.className = 'color-item-left';
-        const handle     = document.createElement('span'); handle.className = 'drag-handle'; handle.innerText = '⋮⋮';
-        const label      = document.createElement('span'); label.className = 'color-item-label'; label.innerText = `Color ${index + 1}`;
+        // Left: drag handle + label
+        const leftWrap = document.createElement('div'); leftWrap.className = 'color-item-left';
+        const handle   = document.createElement('span'); handle.className = 'drag-handle';
+        handle.innerHTML = '<i class="ri-draggable"></i>';
+        const label    = document.createElement('span'); label.className = 'color-item-label'; label.innerText = `Color ${index + 1}`;
         leftWrap.appendChild(handle); leftWrap.appendChild(label);
 
-        const wrap      = document.createElement('div'); wrap.className = 'color-wrap';
-        const inputHex  = document.createElement('input'); inputHex.type = 'text'; inputHex.className = 'hex-input'; inputHex.value = hex.toUpperCase(); inputHex.maxLength = 7;
-        const inputColor = document.createElement('input'); inputColor.type = 'color'; inputColor.value = hex;
-        const btnDel    = document.createElement('button'); btnDel.className = 'btn-del'; btnDel.innerText = '×';
-        btnDel.disabled = currentColors.length <= MIN_COLORS;
+        // Right: color pill
+        const pill       = document.createElement('div'); pill.className = 'color-pill';
+        const swatch     = document.createElement('div'); swatch.className = 'color-swatch'; swatch.style.background = hex;
+        const inputColor = document.createElement('input'); inputColor.type = 'color'; inputColor.value = hex; inputColor.className = 'color-picker-input';
+        const inputHex   = document.createElement('input'); inputHex.type = 'text'; inputHex.className = 'hex-input'; inputHex.value = hex.toUpperCase(); inputHex.maxLength = 7;
+        const btnDel     = document.createElement('button'); btnDel.className = 'btn-del';
+        btnDel.innerHTML = '<i class="ri-close-line"></i>';
+        btnDel.disabled  = currentColors.length <= MIN_COLORS;
+
+        // Click swatch → open native color picker
+        swatch.addEventListener('click', () => inputColor.click());
 
         inputColor.addEventListener('input', (e) => {
-            inputHex.value = e.target.value.toUpperCase();
+            const val = e.target.value.toUpperCase();
+            inputHex.value = val;
+            swatch.style.background = val;
             currentColors[index] = e.target.value;
             saveToCurrentTheme();
         });
@@ -546,7 +614,10 @@ function renderColorList() {
             let val = e.target.value.trim();
             if (!val.startsWith('#')) val = '#' + val;
             if (/^#[0-9A-F]{6}$/i.test(val)) {
-                inputColor.value = val; currentColors[index] = val; saveToCurrentTheme();
+                inputColor.value = val;
+                swatch.style.background = val;
+                currentColors[index] = val;
+                saveToCurrentTheme();
             }
         });
         inputHex.addEventListener('blur', (e) => {
@@ -556,14 +627,17 @@ function renderColorList() {
         });
         btnDel.addEventListener('click', () => {
             if (currentColors.length > MIN_COLORS) {
+                sound.tap();
                 currentColors.splice(index, 1);
                 saveToCurrentTheme();
                 renderColorList();
             }
         });
 
-        wrap.appendChild(inputHex); wrap.appendChild(inputColor); wrap.appendChild(btnDel);
-        item.appendChild(leftWrap); item.appendChild(wrap);
+        const rightGroup = document.createElement('div'); rightGroup.className = 'color-right';
+        pill.appendChild(swatch); pill.appendChild(inputColor); pill.appendChild(inputHex);
+        rightGroup.appendChild(pill); rightGroup.appendChild(btnDel);
+        item.appendChild(leftWrap); item.appendChild(rightGroup);
         container.appendChild(item);
     });
 
@@ -596,6 +670,7 @@ function _initImagePicker() {
                 pickerCanvas.height = img.height;
                 pickerCtx.drawImage(img, 0, 0);
                 initPickerMarkers(true);
+                sound.open();
                 modal.style.display = 'flex';
             };
             img.src = event.target.result;
@@ -708,7 +783,7 @@ function _initImagePicker() {
             initPickerMarkers(false);
         }
     });
-    const closeModal = () => { modal.style.display = 'none'; };
+    const closeModal = () => { sound.close(); modal.style.display = 'none'; };
     document.getElementById('btn-close-modal').addEventListener('click', closeModal);
     document.getElementById('btn-picker-done').addEventListener('click', closeModal);
 }

@@ -8,6 +8,7 @@ import {
     _buildFullNoise, pauseRendering, resumeRendering,
 } from './engine.js';
 import { VERTEX_SHADER_SRC, FRAGMENT_SHADER_SRC } from './shaders.js';
+import { sound } from './sound.js';
 
 export let isChinese = false;
 export function setIsChinese(val) { isChinese = val; }
@@ -15,6 +16,7 @@ export function setIsChinese(val) { isChinese = val; }
 // ── Screenshot ────────────────────────────────────────────────
 export function initDownload(glCanvas) {
     document.getElementById('btn-download').addEventListener('click', () => {
+        sound.confirm();
         const btn = document.getElementById('btn-download');
         btn.innerText = 'PROCESSING...';
 
@@ -55,11 +57,13 @@ export function initRecording(glCanvas) {
 
     btn.addEventListener('click', () => {
         if (_getIsRecording()) {
+            sound.recordStop();
             stopRecording();
             btn.classList.remove('btn-record-active');
             btn.innerText = isChinese ? '⏺ 录制视频' : '⏺ Record MP4';
             _encodeAndDownload(glCanvas, btn);
         } else {
+            sound.recordStart();
             startRecording();
             btn.classList.add('btn-record-active');
             btn.innerText = `⏹ Stop (0s)`;
@@ -105,6 +109,7 @@ function _encodeAndDownload(glCanvas, btn) {
     recorder.onstop = () => {
         const blob = new Blob(chunks, { type: mimeType });
         _downloadBlob(blob, ext);
+        sound.complete();
         btn.innerText = isChinese ? '⏺ 录制视频' : '⏺ Record MP4';
         allFrames.forEach(bmp => { if (bmp.close) bmp.close(); });
     };
@@ -144,6 +149,7 @@ function _downloadBlob(blob, ext) {
 // ── Code Export ───────────────────────────────────────────────
 export function initCodeExport(getCurrentColors) {
     document.getElementById('btn-export-code').addEventListener('click', () => {
+        sound.open();
         const params = _gatherParams(getCurrentColors);
         const code   = _buildExportCode(params);
         document.getElementById('code-output').value = code;
@@ -151,6 +157,7 @@ export function initCodeExport(getCurrentColors) {
     });
 
     document.getElementById('btn-copy-code').addEventListener('click', () => {
+        sound.confirm();
         const btn = document.getElementById('btn-copy-code');
         navigator.clipboard.writeText(document.getElementById('code-output').value).then(() => {
             btn.innerText = isChinese ? '✅ 已复制！' : '✅ Copied!';
@@ -159,6 +166,7 @@ export function initCodeExport(getCurrentColors) {
     });
 
     document.getElementById('btn-download-code').addEventListener('click', () => {
+        sound.confirm();
         const btn  = document.getElementById('btn-download-code');
         const code = document.getElementById('code-output').value;
         const blob = new Blob([code], { type: 'text/html;charset=utf-8' });
@@ -167,7 +175,7 @@ export function initCodeExport(getCurrentColors) {
         setTimeout(() => { btn.innerText = isChinese ? '下载代码' : 'Download Code'; }, 2000);
     });
 
-    const closeCode = () => { document.getElementById('code-modal').style.display = 'none'; };
+    const closeCode = () => { sound.close(); document.getElementById('code-modal').style.display = 'none'; };
     document.getElementById('btn-close-code').addEventListener('click', closeCode);
     document.getElementById('btn-close-code2').addEventListener('click', closeCode);
     document.getElementById('code-modal').addEventListener('click', (e) => {
