@@ -61,13 +61,6 @@ export function createSlider({ label, id, min, max, step = 1, value, labelId, gr
 //           hidden（初始 display:none，由 JS 控制显隐）
 // ─────────────────────────────────────────────────────────────────
 export const SELECT_CONFIGS = {
-    'color-mode': {
-        label: 'Color Blend Mode', id: 'color-mode',
-        options: [
-            { value: '0', label: 'RGB (Direct)' },
-            { value: '1', label: 'OKLch (Natural)', selected: true },
-        ],
-    },
     'type': {
         label: 'Algorithm', id: 'type',
         options: [
@@ -194,6 +187,7 @@ export function createSelect({ label, id, options, groupId, hidden }) {
 // CSS 依赖：.control-group:has(input[type="checkbox"])
 // ─────────────────────────────────────────────────────────────────
 export const TOGGLE_CONFIGS = {
+    'color-mode':   { label: 'OKLch Color',       id: 'color-mode'   },
     'art-enable':   { label: 'Enable Effect',    id: 'art-enable'   },
     'ascii-enable': { label: 'Enable Matrix',    id: 'ascii-enable' },
     'pingpong':     { label: 'Loop (Pingpong)',   id: 'pingpong'     },

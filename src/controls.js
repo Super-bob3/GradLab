@@ -19,7 +19,7 @@ let activeMarker = null;
 const themePresets = {
     theme1: {
         colors:       ['#FB7C47', '#E1B8FF', '#0883F7'],
-        colorMode:    '1',
+        colorMode:    true,
         blendBias:    '65',
         blendSharp:   '0',
         type:         '11',  // Nested SDF Shape (Core Glow)
@@ -54,7 +54,7 @@ const themePresets = {
     },
     theme2: {
         colors:       ['#FFFFFF', '#DCB8FF', '#295EFF', '#FF666E'],
-        colorMode:    '1',
+        colorMode:    true,
         blendBias:    '87',
         blendSharp:   '0',
         type:         '7',   // Radial Topography (Rings)
@@ -89,7 +89,7 @@ const themePresets = {
     },
     theme3: {
         colors:       ['#FFC8DD', '#FF9E00', '#0033FF'],
-        colorMode:    '1',
+        colorMode:    true,
         blendBias:    '1',
         blendSharp:   '0',
         type:         '0',   // Sin/Cos (Classic)
@@ -144,7 +144,7 @@ function _saveThemeState(key) {
     function r(id) { const el = document.getElementById('ctrl-' + id); return el ? el.value : undefined; }
     function rb(id) { const el = document.getElementById('ctrl-' + id); return el ? el.checked : false; }
     s.colors      = [...currentColors];
-    s.colorMode   = r('color-mode');
+    s.colorMode   = rb('color-mode');
     s.blendBias   = r('blend-bias');
     s.blendSharp  = r('blend-sharp');
     s.type        = r('type');
@@ -303,7 +303,7 @@ export function initControls(onMatrixRebuild) {
             if (span) span.innerText = val;
         }
 
-        setCtrl('color-mode',    t.colorMode);
+        setCtrl('color-mode',    t.colorMode ?? true);
         setCtrl('blend-bias',    t.blendBias);
         setCtrl('blend-sharp',   t.blendSharp);
         setCtrl('type',          t.type);
