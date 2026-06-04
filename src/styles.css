@@ -2,30 +2,142 @@
    Pipeline Shader — Global Styles
    ======================================== */
 
+/* ── Design Tokens (Tailwind-compatible) ── */
+:root {
+    /* Spacing — 4px base unit */
+    --space-px:   1px;
+    --space-0:    0px;
+    --space-0_5:  0.125rem;  /* 2px  */
+    --space-1:    0.25rem;   /* 4px  */
+    --space-1_5:  0.375rem;  /* 6px  */
+    --space-2:    0.5rem;    /* 8px  */
+    --space-2_5:  0.625rem;  /* 10px */
+    --space-3:    0.75rem;   /* 12px */
+    --space-3_5:  0.875rem;  /* 14px */
+    --space-4:    1rem;      /* 16px */
+    --space-5:    1.25rem;   /* 20px */
+    --space-6:    1.5rem;    /* 24px */
+    --space-7:    1.75rem;   /* 28px */
+    --space-8:    2rem;      /* 32px */
+    --space-10:   2.5rem;    /* 40px */
+    --space-12:   3rem;      /* 48px */
+
+    /* Control Heights */
+    --h-sm:  1.75rem;   /* 28px — small buttons, badges */
+    --h-md:  2rem;      /* 32px — default: select, input, ghost btn */
+    --h-lg:  2.25rem;   /* 36px — slider rows, control groups */
+    --h-xl:  2.5rem;    /* 40px — primary action buttons */
+
+    /* Semantic colors */
+    --toggle-on: #30A46C;
+
+    /* Border Radius */
+    --radius-none: 0px;
+    --radius-sm:   0.125rem;  /* 2px  */
+    --radius:      0.25rem;   /* 4px  */
+    --radius-md:   0.375rem;  /* 6px  */
+    --radius-lg:   0.5rem;    /* 8px  */
+    --radius-xl:   0.75rem;   /* 12px */
+    --radius-2xl:  1rem;      /* 16px */
+    --radius-full: 9999px;
+}
+
 :root[data-theme="dark"] {
-    --bg-color: #0a0a0a;
-    --panel-bg: #111111;
-    --text-main: #ffffff;
-    --text-dim: #888888;
-    --border-color: #333333;
-    --accent-bg: #ffffff;
-    --accent-text: #000000;
-    --card-inner-stroke: inset 0 0 0 1px rgba(255, 255, 255, 0.15);
-    --danger: #ff4444;
-    --modal-bg: rgba(0, 0, 0, 0.85);
+    /* Radix Gray Dark — solid */
+    --gray-1:  #111111;
+    --gray-2:  #191919;
+    --gray-3:  #222222;
+    --gray-4:  #2a2a2a;
+    --gray-5:  #313131;
+    --gray-6:  #3a3a3a;
+    --gray-7:  #484848;
+    --gray-8:  #606060;
+    --gray-9:  #6e6e6e;
+    --gray-11: #b4b4b4;
+    --gray-12: #eeeeee;
+    /* Radix Gray Dark — alpha */
+    --gray-a1:  #00000000;
+    --gray-a2:  #ffffff09;
+    --gray-a3:  #ffffff12;
+    --gray-a4:  #ffffff1b;
+    --gray-a5:  #ffffff22;
+    --gray-a6:  #ffffff2c;
+    --gray-a7:  #ffffff3b;
+    --gray-a8:  #ffffff55;
+    --gray-a9:  #ffffff64;
+    --gray-a10: #ffffff72;
+    --gray-a11: #ffffffaf;
+    --gray-a12: #ffffffed;
+
+    --bg-color:          var(--gray-1);
+    --panel-bg:          var(--gray-2);
+    --text-main:         var(--gray-12);
+    --text-dim:          var(--gray-11);
+    --border-color:      var(--gray-a6);
+    --border-strong:     var(--gray-a8);
+    --slider-bg:         var(--gray-3);
+    --slider-fill:       var(--gray-4);
+    --slider-stroke:     var(--gray-a4);
+    --slider-thumb:      var(--gray-a8);
+    --accent-bg:         var(--gray-12);
+    --accent-text:       var(--gray-1);
+    --card-inner-stroke: inset 0 0 0 1px var(--gray-a7);
+    --danger:            #ff4444;
+    --modal-bg:          rgba(0, 0, 0, 0.85);
+    /* ── Control Component Tokens ── */
+    --ctrl-bg:           var(--gray-3);   /* slider/select/toggle/color-pill 行背景 */
+    --ctrl-chip:         var(--gray-5);   /* slider fill pill & select 右侧 chip */
+    --ctrl-thumb:        var(--gray-7);   /* slider thumb bar */
+    --ctrl-thumb-hover:  var(--gray-11);  /* slider thumb bar hover (+4 steps) */
 }
 
 :root[data-theme="light"] {
-    --bg-color: #ffffff;
-    --panel-bg: #ffffff;
-    --text-main: #000000;
-    --text-dim: #666666;
-    --border-color: #e5e5e5;
-    --accent-bg: #000000;
-    --accent-text: #ffffff;
-    --card-inner-stroke: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
-    --danger: #e60000;
-    --modal-bg: rgba(255, 255, 255, 0.85);
+    /* Radix Gray Light — solid */
+    --gray-1:  #fcfcfc;
+    --gray-2:  #f9f9f9;
+    --gray-3:  #f0f0f0;
+    --gray-4:  #e8e8e8;
+    --gray-5:  #e0e0e0;
+    --gray-6:  #d9d9d9;
+    --gray-7:  #cecece;
+    --gray-8:  #bbbbbb;
+    --gray-9:  #8d8d8d;
+    --gray-11: #646464;
+    --gray-12: #202020;
+    /* Radix Gray Light — alpha */
+    --gray-a1:  #00000003;
+    --gray-a2:  #00000006;
+    --gray-a3:  #0000000f;
+    --gray-a4:  #00000017;
+    --gray-a5:  #0000001f;
+    --gray-a6:  #00000026;
+    --gray-a7:  #00000031;
+    --gray-a8:  #00000044;
+    --gray-a9:  #00000072;
+    --gray-a10: #0000007c;
+    --gray-a11: #0000009b;
+    --gray-a12: #000000df;
+
+    --bg-color:          #ffffff;
+    --panel-bg:          var(--gray-1);
+    --text-main:         var(--gray-12);
+    --text-dim:          var(--gray-11);
+    --border-color:      var(--gray-a6);
+    --border-strong:     var(--gray-a8);
+    --slider-bg:         var(--gray-3);
+    --slider-fill:       #ffffff;
+    --slider-stroke:     var(--gray-a4);
+    --slider-thumb:      var(--gray-a8);
+    --accent-bg:         var(--gray-12);
+    --accent-text:       #ffffff;
+    --card-inner-stroke: inset 0 0 0 1px var(--gray-a6);
+    --danger:            #e60000;
+    --modal-bg:          rgba(255, 255, 255, 0.85);
+    /* ── Control Component Tokens ── */
+    --ctrl-bg:           var(--gray-2);   /* slider/select/toggle/color-pill 行背景 */
+    --ctrl-chip:         #ffffff;         /* slider fill pill & select 右侧 chip */
+    --ctrl-thumb:        var(--gray-3);   /* slider thumb bar */
+    --ctrl-thumb-hover:  var(--gray-7);   /* slider thumb bar hover (+4 steps) */
 }
 
 body {
@@ -34,9 +146,11 @@ body {
     background-color: var(--bg-color);
     height: 100vh;
     width: 100vw;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-family: "Geist", "Helvetica Neue", Helvetica, Arial, sans-serif;
     color: var(--text-main);
     transition: background-color 0.3s ease;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .layout {
@@ -45,19 +159,96 @@ body {
     width: 100vw;
     height: 100vh;
     overflow: hidden;
+    background: var(--bg-color);
 }
 
-/* Left canvas area — fills remaining space, centers the card */
-.canvas-area {
+/* ── Left: floating panel wrapper ── */
+.panel-wrapper {
+    width: 400px;
+    flex-shrink: 0;
+    height: 100vh;
+    padding: 6px;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.panel-wrapper::after {
+    content: '';
+    position: absolute;
+    inset: 6px;
+    border-radius: var(--radius-2xl);
+    box-shadow: inset 0 0 0 1px var(--slider-stroke);
+    pointer-events: none;
+    z-index: 100;
+}
+
+.panel {
+    width: 100%;
+    height: 100%;
+    background: var(--gray-2);
+    border-radius: var(--radius-2xl);
+    padding: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1_5);
+    overflow-y: auto;
+    box-sizing: border-box;
+    transition: background 0.3s;
+}
+
+
+.panel::-webkit-scrollbar { display: none; }
+.panel { scrollbar-width: none; }
+
+/* ── Right: content area ── */
+.content-area {
     flex: 1;
     min-width: 0;
     height: 100vh;
     display: flex;
+    flex-direction: column;
+}
+
+/* Title bar */
+.title-bar {
+    height: 48px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--space-3);
+    box-sizing: border-box;
+}
+
+.title-left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.title-name {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-main);
+    letter-spacing: -0.3px;
+}
+
+.title-actions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+/* Canvas area */
+.canvas-area {
+    flex: 1;
+    min-height: 0;
+    display: flex;
     justify-content: center;
     align-items: center;
+    padding: 0 var(--space-3);
     perspective: 1200px;
     overflow: hidden;
-    background-color: var(--bg-color);
     transition: background-color 0.3s ease;
 }
 
@@ -79,7 +270,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    border-radius: 0px;
+    border-radius: var(--radius-none);
     overflow: hidden;
     background: #000;
     transition: transform 0.1s ease-out, border-radius 0.2s ease, box-shadow 0.3s ease;
@@ -113,15 +304,15 @@ canvas {
 
 .pan-hud {
     position: absolute;
-    bottom: 14px;
-    left: 16px;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    bottom: var(--space-3_5);
+    left: var(--space-4);
+    font-family: "Geist Mono", ui-monospace, monospace;
     font-size: 10px;
     letter-spacing: 0.8px;
     color: rgba(255, 255, 255, 0.75);
     background: rgba(0, 0, 0, 0.35);
-    padding: 3px 8px;
-    border-radius: 3px;
+    padding: var(--space-0_5) var(--space-2);
+    border-radius: var(--radius-md);
     pointer-events: none;
     z-index: 20;
     opacity: 0;
@@ -151,85 +342,54 @@ canvas {
     opacity: 0;
 }
 
-/* ── Controls Panel ── */
-
-.controls {
-    width: 400px;
-    flex-shrink: 0;
-    background: var(--panel-bg);
-    padding: 20px;
-    border-left: 1px solid var(--border-color);
-    z-index: 100;
-    height: 100vh;
-    overflow-y: auto;
-    border-radius: 0;
-    transition: background 0.3s, border-color 0.3s;
-    box-sizing: border-box;
-}
-
-.controls::-webkit-scrollbar {
-    width: 4px;
-}
-
-.controls::-webkit-scrollbar-thumb {
-    background: var(--border-color);
-}
-
-.header-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 10px;
-}
-
-.header-title {
-    font-size: 14px;
-    font-weight: bold;
-    letter-spacing: -0.5px;
-}
 
 .theme-toggle {
     background: transparent;
-    border: 1px solid var(--border-color);
-    color: var(--text-main);
-    padding: 0 10px;
-    height: 28px;
-    line-height: 28px;
-    font-size: 10px;
+    border: none;
+    box-shadow: none;
+    color: var(--gray-11);
+    width: var(--h-sm);
+    height: var(--h-sm);
+    padding: 0;
+    font-size: 16px;
     cursor: pointer;
-    text-transform: uppercase;
-    letter-spacing: 1px;
     transition: all 0.2s;
     display: inline-flex;
     align-items: center;
-    font-family: inherit;
+    justify-content: center;
+    border-radius: var(--radius-md);
 }
 
 .theme-toggle:hover {
-    background: var(--text-main);
-    color: var(--panel-bg);
+    background: var(--gray-3);
+    color: var(--text-main);
 }
 
 .section-title {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    font-size: 14px;
+    font-weight: 500;
     color: var(--text-main);
-    margin-top: 20px;
-    margin-bottom: 10px;
-    font-weight: bold;
+    padding: var(--space-2) 0;
+    margin-top: var(--space-2);
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
+.section-title:first-child {
+    margin-top: 0;
+}
+
 .control-group {
-    margin-bottom: 8px;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    background: var(--gray-3);
+    border-radius: var(--radius-lg);
+    height: var(--h-lg);
+    padding: 0 var(--space-2_5);
+    margin-bottom: var(--space-1_5);
+    box-sizing: border-box;
 }
 
 .control-group label {
@@ -238,10 +398,138 @@ canvas {
     flex: 1;
 }
 
+/* ──────────────────────────────────────────────────────────────
+   SLIDER CARD COMPONENT  (settled — do not restructure casually)
+   ──────────────────────────────────────────────────────────────
+   HTML template:
+     <div class="control-group">
+       <label>Label</label>
+       <div class="slider-wrap">
+         <input type="range" id="ctrl-xxx" min="0" max="100" value="50">
+         <span class="val-text" id="val-xxx">50</span>
+       </div>
+     </div>
+
+   JS wiring (already in initControls → setSliderProgress):
+     input.closest('.control-group')?.style.setProperty('--progress', pct)
+     — pct = (value - min) / (max - min) * 100
+
+   Layer stack (bottom → top):
+     1. .control-group bg          gray-2/gray-3   card background
+     2. ::before fill pill          gray-white/gray-5   progress fill, inset border
+     3. ::after thumb               gray-3/gray-7   4×14px bar at fill right edge
+     4. <label> + .val-text        z-index:2        text overlay, pointer-events:none
+     5. <input type="range">       z-index:3        invisible, covers full card for drag
+
+   KEY CONSTRAINT — fill pill border:
+     Use  inset 0 0 0 0.5px  (not outer 0 0 0 0.5px).
+     Outer border creates a hard visible line when the fill edge
+     falls inside the label text area (low-progress values).
+     Inset border stays inside the pill — no edge artifact.
+
+   KEY CONSTRAINT — thumb (::after) position:
+     left: calc(5px + max(progress * (100% - 10px) / 100, 32px) - 8px)
+     min-width on fill pill is 32px → thumb min-left is ~29px.
+     For low values (<~30%) the thumb falls inside the label text area.
+     This is acceptable because it has z-index < label (z-index:2),
+     so text renders on top. Do NOT re-add an outer border or the
+     thumb overlap becomes a harsh visible line again.
+   ────────────────────────────────────────────────────────────── */
+
+.control-group--slider {
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    height: 42px;
+    flex-shrink: 0;
+    padding: 5px 18px 5px 16px;
+    gap: 0;
+    background: var(--ctrl-bg);
+    box-shadow: inset 0 0 0 0.5px var(--slider-stroke);
+    border-radius: var(--radius-xl);
+}
+
+/* inner fill pill */
+.control-group--slider::before {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 5px;
+    bottom: 5px;
+    width: calc(var(--progress, 0) * (100% - 10px) / 100);
+    min-width: 32px;
+    background: var(--ctrl-chip);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.08), inset 0 0 0 0.5px var(--border-color);
+    pointer-events: none;
+}
+
+/* thumb line — at right edge of fill pill */
+.control-group--slider::after {
+    content: '';
+    position: absolute;
+    left: calc(5px + max(var(--progress, 0) * (100% - 10px) / 100, 32px) - 8px);
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 14px;
+    background: var(--ctrl-thumb);
+    border-radius: var(--radius-full);
+    pointer-events: none;
+    transition: background 0.15s;
+}
+
+.control-group--slider:hover::after {
+    background: var(--ctrl-thumb-hover);
+}
+
+/* stretch range input to fill the card for interaction */
+.control-group--slider input[type="range"] {
+    position: absolute;
+    left: 0; top: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    z-index: 3;
+    cursor: pointer;
+    margin: 0;
+    padding: 0;
+}
+
+/* label inside slider */
+.control-group--slider label {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--gray-9);
+    position: relative;
+    z-index: 2;
+    pointer-events: none;
+    padding: 0;
+    flex: none;
+}
+
+/* value inside slider */
+.control-group--slider .val-text {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--gray-12);
+    position: relative;
+    z-index: 2;
+    pointer-events: none;
+    width: auto;
+    text-align: right;
+}
+
+/* collapse slider-wrap */
+.control-group--slider .slider-wrap {
+    width: auto;
+    gap: 0;
+}
+
 .slider-wrap {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--space-2);
     justify-content: flex-end;
     width: 160px;
 }
@@ -249,96 +537,198 @@ canvas {
 .val-text {
     font-size: 11px;
     color: var(--text-main);
-    width: 24px;
+    width: var(--space-6);
     text-align: right;
+    font-family: "Geist Mono", ui-monospace, monospace;
     font-variant-numeric: tabular-nums;
 }
 
 /* ── Color List ── */
 
 #color-list {
-    margin-bottom: 10px;
+    margin-bottom: var(--space-2_5);
 }
 
 .color-item {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    margin-bottom: 6px;
-    padding: 4px;
-    border-radius: 4px;
-    border: 1px solid transparent;
-    background: rgba(128, 128, 128, 0.05);
-    transition: all 0.2s;
+    justify-content: flex-start;
+    height: 42px;
+    padding: 5px;
+    gap: 10px;
+    margin-bottom: var(--space-1_5);
+    border-radius: var(--radius-xl);
+    background: var(--gray-2);
+    box-shadow: inset 0 0 0 0.5px var(--slider-stroke);
+    transition: background 0.15s;
+    box-sizing: border-box;
+}
+
+.color-item:hover {
+    background: var(--gray-3);
 }
 
 .color-item.dragging {
-    opacity: 0.5;
-    background: var(--accent-bg);
-    border: 1px dashed var(--text-main);
+    opacity: 0.4;
 }
 
 .color-item.drag-over {
-    border-top: 2px solid var(--text-main);
+    box-shadow: inset 0 0 0 1.5px var(--gray-9);
+}
+
+/* Left: drag handle + label */
+.color-item-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 4px;
+    flex: 1;
+    min-width: 0;
 }
 
 .drag-handle {
     cursor: grab;
-    color: var(--text-dim);
-    padding-right: 8px;
-    font-size: 12px;
+    color: var(--gray-11);
+    font-size: 18px;
+    line-height: 1;
+    flex-shrink: 0;
     user-select: none;
-}
-
-.drag-handle:active {
-    cursor: grabbing;
-}
-
-.color-item-left {
     display: flex;
     align-items: center;
 }
+
+.drag-handle:active { cursor: grabbing; }
 
 .color-item-label {
-    font-size: 11px;
-    color: var(--text-dim);
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--gray-9);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.color-wrap {
+/* ── Standalone color-pill control group (e.g. Base Color) ── */
+
+.control-group--color-pill {
+    height: 42px;
+    padding: 5px;
+    gap: 10px;
+    background: var(--ctrl-bg);
+    box-shadow: inset 0 0 0 0.5px var(--slider-stroke);
+    border-radius: var(--radius-xl);
+    justify-content: space-between;
+    box-sizing: border-box;
+}
+
+.control-group--color-pill > label {
+    flex: 1;
+    padding: 0 9px;
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--gray-9);
+}
+
+/* Right group: pill + delete btn with zero gap */
+.color-right {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 0;
+    flex-shrink: 0;
 }
 
+/* Right: color pill */
+.color-pill {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0;
+    padding: 4px;
+    height: 32px;
+    max-width: 240px;
+    background: var(--slider-fill);
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.08), 0 0 0 0.5px var(--border-color);
+    border-radius: var(--radius-lg);
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+/* Color swatch */
+.color-swatch {
+    width: 24px;
+    height: 24px;
+    border-radius: 5px;
+    flex-shrink: 0;
+    cursor: pointer;
+    box-shadow: inset 0 0 0 0.5px var(--slider-stroke);
+}
+
+/* Hidden native color picker */
+.color-picker-input {
+    display: none;
+}
+
+/* Hex text input — looks like text, editable on click */
 .hex-input {
-    width: 58px;
+    font-family: "Geist Mono", ui-monospace, monospace;
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--gray-12);
     background: transparent;
-    border: 1px solid var(--border-color);
-    color: var(--text-main);
-    font-size: 11px;
-    padding: 3px 0;
-    text-align: center;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    border: none;
+    box-shadow: none;
     outline: none;
-    border-radius: 0;
+    width: 59px;
+    padding: 0 4px;
     text-transform: uppercase;
-    transition: border-color 0.2s;
+    text-align: center;
+    cursor: text;
+    border-radius: var(--radius-sm);
+    transition: background 0.15s;
 }
 
 .hex-input:focus {
-    border-color: var(--text-main);
+    background: transparent;
+    box-shadow: none;
+}
+
+/* Delete button — outside pill, hidden by default, shows on hover */
+.color-item .btn-del {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: transparent;
+    border: none;
+    color: var(--gray-11);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0;
+    flex-shrink: 0;
+    border-radius: var(--radius-md);
+    transition: color 0.15s;
+}
+
+.color-item .btn-del:hover { color: var(--danger); }
+.color-item .btn-del:disabled { opacity: 0.25; cursor: not-allowed; }
+
+.color-item:hover .color-right .btn-del {
+    display: flex;
 }
 
 input[type="color"] {
     -webkit-appearance: none;
     appearance: none;
-    border: 1px solid var(--border-color);
-    width: 28px;
-    height: 18px;
+    border: none;
+    box-shadow: 0 0 0 1px var(--slider-stroke);
+    width: var(--h-sm);
+    height: var(--h-sm);
     cursor: pointer;
     background: none;
     padding: 0;
     flex-shrink: 0;
+    border-radius: var(--radius-md);
 }
 
 input[type="color"]::-webkit-color-swatch-wrapper {
@@ -356,7 +746,7 @@ input[type="color"]::-webkit-color-swatch {
     cursor: pointer;
     font-size: 14px;
     line-height: 1;
-    padding: 0 4px;
+    padding: 0 var(--space-1);
     transition: color 0.2s;
 }
 
@@ -371,11 +761,87 @@ input[type="color"]::-webkit-color-swatch {
 
 /* ── Buttons ── */
 
+/* Disclosure / collapsible section toggle — control-group row style */
+.btn-disclosure {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 42px;
+    padding: 0 var(--space-3) 0 var(--space-4);
+    background: var(--ctrl-bg);
+    box-shadow: inset 0 0 0 0.5px var(--slider-stroke);
+    border-radius: var(--radius-xl);
+    border: none;
+    color: var(--text-main);
+    font-size: 14px;
+    font-weight: 400;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    box-sizing: border-box;
+}
+
+.btn-disclosure:hover {
+    background: var(--gray-3);
+    color: var(--text-main);
+}
+
+.btn-disclosure-arrow {
+    font-size: 18px;
+    color: var(--gray-9);
+    transition: transform 0.2s;
+    display: flex;
+    align-items: center;
+}
+
+.btn-disclosure.open .btn-disclosure-arrow {
+    transform: rotate(90deg);
+}
+
+/* Disclosure animated content wrapper */
+.disclosure-body {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.disclosure-body.open {
+    grid-template-rows: 1fr;
+}
+
+.disclosure-body > .disclosure-inner {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-top: 0;
+    transition: padding-top 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.disclosure-body.open > .disclosure-inner {
+    padding-top: 6px;
+}
+
+/* Ghost variant of action-btn (outlined, no fill) */
+.action-btn--ghost {
+    background: transparent;
+    color: var(--text-main);
+    box-shadow: inset 0 0 0 1px var(--border-color);
+}
+
+.action-btn--ghost:hover {
+    opacity: 1;
+    box-shadow: inset 0 0 0 1px var(--border-strong);
+}
+
 .btn-ghost {
     background: transparent;
-    border: 1px solid var(--border-color);
+    border: none;
+    box-shadow: 0 0 0 1px var(--slider-stroke);
     color: var(--text-main);
-    padding: 6px;
+    height: var(--h-md);
+    padding: 0 var(--space-2_5);
     font-size: 10px;
     cursor: pointer;
     text-transform: uppercase;
@@ -383,10 +849,28 @@ input[type="color"]::-webkit-color-swatch {
     width: 100%;
     transition: all 0.2s;
     font-family: inherit;
+    border-radius: var(--radius-full);
 }
 
 .btn-ghost:hover {
-    border-color: var(--text-main);
+    box-shadow: 0 0 0 1px var(--border-strong);
+}
+
+/* ── Add Color button — matches color-item row style ── */
+#btn-add-color {
+    min-height: 42px;
+    border-radius: var(--radius-xl);
+    background: var(--ctrl-bg);
+    box-shadow: inset 0 0 0 0.5px var(--slider-stroke);
+    color: var(--gray-9);
+    font-size: 14px;
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+#btn-add-color:hover {
+    background: var(--gray-3);
+    color: var(--text-main);
 }
 
 /* ── Upload Area ── */
@@ -396,35 +880,164 @@ input[type="color"]::-webkit-color-swatch {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    gap: var(--space-1_5);
     border: 1px dashed var(--border-color);
-    padding: 16px;
+    padding: var(--space-5) var(--space-4);
     text-align: center;
-    color: var(--text-dim);
     cursor: pointer;
-    border-radius: 4px;
-    margin-bottom: 16px;
-    transition: all 0.2s;
-    background: rgba(128, 128, 128, 0.05);
+    border-radius: var(--radius-xl);
+    margin-bottom: var(--space-2);
+    transition: background 0.2s, border-color 0.2s;
+    background: var(--gray-2);
+    box-sizing: border-box;
 }
 
 .upload-area:hover,
 .upload-area.dragover {
-    border-color: var(--text-main);
+    border-color: var(--border-strong);
+    background: var(--gray-3);
+}
+
+.upload-icon-badge {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-lg);
+    background: var(--slider-fill);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.06), inset 0 0 0 0.5px var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: var(--text-dim);
+    transition: background 0.2s, color 0.2s;
+    margin-bottom: var(--space-0_5);
+    flex-shrink: 0;
+}
+
+.upload-area:hover .upload-icon-badge,
+.upload-area.dragover .upload-icon-badge {
     color: var(--text-main);
-    background: rgba(128, 128, 128, 0.1);
 }
 
-.upload-icon {
-    font-size: 20px;
+.upload-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-main);
+}
+
+.upload-desc {
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.5;
+}
+
+/* ── Toggle switch ── */
+
+.control-group--toggle {
+    background: transparent;
+    box-shadow: none;
+    height: var(--h-sm);
+    padding: 0;
+    border-radius: 0;
+}
+
+.control-group--toggle > label:first-child {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--gray-9);
+    flex: 1;
+}
+
+.toggle {
+    display: inline-flex;
+    cursor: pointer;
+}
+
+/* 提高优先级覆盖 .control-group label { flex: 1 } */
+.control-group .toggle {
+    flex: none;
+    margin-left: auto;
+}
+
+.toggle input[type="checkbox"] {
+    display: none;
+    box-shadow: none;
+    width: 0; height: 0;
+}
+
+.toggle-track {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 54px;
+    height: var(--h-sm);
+    padding: 4px;
+    gap: 0;
+    background: var(--ctrl-bg);
+    box-shadow: inset 0 0 0 0.5px var(--slider-stroke);
+    border-radius: var(--radius-lg);
+    box-sizing: border-box;
+    transition: background 0.2s;
+}
+
+.toggle-track::after {
+    content: 'OFF';
+    font-family: 'Geist Mono', monospace;
+    font-weight: 500;
+    font-size: 12px;
+    color: var(--gray-12);
+    min-width: 30px;
+    text-align: center;
+    order: 1;
     line-height: 1;
+    padding: 0 4px;
+    box-sizing: border-box;
 }
 
-.upload-text {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-weight: bold;
+.toggle-thumb {
+    width: 16px;
+    align-self: stretch;
+    background: var(--slider-fill);
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.08), 0 0 0 0.5px var(--border-color);
+    border-radius: var(--radius-md);
+    flex-shrink: 0;
+    order: 0;
+}
+
+/* ON state */
+.toggle input:checked + .toggle-track {
+    background: var(--toggle-on);
+    box-shadow: inset 0 0 0 0.5px var(--slider-stroke);
+}
+
+.toggle input:checked + .toggle-track::after {
+    content: 'ON';
+    color: #ffffff;
+    order: 0;
+}
+
+.toggle input:checked + .toggle-track .toggle-thumb {
+    order: 1;
+}
+
+/* ── Select card: matches slider outer container ── */
+
+.control-group--select {
+    height: 42px;
+    padding: 5px;
+    background: var(--ctrl-bg);
+    box-shadow: inset 0 0 0 0.5px var(--slider-stroke);
+    border-radius: var(--radius-xl);
+    justify-content: space-between;
+}
+
+.control-group--select label {
+    padding: 0 9px;
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--gray-9);
+    flex: 1;
+    white-space: nowrap;
 }
 
 /* ── Form Controls ── */
@@ -445,23 +1058,38 @@ input[type="range"]::-webkit-slider-thumb {
     height: 14px;
     background: var(--accent-bg);
     cursor: pointer;
-    border-radius: 0;
-    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    border: none;
+    box-shadow: 0 0 0 1px var(--slider-stroke);
 }
 
 select {
     -webkit-appearance: none;
     appearance: none;
-    background: transparent;
-    border: 1px solid var(--border-color);
-    color: var(--text-main);
-    padding: 4px 8px;
-    font-size: 11px;
+    background: var(--ctrl-chip);
+    border: none;
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.08), 0 0 0 0.5px var(--border-color);
+    color: var(--gray-12);
+    height: var(--h-md);
+    padding: 0 var(--space-2_5);
+    font-size: 14px;
+    font-weight: 400;
     outline: none;
     cursor: pointer;
-    width: 140px;
+    max-width: 240px;
+    width: auto;
     font-family: inherit;
-    border-radius: 0;
+    border-radius: var(--radius-lg);
+    flex-shrink: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: background 0.15s, box-shadow 0.15s;
+}
+
+select:hover {
+    background: var(--gray-3);
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1), 0 0 0 0.5px var(--border-strong);
 }
 
 select option,
@@ -481,77 +1109,89 @@ input[type="checkbox"] {
     appearance: none;
     width: 14px;
     height: 14px;
-    border: 1px solid var(--border-color);
+    border: none;
+    box-shadow: 0 0 0 1px var(--slider-stroke);
     background: transparent;
     cursor: pointer;
     position: relative;
     margin: 0;
     outline: none;
+    border-radius: var(--radius-md);
 }
 
 input[type="checkbox"]:checked::after {
     content: '';
     position: absolute;
-    top: 2px;
-    left: 2px;
-    right: 2px;
-    bottom: 2px;
+    top: var(--space-0_5);
+    left: var(--space-0_5);
+    right: var(--space-0_5);
+    bottom: var(--space-0_5);
     background: var(--text-main);
 }
 
-/* ── Preset Buttons ── */
+/* ── Preset Buttons — Segmented Control ── */
 
 .preset-group {
     display: flex;
-    gap: 4px;
-    margin-bottom: 10px;
-    flex-wrap: wrap;
+    gap: var(--space-0_5);
+    margin-bottom: var(--space-2_5);
+    background: var(--ctrl-bg);
+    box-shadow: inset 0 0 0 0.5px var(--slider-stroke);
+    border-radius: var(--radius-xl);
+    padding: 4px;
+    box-sizing: border-box;
 }
 
 .preset-btn {
-    flex: 1 1 30%;
-    padding: 6px 0;
-    border: 1px solid var(--border-color);
+    flex: 1;
+    height: 34px;
+    padding: 0;
+    border: none;
+    box-shadow: none;
     background: transparent;
-    color: var(--text-dim);
-    font-size: 10px;
+    color: var(--gray-9);
+    font-size: 13px;
+    font-weight: 400;
     cursor: pointer;
     text-align: center;
-    border-radius: 0;
+    border-radius: var(--radius-lg);
     font-family: inherit;
+    transition: color 0.2s, background 0.2s, box-shadow 0.2s, font-weight 0.2s;
 }
 
 .preset-btn:hover {
     color: var(--text-main);
-    border-color: var(--text-main);
+    box-shadow: none;
 }
 
 .preset-btn.active {
-    background: var(--accent-bg);
-    color: var(--accent-text);
-    border-color: var(--accent-bg);
-    font-weight: bold;
+    background: var(--slider-fill);
+    color: var(--text-main);
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.08), inset 0 0 0 0.5px var(--border-color);
+    font-weight: 500;
 }
 
 .divider {
     height: 1px;
     background: var(--border-color);
-    margin: 20px 0;
+    margin: var(--space-5) 0;
 }
 
 .action-btn {
     width: 100%;
-    padding: 12px;
+    height: 42px;
+    flex-shrink: 0;
+    padding: 0;
     background: var(--text-main);
     border: none;
     color: var(--panel-bg);
     font-weight: bold;
-    font-size: 11px;
+    font-size: 14px;
     text-transform: uppercase;
     letter-spacing: 1px;
     cursor: pointer;
     font-family: inherit;
-    border-radius: 0;
+    border-radius: var(--radius-xl);
     transition: opacity 0.2s;
 }
 
@@ -564,8 +1204,8 @@ input[type="checkbox"]:checked::after {
 }
 
 .btn-record-active {
-    background: #e53e3e !important;
-    color: #fff !important;
+    background: var(--danger) !important;
+    color: var(--panel-bg) !important;
     animation: pulse-record 1s infinite;
 }
 
@@ -576,14 +1216,51 @@ input[type="checkbox"]:checked::after {
 
 .export-group {
     display: flex;
-    gap: 6px;
-    margin-top: 6px;
+    gap: var(--space-1_5);
+    margin-top: var(--space-1_5);
 }
 
-.export-group .action-btn {
+.export-group .action-btn,
+.modal-actions .action-btn {
     flex: 1;
-    padding: 10px 4px;
-    font-size: 10px;
+    width: auto;
+}
+
+/* picker Done — auto width, don't stretch */
+.modal-actions .action-btn:last-child:not(:first-child) {
+    flex: none;
+    padding: 0 var(--space-6);
+}
+
+/* ── Text Input control row ── */
+
+.control-group--text {
+    height: 42px;
+    padding: 5px 5px 5px 16px;
+    background: var(--ctrl-bg);
+    box-shadow: inset 0 0 0 0.5px var(--slider-stroke);
+    border-radius: var(--radius-xl);
+    gap: var(--space-2);
+    box-sizing: border-box;
+}
+
+.control-group--text input[type="text"] {
+    flex: 1;
+    background: var(--ctrl-chip);
+    color: var(--text-main);
+    border: none;
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.08), inset 0 0 0 0.5px var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 0 var(--space-2_5);
+    font-size: 13px;
+    font-family: "Geist Mono", ui-monospace, monospace;
+    height: 100%;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.control-group--text input[type="text"]:focus {
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.08), inset 0 0 0 1px var(--border-strong);
 }
 
 /* ── Code Export Modal ── */
@@ -592,12 +1269,12 @@ input[type="checkbox"]:checked::after {
     width: 100%;
     flex: 1;
     min-height: 0;
-    background: var(--bg-color, #0a0a0a);
-    color: var(--text-main, #e5e5e5);
-    border: 1px solid var(--border-color, #333);
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    background: var(--bg-color);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    font-family: "Geist Mono", ui-monospace, monospace;
     font-size: 11px;
-    padding: 12px;
+    padding: var(--space-3);
     resize: none;
     outline: none;
     box-shadow: none;
@@ -611,7 +1288,7 @@ input[type="checkbox"]:checked::after {
 .code-textarea:focus {
     outline: none;
     box-shadow: none;
-    border-color: var(--text-dim, #888);
+    border-color: var(--border-strong);
 }
 
 .modal-overlay {
@@ -630,12 +1307,13 @@ input[type="checkbox"]:checked::after {
 
 .modal-box {
     background: var(--panel-bg);
-    border: 1px solid var(--border-color);
-    padding: 20px;
+    border: none;
+    box-shadow: 0 0 0 1px var(--slider-stroke);
+    padding: var(--space-5);
     display: flex;
     flex-direction: column;
-    gap: 20px;
-    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+    gap: var(--space-5);
+    border-radius: var(--radius-xl);
     max-width: 90vw;
     max-height: 90vh;
     overflow: hidden;
@@ -660,6 +1338,11 @@ input[type="checkbox"]:checked::after {
     cursor: pointer;
     padding: 0;
     line-height: 1;
+    transition: opacity 0.2s;
+}
+
+.modal-close:hover {
+    opacity: 0.5;
 }
 
 /* ── Color Picker Modal ── */
@@ -681,7 +1364,7 @@ input[type="checkbox"]:checked::after {
     width: 22px;
     height: 22px;
     border: 2px solid #fff;
-    border-radius: 50%;
+    border-radius: var(--radius-full);
     transform: translate(-50%, -50%);
     cursor: grab;
     box-shadow: 0 0 6px rgba(0, 0, 0, 0.6), inset 0 0 4px rgba(0, 0, 0, 0.4);
@@ -696,28 +1379,32 @@ input[type="checkbox"]:checked::after {
 .modal-actions {
     display: flex;
     justify-content: space-between;
-    gap: 10px;
+    gap: var(--space-2_5);
 }
 
 .modal-actions-left {
     display: flex;
-    gap: 8px;
+    gap: var(--space-2);
 }
 
 .btn-mini {
-    background: transparent;
-    border: 1px solid var(--border-color);
-    color: var(--text-main);
-    padding: 6px 12px;
-    font-size: 10px;
+    background: var(--ctrl-bg);
+    border: none;
+    box-shadow: inset 0 0 0 0.5px var(--slider-stroke);
+    color: var(--gray-9);
+    height: var(--h-md);
+    padding: 0 var(--space-3);
+    font-size: 11px;
     cursor: pointer;
     text-transform: uppercase;
     font-family: inherit;
+    border-radius: var(--radius-md);
+    transition: all 0.2s;
 }
 
 .btn-mini:hover {
-    background: var(--text-main);
-    color: var(--panel-bg);
+    background: var(--gray-3);
+    color: var(--text-main);
 }
 
 .btn-mini:disabled {

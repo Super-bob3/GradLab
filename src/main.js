@@ -7,6 +7,7 @@ import { initEngine, uploadBgTexture, syncSlider, setCameraPos, getCameraPos } f
 import { initMatrixCanvas, initMatrix } from './matrix.js';
 import { initControls, getCurrentColors } from './controls.js';
 import { initDownload, initRecording, initCodeExport } from './export.js';
+import { mountControls } from './components.js';
 
 // ── DOM References ────────────────────────────────────────────
 const glCanvas       = document.getElementById('glCanvas');
@@ -16,7 +17,8 @@ const shaderCard     = document.getElementById('shaderCard');
 
 // ── Boot sequence ─────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Controls UI (color list, sliders, matrix UI)
+    // 1. Mount slider components, then wire controls
+    mountControls();
     initControls(() => initMatrix());
 
     // 2. Matrix canvas overlay
