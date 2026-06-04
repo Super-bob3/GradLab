@@ -1458,3 +1458,112 @@ input[type="checkbox"]:checked::after {
     opacity: 0.3;
     pointer-events: none;
 }
+
+/* ══════════════════════════════════════════
+   Mobile — Bottom Sheet (≤ 768px)
+   ══════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+    /* Root layout becomes a column stack */
+    .layout {
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Canvas fills the whole screen behind the sheet */
+    .content-area {
+        flex: 1;
+        width: 100%;
+        min-height: 0;
+        height: auto;
+    }
+
+    .canvas-area {
+        padding: 0;
+        align-items: stretch;
+    }
+
+    /* Card fills the canvas area fully */
+    .card-container {
+        width: 100%;
+        height: 100%;
+    }
+
+    /* ── Bottom Sheet ── */
+    .panel-wrapper {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        height: auto;
+        max-height: 85vh;
+        padding: 0;
+        /* default collapsed: only the handle + section-title visible (~72px) */
+        transform: translateY(calc(100% - 72px));
+        transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+        z-index: 100;
+        box-sizing: border-box;
+    }
+
+    .panel-wrapper.sheet-open {
+        transform: translateY(0);
+    }
+
+    .panel {
+        border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+        border-bottom: none;
+        height: auto;
+        max-height: 85vh;
+        padding-top: var(--space-2);
+        /* subtle shadow to lift the sheet */
+        box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.18);
+    }
+
+    /* ── Drag handle ── */
+    .sheet-handle {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: var(--space-2) 0 var(--space-1_5);
+        cursor: grab;
+        flex-shrink: 0;
+        touch-action: none;
+    }
+
+    .sheet-handle:active {
+        cursor: grabbing;
+    }
+
+    .sheet-handle-bar {
+        width: 36px;
+        height: 4px;
+        border-radius: var(--radius-full);
+        background: var(--gray-a5);
+    }
+
+    /* ── Sheet overlay (tap to close) ── */
+    .sheet-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 99;
+        background: transparent;
+    }
+
+    .sheet-overlay.visible {
+        display: block;
+    }
+
+    /* Title bar compact on mobile */
+    .title-bar {
+        height: 44px;
+        padding: 0 var(--space-3);
+    }
+
+    /* Modals should sit above the sheet */
+    .modal-backdrop {
+        z-index: 200;
+    }
+}

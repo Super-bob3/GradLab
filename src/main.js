@@ -50,4 +50,98 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 6. Split hover text effect — logo only
     splitHover(document.querySelector('.title-name'), { stagger: 40, duration: 400 });
+
+    // 7. Mobile bottom sheet
+    initBottomSheet();
 });
+
+// ── Mobile Bottom Sheet ───────────────────────────────────────
+function initBottomSheet() {
+    const wrapper = document.getElementById('panelWrapper');
+    const handle  = document.getElementById('sheetHandle');
+    const overlay = document.getElementById('sheetOverlay');
+    if (!wrapper || !handle) return;
+
+    const MOBILE_BREAKPOINT = 768;
+    let isOpen = false;
+    let dragStartY = 0;
+    let dragStartTranslate = 0;
+    let currentTranslate = 0;
+    let isDragging = false;
+
+    function isMobile() {
+        return window.innerWidth <= MOBILE_BREAKPOINT;
+    }
+
+    function getCollapsedTranslate() {
+        return wrapper.offsetHeight - 72;
+    }
+
+    function open() {
+        isOpen = true;
+        currentTranslate = 0;
+        wrapper.style.transform = `translateY(0px)`;
+        wrapper.classList.add('sheet-open');
+        overlay.classList.add('visible');
+    }
+
+    function close() {
+        isOpen = false;
+        currentTranslate = getCollapsedTranslate();
+        wrapper.style.transform = '';
+        wrapper.classList.remove('sheet-open');
+        overlay.classList.remove('visible');
+    }
+
+    function toggle() {
+        isOpen ? close() : open();
+    }
+
+    // Touch drag on handle
+    handle.addEventListener('touchstart', (e) => {
+        if (!isMobile()) return;
+        isDragging = true;
+        dragStartY = e.touches[0].clientY;
+        dragStartTranslate = isOpen ? 0 : getCollapsedTranslate();
+        wrapper.style.transition = 'none';
+    }, { passive: true });
+
+    window.addEventListener('touchmove', (e) => {
+        if (!isDragging || !isMobile()) return;
+        const dy = e.touches[0].clientY - dragStartY;
+        currentTranslate = Math.max(0, Math.min(getCollapsedTranslate(), dragStartTranslate + dy));
+        wrapper.style.transform = `translateY(${currentTranslate}px)`;
+    }, { passive: true });
+
+    window.addEventListener('touchend', () => {
+        if (!isDragging || !isMobile()) return;
+        isDragging = false;
+        wrapper.style.transition = '';
+
+        const mid = getCollapsedTranslate() / 2;
+        if (currentTranslate < mid) {
+            open();
+        } else {
+            close();
+        }
+    });
+
+    // Tap handle to toggle
+    handle.addEventListener('click', () => {
+        if (!isMobile()) return;
+        toggle();
+    });
+
+    // Tap overlay to close
+    overlay.addEventListener('click', close);
+
+    // Reset on resize (desktop → mobile)
+    window.addEventListener('resize', () => {
+        if (!isMobile()) {
+            wrapper.style.transform = '';
+            wrapper.style.transition = '';
+            overlay.classList.remove('visible');
+            isOpen = false;
+        }
+    });
+}

@@ -145,9 +145,16 @@
 
     </div><!-- /.content-area -->
 
+    <!-- Sheet overlay (mobile tap-to-close) -->
+    <div class="sheet-overlay" id="sheetOverlay"></div>
+
     <!-- ── RIGHT: FLOATING PANEL ── -->
-    <div class="panel-wrapper">
+    <div class="panel-wrapper" id="panelWrapper">
         <div class="panel">
+        <!-- Mobile drag handle -->
+        <div class="sheet-handle" id="sheetHandle">
+            <div class="sheet-handle-bar"></div>
+        </div>
 
         <!-- SECTION 1: PRESETS -->
         <div class="section-title">Color Themes</div>
