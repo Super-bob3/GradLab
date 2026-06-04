@@ -172,6 +172,7 @@ body {
     position: relative;
     border-radius: calc(var(--radius-2xl) + 6px);
     overflow: hidden;
+    background: var(--gray-2);
 }
 
 .panel-wrapper::after {
