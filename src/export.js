@@ -60,16 +60,16 @@ export function initRecording(glCanvas) {
             sound.recordStop();
             stopRecording();
             btn.classList.remove('btn-record-active');
-            btn.innerText = isChinese ? '⏺ 录制视频' : '⏺ Record MP4';
+            btn.innerHTML = isChinese ? '<i class="ri-record-circle-line"></i> 录制视频' : '<i class="ri-record-circle-line"></i> Record MP4';
             _encodeAndDownload(glCanvas, btn);
         } else {
             sound.recordStart();
             startRecording();
             btn.classList.add('btn-record-active');
-            btn.innerText = `⏹ Stop (0s)`;
+            btn.innerHTML = '<i class="ri-stop-circle-line"></i> Stop (0s)';
             const timer = setInterval(() => {
                 if (!_getIsRecording()) { clearInterval(timer); return; }
-                btn.innerText = `⏹ Stop (${getRecordSeconds()}s)`;
+                btn.innerHTML = `<i class="ri-stop-circle-line"></i> Stop (${getRecordSeconds()}s)`;
             }, 1000);
         }
     });
@@ -110,7 +110,7 @@ function _encodeAndDownload(glCanvas, btn) {
         const blob = new Blob(chunks, { type: mimeType });
         _downloadBlob(blob, ext);
         sound.complete();
-        btn.innerText = isChinese ? '⏺ 录制视频' : '⏺ Record MP4';
+        btn.innerHTML = isChinese ? '<i class="ri-record-circle-line"></i> 录制视频' : '<i class="ri-record-circle-line"></i> Record MP4';
         allFrames.forEach(bmp => { if (bmp.close) bmp.close(); });
     };
 
@@ -129,7 +129,7 @@ function _encodeAndDownload(glCanvas, btn) {
         tmpCtx.drawImage(allFrames[i], 0, 0);
         i++;
         const pct = Math.round((i / total) * 100);
-        btn.innerText = isChinese ? `⏳ 编码中 ${pct}%` : `⏳ Encoding ${pct}%`;
+        btn.innerHTML = isChinese ? `<i class="ri-loader-4-line"></i> 编码中 ${pct}%` : `<i class="ri-loader-4-line"></i> Encoding ${pct}%`;
         setTimeout(drawNext, FPS_INTERVAL);
     }
     drawNext();
