@@ -1498,7 +1498,7 @@ input[type="checkbox"]:checked::after {
         right: 0;
         width: 100%;
         height: auto;
-        max-height: 85vh;
+        max-height: 70vh;
         padding: 0;
         /* default collapsed: only the handle + section-title visible (~72px) */
         transform: translateY(calc(100% - 72px));
@@ -1515,7 +1515,7 @@ input[type="checkbox"]:checked::after {
         border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
         border-bottom: none;
         height: auto;
-        max-height: 85vh;
+        max-height: 70vh;
         padding-top: var(--space-2);
         /* subtle shadow to lift the sheet */
         box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.18);
