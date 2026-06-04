@@ -260,16 +260,21 @@
 
     <!-- ── CODE EXPORT MODAL ── -->
     <div class="modal-overlay" id="code-modal" style="display:none;">
-        <div class="modal-box" style="width:90vw;max-width:900px;max-height:85vh;">
+        <div class="modal-box" style="width:90vw;max-width:900px;">
             <div class="modal-header">
-                <span>Export Standalone Code</span>
-                <button class="modal-close" id="btn-close-code">×</button>
+                <div class="modal-header-text">
+                    <span class="modal-title">Export Code</span>
+                    <span class="modal-description">Copy or download the standalone HTML file</span>
+                </div>
+                <button class="modal-close" id="btn-close-code"><i class="ri-close-line"></i></button>
             </div>
-            <textarea class="code-textarea" id="code-output" readonly style="flex:1;min-height:200px;"></textarea>
-            <div class="export-group">
-                <button class="action-btn" id="btn-copy-code">Copy Code</button>
-                <button class="action-btn" id="btn-download-code">Download Code</button>
+            <div class="modal-body">
+                <textarea class="code-textarea" id="code-output" readonly style="min-height:340px;width:100%;box-sizing:border-box;"></textarea>
+            </div>
+            <div class="modal-footer">
                 <button class="action-btn action-btn--ghost" id="btn-close-code2">Close</button>
+                <button class="action-btn action-btn--ghost" id="btn-copy-code"><i class="ri-file-copy-line"></i> Copy Code</button>
+                <button class="action-btn" id="btn-download-code"><i class="ri-download-2-line"></i> Download</button>
             </div>
         </div>
     </div>
@@ -280,16 +285,21 @@
     <div class="modal-overlay" id="picker-modal">
         <div class="modal-box">
             <div class="modal-header">
-                <span>Visual Color Picker</span>
-                <button class="modal-close" id="btn-close-modal">×</button>
+                <div class="modal-header-text">
+                    <span class="modal-title">Extract Colors</span>
+                    <span class="modal-description">Drag markers to sample colors from your image</span>
+                </div>
+                <button class="modal-close" id="btn-close-modal"><i class="ri-close-line"></i></button>
             </div>
-            <div class="picker-container" id="picker-container">
-                <canvas id="picker-canvas"></canvas>
+            <div class="modal-body">
+                <div class="picker-container" id="picker-container">
+                    <canvas id="picker-canvas"></canvas>
+                </div>
             </div>
-            <div class="modal-actions">
-                <div class="modal-actions-left">
-                    <button class="btn-mini" id="btn-picker-remove">- Color</button>
-                    <button class="btn-mini" id="btn-picker-add">+ Color</button>
+            <div class="modal-footer">
+                <div class="modal-footer-left">
+                    <button class="btn-mini" id="btn-picker-remove"><i class="ri-subtract-line"></i> Color</button>
+                    <button class="btn-mini" id="btn-picker-add"><i class="ri-add-line"></i> Color</button>
                 </div>
                 <button class="action-btn" id="btn-picker-done">Done</button>
             </div>

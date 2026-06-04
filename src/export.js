@@ -160,8 +160,8 @@ export function initCodeExport(getCurrentColors) {
         sound.confirm();
         const btn = document.getElementById('btn-copy-code');
         navigator.clipboard.writeText(document.getElementById('code-output').value).then(() => {
-            btn.innerText = isChinese ? '✅ 已复制！' : '✅ Copied!';
-            setTimeout(() => { btn.innerText = isChinese ? '复制代码' : 'Copy Code'; }, 2000);
+            btn.innerHTML = isChinese ? '<i class="ri-check-line"></i> 已复制' : '<i class="ri-check-line"></i> Copied';
+            setTimeout(() => { btn.innerHTML = isChinese ? '<i class="ri-file-copy-line"></i> 复制代码' : '<i class="ri-file-copy-line"></i> Copy Code'; }, 2000);
         });
     });
 
@@ -171,8 +171,8 @@ export function initCodeExport(getCurrentColors) {
         const code = document.getElementById('code-output').value;
         const blob = new Blob([code], { type: 'text/html;charset=utf-8' });
         _downloadBlob(blob, 'html');
-        btn.innerText = isChinese ? '✅ 已下载！' : '✅ Downloaded!';
-        setTimeout(() => { btn.innerText = isChinese ? '下载代码' : 'Download Code'; }, 2000);
+        btn.innerHTML = isChinese ? '<i class="ri-check-line"></i> 已下载！' : '<i class="ri-check-line"></i> Downloaded!';
+        setTimeout(() => { btn.innerHTML = isChinese ? '<i class="ri-download-2-line"></i> 下载代码' : '<i class="ri-download-2-line"></i> Download'; }, 2000);
     });
 
     const closeCode = () => { sound.close(); document.getElementById('code-modal').style.display = 'none'; };
