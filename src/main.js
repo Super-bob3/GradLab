@@ -8,6 +8,7 @@ import { initMatrixCanvas, initMatrix } from './matrix.js';
 import { initControls, getCurrentColors } from './controls.js';
 import { initDownload, initRecording, initCodeExport } from './export.js';
 import { mountControls } from './components.js';
+import { splitHover } from './split-hover.js';
 
 // ── DOM References ────────────────────────────────────────────
 const glCanvas       = document.getElementById('glCanvas');
@@ -46,4 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initDownload(glCanvas);
     initRecording(glCanvas);
     initCodeExport(getCurrentColors);
+
+    // 6. Split hover text effect — logo only
+    splitHover(document.querySelector('.title-name'), { stagger: 40, duration: 400 });
 });
