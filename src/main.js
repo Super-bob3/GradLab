@@ -97,23 +97,42 @@ function initBottomSheet() {
         isOpen ? close() : open();
     }
 
-    // Touch drag on handle
-    handle.addEventListener('touchstart', (e) => {
+    const panel = wrapper.querySelector('.panel');
+
+    // When closed: the whole wrapper captures touch to drag open.
+    // When open: only the handle captures touch to drag closed;
+    //            panel content is free to scroll.
+    wrapper.addEventListener('touchstart', (e) => {
         if (!isMobile()) return;
+        // If open, only the handle should start a drag
+        if (isOpen && !handle.contains(e.target)) return;
         isDragging = true;
         dragStartY = e.touches[0].clientY;
         dragStartTranslate = isOpen ? 0 : getCollapsedTranslate();
         wrapper.style.transition = 'none';
     }, { passive: true });
 
-    window.addEventListener('touchmove', (e) => {
+    wrapper.addEventListener('touchmove', (e) => {
         if (!isDragging || !isMobile()) return;
         const dy = e.touches[0].clientY - dragStartY;
-        currentTranslate = Math.max(0, Math.min(getCollapsedTranslate(), dragStartTranslate + dy));
-        wrapper.style.transform = `translateY(${currentTranslate}px)`;
-    }, { passive: true });
 
-    window.addEventListener('touchend', () => {
+        // When closed: block scroll, drag the sheet up
+        if (!isOpen) {
+            e.preventDefault();
+            currentTranslate = Math.max(0, Math.min(getCollapsedTranslate(), dragStartTranslate + dy));
+            wrapper.style.transform = `translateY(${currentTranslate}px)`;
+            return;
+        }
+
+        // When open and dragging handle downward: move sheet down
+        if (dy > 0) {
+            e.preventDefault();
+            currentTranslate = Math.min(getCollapsedTranslate(), dy);
+            wrapper.style.transform = `translateY(${currentTranslate}px)`;
+        }
+    }, { passive: false });
+
+    wrapper.addEventListener('touchend', () => {
         if (!isDragging || !isMobile()) return;
         isDragging = false;
         wrapper.style.transition = '';
