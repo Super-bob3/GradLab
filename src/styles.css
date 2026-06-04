@@ -170,7 +170,7 @@ body {
     padding: 6px;
     box-sizing: border-box;
     position: relative;
-    border-radius: calc(var(--radius-2xl) + 6px);
+    border-radius: var(--radius-2xl);
     overflow: hidden;
     background: var(--gray-2);
 }
