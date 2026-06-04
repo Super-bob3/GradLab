@@ -170,6 +170,8 @@ body {
     padding: 6px;
     box-sizing: border-box;
     position: relative;
+    border-radius: calc(var(--radius-2xl) + 6px);
+    overflow: hidden;
 }
 
 .panel-wrapper::after {
