@@ -48,6 +48,7 @@ export function initDownload(glCanvas) {
         link.click();
         document.body.removeChild(link);
         btn.innerText = 'DOWNLOAD FRAME';
+        if (typeof umami !== 'undefined') umami.track('download_image');
     });
 }
 
@@ -110,6 +111,7 @@ function _encodeAndDownload(glCanvas, btn) {
         const blob = new Blob(chunks, { type: mimeType });
         _downloadBlob(blob, ext);
         sound.complete();
+        if (typeof umami !== 'undefined') umami.track('download_video', { format: ext, duration: getRecordSeconds() });
         btn.innerHTML = isChinese ? '<i class="ri-record-circle-line"></i> 录制视频' : '<i class="ri-record-circle-line"></i> Record MP4';
         allFrames.forEach(bmp => { if (bmp.close) bmp.close(); });
     };
@@ -160,6 +162,7 @@ export function initCodeExport(getCurrentColors) {
         sound.confirm();
         const btn = document.getElementById('btn-copy-code');
         navigator.clipboard.writeText(document.getElementById('code-output').value).then(() => {
+            if (typeof umami !== 'undefined') umami.track('copy_code');
             btn.innerHTML = isChinese ? '<i class="ri-check-line"></i> 已复制' : '<i class="ri-check-line"></i> Copied';
             setTimeout(() => { btn.innerHTML = isChinese ? '<i class="ri-file-copy-line"></i> 复制代码' : '<i class="ri-file-copy-line"></i> Copy Code'; }, 2000);
         });
@@ -171,6 +174,7 @@ export function initCodeExport(getCurrentColors) {
         const code = document.getElementById('code-output').value;
         const blob = new Blob([code], { type: 'text/html;charset=utf-8' });
         _downloadBlob(blob, 'html');
+        if (typeof umami !== 'undefined') umami.track('download_code');
         btn.innerHTML = isChinese ? '<i class="ri-check-line"></i> 已下载！' : '<i class="ri-check-line"></i> Downloaded!';
         setTimeout(() => { btn.innerHTML = isChinese ? '<i class="ri-download-2-line"></i> 下载代码' : '<i class="ri-download-2-line"></i> Download'; }, 2000);
     });
