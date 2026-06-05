@@ -129,7 +129,7 @@ export function initEngine(canvasEl, noiseOverlayEl, containerEl, cardEl, getCol
 
     // Resize
     function resize() {
-        const dpr = window.devicePixelRatio || 1;
+        const dpr = Math.max(2, window.devicePixelRatio || 1);
         canvasEl.width  = canvasEl.clientWidth  * dpr;
         canvasEl.height = canvasEl.clientHeight * dpr;
         gl.viewport(0, 0, canvasEl.width, canvasEl.height);

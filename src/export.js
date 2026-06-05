@@ -341,7 +341,7 @@ function _buildExportCode(params) {
 
   const loc = (n) => gl.getUniformLocation(program, n);
   function resize() {
-    const dpr = window.devicePixelRatio || 1;
+    const dpr = Math.max(2, window.devicePixelRatio || 1);
     canvas.width = canvas.clientWidth * dpr; canvas.height = canvas.clientHeight * dpr;
     gl.viewport(0, 0, canvas.width, canvas.height);
   }
