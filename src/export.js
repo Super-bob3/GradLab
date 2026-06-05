@@ -341,6 +341,7 @@ function _buildExportCode(params) {
 
   const loc = (n) => gl.getUniformLocation(program, n);
   function resize() {
+    // Math.max(2, ...) 保底 2x：Windows DPR=1 也需要与 Mac Retina 输出一致的渲染分辨率，不要改成纯 devicePixelRatio
     const dpr = Math.max(2, window.devicePixelRatio || 1);
     canvas.width = canvas.clientWidth * dpr; canvas.height = canvas.clientHeight * dpr;
     gl.viewport(0, 0, canvas.width, canvas.height);

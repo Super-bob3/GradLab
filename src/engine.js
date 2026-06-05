@@ -129,6 +129,7 @@ export function initEngine(canvasEl, noiseOverlayEl, containerEl, cardEl, getCol
 
     // Resize
     function resize() {
+        // Math.max(2, ...) 保底 2x：Windows DPR=1 也需要与 Mac Retina 输出一致的渲染分辨率，不要改成纯 devicePixelRatio
         const dpr = Math.max(2, window.devicePixelRatio || 1);
         canvasEl.width  = canvasEl.clientWidth  * dpr;
         canvasEl.height = canvasEl.clientHeight * dpr;
