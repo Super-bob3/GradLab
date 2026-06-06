@@ -278,8 +278,9 @@ export function initControls(onMatrixRebuild) {
     document.getElementById('btn-lang').addEventListener('click', () => { sound.tap(); toggleLanguage(); });
 
     // Preset buttons — apply full theme (colors + all parameters)
-    window.applyColorPreset = function(name, btnEl) {
+    window.applyColorPreset = function(name, btnEl, _fromInit = false) {
         sound.preset();
+        if (!_fromInit && typeof umami !== 'undefined') umami.track('apply_preset', { preset: name });
         // Save current theme's live state before switching
         if (currentThemeKey && currentThemeKey !== name) {
             _saveThemeState(currentThemeKey);
@@ -417,14 +418,25 @@ export function initControls(onMatrixRebuild) {
         if (el && val) el.addEventListener('input', () => { val.textContent = el.value; });
     });
 
-    // Toggle sounds
+    // Toggle sounds + feature tracking
     document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-        cb.addEventListener('change', (e) => sound.toggle(e.target.checked));
+        cb.addEventListener('change', (e) => {
+            sound.toggle(e.target.checked);
+            if (!e.isTrusted || typeof umami === 'undefined') return;
+            if (e.target.id === 'ctrl-ascii-enable') umami.track('toggle_ascii',    { enabled: e.target.checked });
+            if (e.target.id === 'ctrl-art-enable')   umami.track('toggle_halftone', { enabled: e.target.checked });
+        });
     });
 
     // Context-aware UI
     const ctrlType = document.getElementById('ctrl-type');
-    ctrlType.addEventListener('change', updateContextUI);
+    ctrlType.addEventListener('change', (e) => {
+        updateContextUI();
+        if (e.isTrusted && typeof umami !== 'undefined') {
+            const label = e.target.options[e.target.selectedIndex]?.text ?? e.target.value;
+            umami.track('select_algorithm', { type: parseInt(e.target.value), label });
+        }
+    });
     updateContextUI();
 
     // Matrix Advanced toggle
@@ -750,7 +762,11 @@ function _initImagePicker() {
 
     // Upload triggers
     document.getElementById('img-upload').addEventListener('change', (e) => {
-        handleImageFile(e.target.files[0]);
+        const file = e.target.files[0];
+        if (file) {
+            handleImageFile(file);
+            if (typeof umami !== 'undefined') umami.track('upload_image_picker');
+        }
         e.target.value = '';
     });
 

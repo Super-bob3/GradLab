@@ -34,18 +34,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Apply full default theme (colors + all params) now that all modules are ready
     const defaultBtn = document.querySelector('.preset-btn.active');
-    if (window.applyColorPreset) window.applyColorPreset('theme1', defaultBtn);
+    if (window.applyColorPreset) window.applyColorPreset('theme1', defaultBtn, true);
 
     // 4. Background image upload
     document.getElementById('bg-upload').addEventListener('change', (e) => {
         const file = e.target.files[0];
-        if (file) uploadBgTexture(file);
+        if (file) {
+            uploadBgTexture(file);
+            if (typeof umami !== 'undefined') umami.track('upload_bg_image');
+        }
         e.target.value = '';
     });
 
     // 5. Export features
-    initDownload(glCanvas);
-    initRecording(glCanvas);
+    initDownload(glCanvas, getCurrentColors);
+    initRecording(glCanvas, getCurrentColors);
     initCodeExport(getCurrentColors);
 
     // 6. Split hover text effect — logo only

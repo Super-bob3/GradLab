@@ -13,8 +13,21 @@ import { sound } from './sound.js';
 export let isChinese = false;
 export function setIsChinese(val) { isChinese = val; }
 
+// ── Analytics snapshot ────────────────────────────────────────
+function _trackParams(getCurrentColors) {
+    const c = (id) => document.getElementById('ctrl-' + id);
+    return {
+        flow_type:        parseInt(c('type').value),
+        ascii_enabled:    c('ascii-enable').checked,
+        halftone_enabled: c('art-enable').checked,
+        color_count:      getCurrentColors().length,
+        grain:            parseInt(c('grain').value),
+        ascii_charset:    c('ascii-enable').checked ? c('ascii-charset').value : undefined,
+    };
+}
+
 // ── Screenshot ────────────────────────────────────────────────
-export function initDownload(glCanvas) {
+export function initDownload(glCanvas, getCurrentColors) {
     document.getElementById('btn-download').addEventListener('click', () => {
         sound.confirm();
         const btn = document.getElementById('btn-download');
@@ -48,12 +61,12 @@ export function initDownload(glCanvas) {
         link.click();
         document.body.removeChild(link);
         btn.innerText = 'DOWNLOAD FRAME';
-        if (typeof umami !== 'undefined') umami.track('download_image');
+        if (typeof umami !== 'undefined') umami.track('download_image', _trackParams(getCurrentColors));
     });
 }
 
 // ── Video Recording ───────────────────────────────────────────
-export function initRecording(glCanvas) {
+export function initRecording(glCanvas, getCurrentColors) {
     const btn = document.getElementById('btn-record');
 
     btn.addEventListener('click', () => {
@@ -111,7 +124,7 @@ function _encodeAndDownload(glCanvas, btn) {
         const blob = new Blob(chunks, { type: mimeType });
         _downloadBlob(blob, ext);
         sound.complete();
-        if (typeof umami !== 'undefined') umami.track('download_video', { format: ext, duration: getRecordSeconds() });
+        if (typeof umami !== 'undefined') umami.track('download_video', { format: ext, duration: getRecordSeconds(), pingpong, ..._trackParams(getCurrentColors) });
         btn.innerHTML = isChinese ? '<i class="ri-record-circle-line"></i> 录制视频' : '<i class="ri-record-circle-line"></i> Record MP4';
         allFrames.forEach(bmp => { if (bmp.close) bmp.close(); });
     };
@@ -162,7 +175,7 @@ export function initCodeExport(getCurrentColors) {
         sound.confirm();
         const btn = document.getElementById('btn-copy-code');
         navigator.clipboard.writeText(document.getElementById('code-output').value).then(() => {
-            if (typeof umami !== 'undefined') umami.track('copy_code');
+            if (typeof umami !== 'undefined') umami.track('copy_code', _trackParams(getCurrentColors));
             btn.innerHTML = isChinese ? '<i class="ri-check-line"></i> 已复制' : '<i class="ri-check-line"></i> Copied';
             setTimeout(() => { btn.innerHTML = isChinese ? '<i class="ri-file-copy-line"></i> 复制代码' : '<i class="ri-file-copy-line"></i> Copy Code'; }, 2000);
         });
@@ -174,7 +187,7 @@ export function initCodeExport(getCurrentColors) {
         const code = document.getElementById('code-output').value;
         const blob = new Blob([code], { type: 'text/html;charset=utf-8' });
         _downloadBlob(blob, 'html');
-        if (typeof umami !== 'undefined') umami.track('download_code');
+        if (typeof umami !== 'undefined') umami.track('download_code', _trackParams(getCurrentColors));
         btn.innerHTML = isChinese ? '<i class="ri-check-line"></i> 已下载！' : '<i class="ri-check-line"></i> Downloaded!';
         setTimeout(() => { btn.innerHTML = isChinese ? '<i class="ri-download-2-line"></i> 下载代码' : '<i class="ri-download-2-line"></i> Download'; }, 2000);
     });
