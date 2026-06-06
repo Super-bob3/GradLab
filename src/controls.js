@@ -372,6 +372,7 @@ export function initControls(onMatrixRebuild) {
             currentColors.push('#ffffff');
             saveToCurrentTheme();
             renderColorList();
+            if (typeof umami !== 'undefined') umami.track('add_color', { color_count: currentColors.length });
         }
     });
 
@@ -623,6 +624,9 @@ function renderColorList() {
             currentColors[index] = e.target.value;
             saveToCurrentTheme();
         });
+        inputColor.addEventListener('change', () => {
+            if (typeof umami !== 'undefined') umami.track('edit_color', { method: 'picker' });
+        });
         inputHex.addEventListener('input', (e) => {
             let val = e.target.value.trim();
             if (!val.startsWith('#')) val = '#' + val;
@@ -636,7 +640,12 @@ function renderColorList() {
         inputHex.addEventListener('blur', (e) => {
             let val = e.target.value.trim();
             if (!val.startsWith('#')) val = '#' + val;
-            inputHex.value = /^#[0-9A-F]{6}$/i.test(val) ? val.toUpperCase() : inputColor.value.toUpperCase();
+            if (/^#[0-9A-F]{6}$/i.test(val)) {
+                inputHex.value = val.toUpperCase();
+                if (typeof umami !== 'undefined') umami.track('edit_color', { method: 'hex' });
+            } else {
+                inputHex.value = inputColor.value.toUpperCase();
+            }
         });
         btnDel.addEventListener('click', () => {
             if (currentColors.length > MIN_COLORS) {
@@ -644,6 +653,7 @@ function renderColorList() {
                 currentColors.splice(index, 1);
                 saveToCurrentTheme();
                 renderColorList();
+                if (typeof umami !== 'undefined') umami.track('remove_color', { color_count: currentColors.length });
             }
         });
 
