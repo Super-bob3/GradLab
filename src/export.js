@@ -218,7 +218,7 @@ function _gatherParams(getCurrentColors) {
         artContrast: _ctrl('art-contrast').value,
         grain:       _ctrl('grain').value,
         grainBlend:  _ctrl('grain-blend').value,
-        colorMode:   _ctrl('color-mode').value,
+        colorMode:   _ctrl('color-mode').checked ? 1 : 0,
         blendBias:   _ctrl('blend-bias').value,
         blendSharp:  _ctrl('blend-sharp').value,
         panX:        window._getCameraPos ? window._getCameraPos().x : 0,
