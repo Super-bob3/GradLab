@@ -157,6 +157,14 @@ export const SELECT_CONFIGS = {
             { value: 'lighter',     label: 'Lighter' },
         ],
     },
+    'feedback-topic': {
+        label: 'Topic', id: 'feedback-topic',
+        options: [
+            { value: 'bug',     label: 'Bug Report',      selected: true },
+            { value: 'feature', label: 'Feature Request' },
+            { value: 'general', label: 'General Feedback' },
+        ],
+    },
 };
 
 function _renderOptions(options) {

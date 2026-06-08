@@ -9,6 +9,7 @@ import { initControls, getCurrentColors } from './controls.js';
 import { initDownload, initRecording, initCodeExport } from './export.js';
 import { mountControls } from './components.js';
 import { splitHover } from './split-hover.js';
+import { initFeedback } from './feedback.js';
 
 // ── DOM References ────────────────────────────────────────────
 const glCanvas       = document.getElementById('glCanvas');
@@ -54,7 +55,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // 6. Split hover text effect — logo only
     splitHover(document.querySelector('.title-name'), { stagger: 40, duration: 400 });
 
-    // 7. Mobile bottom sheet
+    // 7. Feedback widget
+    initFeedback();
+
+    // 8. Mobile bottom sheet
     initBottomSheet();
 });
 

@@ -35,11 +35,29 @@
     --radius-none: 0px;
     --radius-sm:   0.125rem;  /* 2px  */
     --radius:      0.25rem;   /* 4px  */
+    --radius-inner: 0.3125rem; /* 5px — inner element nesting (swatch inside pill) */
     --radius-md:   0.375rem;  /* 6px  */
     --radius-lg:   0.5rem;    /* 8px  */
     --radius-xl:   0.75rem;   /* 12px */
     --radius-2xl:  1rem;      /* 16px */
     --radius-full: 9999px;
+
+    /* Component Row Height */
+    --h-ctrl: 2.625rem;    /* 42px — control row (slider, select, color-pill, action-btn) */
+
+    /* Typography Scale */
+    --fs-xs:   0.625rem;   /* 10px */
+    --fs-sm:   0.6875rem;  /* 11px */
+    --fs-base: 0.75rem;    /* 12px */
+    --fs-md:   0.8125rem;  /* 13px */
+    --fs-ctrl: 0.875rem;   /* 14px — primary UI label size */
+    --fs-lg:   0.9375rem;  /* 15px */
+    --fs-xl:   1rem;       /* 16px */
+    --fs-2xl:  1.125rem;   /* 18px */
+    --fs-3xl:  1.75rem;    /* 28px */
+
+    /* Elevation */
+    --shadow-pill: 0 3px 5px rgba(0, 0, 0, 0.08);
 }
 
 :root[data-theme="dark"] {
@@ -218,7 +236,7 @@ body {
 }
 
 .title-name {
-    font-size: 16px;
+    font-size: var(--fs-xl);
     font-weight: 500;
     color: var(--text-main);
     letter-spacing: -0.3px;
@@ -227,7 +245,7 @@ body {
 .title-actions {
     display: flex;
     align-items: center;
-    gap: 2px;
+    gap: var(--space-0_5);
 }
 
 /* Canvas area */
@@ -299,7 +317,7 @@ canvas {
     bottom: var(--space-3_5);
     left: var(--space-4);
     font-family: "Geist Mono", ui-monospace, monospace;
-    font-size: 10px;
+    font-size: var(--fs-xs);
     letter-spacing: 0.8px;
     color: rgba(255, 255, 255, 0.75);
     background: rgba(0, 0, 0, 0.35);
@@ -343,7 +361,7 @@ canvas {
     width: var(--h-sm);
     height: var(--h-sm);
     padding: 0;
-    font-size: 16px;
+    font-size: var(--fs-xl);
     cursor: pointer;
     transition: all 0.2s;
     display: inline-flex;
@@ -358,7 +376,7 @@ canvas {
 }
 
 .section-title {
-    font-size: 14px;
+    font-size: var(--fs-ctrl);
     font-weight: 500;
     color: var(--text-main);
     padding: var(--space-2) 0;
@@ -368,7 +386,8 @@ canvas {
     align-items: center;
 }
 
-.section-title:first-child {
+.section-title:first-child,
+.sheet-handle + .section-title {
     margin-top: 0;
 }
 
@@ -385,7 +404,7 @@ canvas {
 }
 
 .control-group label {
-    font-size: 11px;
+    font-size: var(--fs-sm);
     color: var(--text-dim);
     flex: 1;
 }
@@ -432,7 +451,7 @@ canvas {
     position: relative;
     overflow: hidden;
     cursor: pointer;
-    height: 42px;
+    height: var(--h-ctrl);
     flex-shrink: 0;
     padding: 5px 18px 5px 16px;
     gap: 0;
@@ -452,7 +471,7 @@ canvas {
     min-width: 32px;
     background: var(--ctrl-chip);
     border-radius: var(--radius-lg);
-    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.08), inset 0 0 0 0.5px var(--border-color);
+    box-shadow: var(--shadow-pill), inset 0 0 0 0.5px var(--border-color);
     pointer-events: none;
 }
 
@@ -490,7 +509,7 @@ canvas {
 
 /* label inside slider */
 .control-group--slider label {
-    font-size: 14px;
+    font-size: var(--fs-ctrl);
     font-weight: 400;
     color: var(--gray-9);
     position: relative;
@@ -502,7 +521,7 @@ canvas {
 
 /* value inside slider */
 .control-group--slider .val-text {
-    font-size: 14px;
+    font-size: var(--fs-ctrl);
     font-weight: 500;
     color: var(--gray-12);
     position: relative;
@@ -527,7 +546,7 @@ canvas {
 }
 
 .val-text {
-    font-size: 11px;
+    font-size: var(--fs-sm);
     color: var(--text-main);
     width: var(--space-6);
     text-align: right;
@@ -545,7 +564,7 @@ canvas {
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    height: 42px;
+    height: var(--h-ctrl);
     padding: 5px;
     gap: 10px;
     margin-bottom: var(--space-1_5);
@@ -572,8 +591,8 @@ canvas {
 .color-item-left {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 0 4px;
+    gap: var(--space-1_5);
+    padding: 0 var(--space-1);
     flex: 1;
     min-width: 0;
 }
@@ -581,7 +600,7 @@ canvas {
 .drag-handle {
     cursor: grab;
     color: var(--gray-11);
-    font-size: 18px;
+    font-size: var(--fs-2xl);
     line-height: 1;
     flex-shrink: 0;
     user-select: none;
@@ -592,7 +611,7 @@ canvas {
 .drag-handle:active { cursor: grabbing; }
 
 .color-item-label {
-    font-size: 14px;
+    font-size: var(--fs-ctrl);
     font-weight: 400;
     color: var(--gray-9);
     white-space: nowrap;
@@ -603,7 +622,7 @@ canvas {
 /* ── Standalone color-pill control group (e.g. Base Color) ── */
 
 .control-group--color-pill {
-    height: 42px;
+    height: var(--h-ctrl);
     padding: 5px;
     gap: 10px;
     background: var(--ctrl-bg);
@@ -616,7 +635,7 @@ canvas {
 .control-group--color-pill > label {
     flex: 1;
     padding: 0 9px;
-    font-size: 14px;
+    font-size: var(--fs-ctrl);
     font-weight: 400;
     color: var(--gray-9);
 }
@@ -635,11 +654,11 @@ canvas {
     flex-direction: row;
     align-items: center;
     gap: 0;
-    padding: 4px;
-    height: 32px;
+    padding: var(--space-1);
+    height: var(--h-md);
     max-width: 240px;
     background: var(--slider-fill);
-    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.08), 0 0 0 0.5px var(--border-color);
+    box-shadow: var(--shadow-pill), 0 0 0 0.5px var(--border-color);
     border-radius: var(--radius-lg);
     box-sizing: border-box;
     flex-shrink: 0;
@@ -649,7 +668,7 @@ canvas {
 .color-swatch {
     width: 24px;
     height: 24px;
-    border-radius: 5px;
+    border-radius: var(--radius-inner);
     flex-shrink: 0;
     cursor: pointer;
     box-shadow: inset 0 0 0 0.5px var(--slider-stroke);
@@ -663,7 +682,7 @@ canvas {
 /* Hex text input — looks like text, editable on click */
 .hex-input {
     font-family: "Geist Mono", ui-monospace, monospace;
-    font-size: 12px;
+    font-size: var(--fs-base);
     font-weight: 400;
     color: var(--gray-12);
     background: transparent;
@@ -695,7 +714,7 @@ canvas {
     border: none;
     color: var(--gray-11);
     cursor: pointer;
-    font-size: 16px;
+    font-size: var(--fs-xl);
     padding: 0;
     flex-shrink: 0;
     border-radius: var(--radius-md);
@@ -736,7 +755,7 @@ input[type="color"]::-webkit-color-swatch {
     border: none;
     color: var(--text-dim);
     cursor: pointer;
-    font-size: 14px;
+    font-size: var(--fs-ctrl);
     line-height: 1;
     padding: 0 var(--space-1);
     transition: color 0.2s;
@@ -759,14 +778,14 @@ input[type="color"]::-webkit-color-swatch {
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    height: 42px;
+    height: var(--h-ctrl);
     padding: 0 var(--space-3) 0 var(--space-4);
     background: var(--ctrl-bg);
     box-shadow: inset 0 0 0 0.5px var(--slider-stroke);
     border-radius: var(--radius-xl);
     border: none;
     color: var(--text-main);
-    font-size: 14px;
+    font-size: var(--fs-ctrl);
     font-weight: 400;
     font-family: inherit;
     cursor: pointer;
@@ -780,7 +799,7 @@ input[type="color"]::-webkit-color-swatch {
 }
 
 .btn-disclosure-arrow {
-    font-size: 18px;
+    font-size: var(--fs-2xl);
     color: var(--gray-9);
     transition: transform 0.2s;
     display: flex;
@@ -806,7 +825,7 @@ input[type="color"]::-webkit-color-swatch {
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: var(--space-1_5);
     padding-top: 0;
     transition: padding-top 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -834,7 +853,7 @@ input[type="color"]::-webkit-color-swatch {
     color: var(--text-main);
     height: var(--h-md);
     padding: 0 var(--space-2_5);
-    font-size: 10px;
+    font-size: var(--fs-xs);
     cursor: pointer;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -850,12 +869,13 @@ input[type="color"]::-webkit-color-swatch {
 
 /* ── Add Color button — matches color-item row style ── */
 #btn-add-color {
-    min-height: 42px;
+    min-height: var(--h-ctrl);
+    margin-top: var(--space-2);
     border-radius: var(--radius-xl);
     background: var(--ctrl-bg);
     box-shadow: inset 0 0 0 0.5px var(--slider-stroke);
     color: var(--gray-9);
-    font-size: 14px;
+    font-size: var(--fs-ctrl);
     letter-spacing: 0;
     text-transform: none;
 }
@@ -891,15 +911,15 @@ input[type="color"]::-webkit-color-swatch {
 }
 
 .upload-icon-badge {
-    width: 36px;
-    height: 36px;
+    width: var(--h-lg);
+    height: var(--h-lg);
     border-radius: var(--radius-lg);
     background: var(--slider-fill);
     box-shadow: 0 2px 4px rgba(0,0,0,0.06), inset 0 0 0 0.5px var(--border-color);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
+    font-size: var(--fs-2xl);
     color: var(--text-dim);
     transition: background 0.2s, color 0.2s;
     margin-bottom: var(--space-0_5);
@@ -912,13 +932,13 @@ input[type="color"]::-webkit-color-swatch {
 }
 
 .upload-title {
-    font-size: 13px;
+    font-size: var(--fs-md);
     font-weight: 500;
     color: var(--text-main);
 }
 
 .upload-desc {
-    font-size: 11px;
+    font-size: var(--fs-sm);
     color: var(--text-dim);
     line-height: 1.5;
 }
@@ -934,7 +954,7 @@ input[type="color"]::-webkit-color-swatch {
 }
 
 .control-group--toggle > label:first-child {
-    font-size: 14px;
+    font-size: var(--fs-ctrl);
     font-weight: 400;
     color: var(--gray-9);
     flex: 1;
@@ -963,7 +983,7 @@ input[type="color"]::-webkit-color-swatch {
     align-items: center;
     width: 54px;
     height: var(--h-sm);
-    padding: 4px;
+    padding: var(--space-1);
     gap: 0;
     background: var(--ctrl-bg);
     box-shadow: inset 0 0 0 0.5px var(--slider-stroke);
@@ -976,7 +996,7 @@ input[type="color"]::-webkit-color-swatch {
     content: 'OFF';
     font-family: 'Geist Mono', monospace;
     font-weight: 500;
-    font-size: 12px;
+    font-size: var(--fs-base);
     color: var(--gray-12);
     min-width: 30px;
     text-align: center;
@@ -990,7 +1010,7 @@ input[type="color"]::-webkit-color-swatch {
     width: 16px;
     align-self: stretch;
     background: var(--slider-fill);
-    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.08), 0 0 0 0.5px var(--border-color);
+    box-shadow: var(--shadow-pill), 0 0 0 0.5px var(--border-color);
     border-radius: var(--radius-md);
     flex-shrink: 0;
     order: 0;
@@ -1004,7 +1024,7 @@ input[type="color"]::-webkit-color-swatch {
 
 .toggle input:checked + .toggle-track::after {
     content: 'ON';
-    color: #ffffff;
+    color: var(--accent-text);
     order: 0;
 }
 
@@ -1015,7 +1035,7 @@ input[type="color"]::-webkit-color-swatch {
 /* ── Select card: matches slider outer container ── */
 
 .control-group--select {
-    height: 42px;
+    height: var(--h-ctrl);
     padding: 5px;
     background: var(--ctrl-bg);
     box-shadow: inset 0 0 0 0.5px var(--slider-stroke);
@@ -1025,7 +1045,7 @@ input[type="color"]::-webkit-color-swatch {
 
 .control-group--select label {
     padding: 0 9px;
-    font-size: 14px;
+    font-size: var(--fs-ctrl);
     font-weight: 400;
     color: var(--gray-9);
     flex: 1;
@@ -1060,11 +1080,11 @@ select {
     appearance: none;
     background: var(--ctrl-chip);
     border: none;
-    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.08), 0 0 0 0.5px var(--border-color);
+    box-shadow: var(--shadow-pill), 0 0 0 0.5px var(--border-color);
     color: var(--gray-12);
     height: var(--h-md);
     padding: 0 var(--space-2_5);
-    font-size: 14px;
+    font-size: var(--fs-ctrl);
     font-weight: 400;
     outline: none;
     cursor: pointer;
@@ -1130,7 +1150,7 @@ input[type="checkbox"]:checked::after {
     background: var(--ctrl-bg);
     box-shadow: inset 0 0 0 0.5px var(--slider-stroke);
     border-radius: var(--radius-xl);
-    padding: 4px;
+    padding: var(--space-1);
     box-sizing: border-box;
 }
 
@@ -1142,7 +1162,7 @@ input[type="checkbox"]:checked::after {
     box-shadow: none;
     background: transparent;
     color: var(--gray-9);
-    font-size: 13px;
+    font-size: var(--fs-md);
     font-weight: 400;
     cursor: pointer;
     text-align: center;
@@ -1159,7 +1179,7 @@ input[type="checkbox"]:checked::after {
 .preset-btn.active {
     background: var(--slider-fill);
     color: var(--text-main);
-    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.08), inset 0 0 0 0.5px var(--border-color);
+    box-shadow: var(--shadow-pill), inset 0 0 0 0.5px var(--border-color);
     font-weight: 500;
 }
 
@@ -1171,14 +1191,14 @@ input[type="checkbox"]:checked::after {
 
 .action-btn {
     width: 100%;
-    height: 42px;
+    height: var(--h-ctrl);
     flex-shrink: 0;
     padding: 0;
     background: var(--text-main);
     border: none;
     color: var(--panel-bg);
     font-weight: 500;
-    font-size: 14px;
+    font-size: var(--fs-ctrl);
     text-transform: uppercase;
     letter-spacing: 0.5px;
     cursor: pointer;
@@ -1227,7 +1247,7 @@ input[type="checkbox"]:checked::after {
 /* ── Text Input control row ── */
 
 .control-group--text {
-    height: 42px;
+    height: var(--h-ctrl);
     padding: 5px 5px 5px 16px;
     background: var(--ctrl-bg);
     box-shadow: inset 0 0 0 0.5px var(--slider-stroke);
@@ -1241,10 +1261,10 @@ input[type="checkbox"]:checked::after {
     background: var(--ctrl-chip);
     color: var(--text-main);
     border: none;
-    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.08), inset 0 0 0 0.5px var(--border-color);
+    box-shadow: var(--shadow-pill), inset 0 0 0 0.5px var(--border-color);
     border-radius: var(--radius-lg);
     padding: 0 var(--space-2_5);
-    font-size: 13px;
+    font-size: var(--fs-md);
     font-family: "Geist Mono", ui-monospace, monospace;
     height: 100%;
     outline: none;
@@ -1252,7 +1272,7 @@ input[type="checkbox"]:checked::after {
 }
 
 .control-group--text input[type="text"]:focus {
-    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.08), inset 0 0 0 1px var(--border-strong);
+    box-shadow: var(--shadow-pill), inset 0 0 0 1px var(--border-strong);
 }
 
 /* ── Code Export Modal ── */
@@ -1265,7 +1285,7 @@ input[type="checkbox"]:checked::after {
     color: var(--text-main);
     border: 1px solid var(--border-color);
     font-family: "Geist Mono", ui-monospace, monospace;
-    font-size: 11px;
+    font-size: var(--fs-sm);
     padding: var(--space-3);
     resize: none;
     outline: none;
@@ -1326,31 +1346,31 @@ input[type="checkbox"]:checked::after {
 .modal-header-text {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: var(--space-1);
 }
 
 .modal-title {
-    font-size: 15px;
+    font-size: var(--fs-lg);
     font-weight: 500;
     color: var(--text-main);
     letter-spacing: -0.2px;
 }
 
 .modal-description {
-    font-size: 13px;
+    font-size: var(--fs-md);
     color: var(--text-dim);
     line-height: 1.5;
 }
 
 .modal-close {
-    width: 28px;
-    height: 28px;
+    width: var(--h-sm);
+    height: var(--h-sm);
     flex-shrink: 0;
     background: var(--ctrl-bg);
     border: none;
     border-radius: var(--radius-md);
     color: var(--text-dim);
-    font-size: 16px;
+    font-size: var(--fs-xl);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -1410,7 +1430,7 @@ input[type="checkbox"]:checked::after {
     position: absolute;
     width: 22px;
     height: 22px;
-    border: 2px solid #fff;
+    border: 2px solid var(--accent-text);
     border-radius: var(--radius-full);
     transform: translate(-50%, -50%);
     cursor: grab;
@@ -1442,7 +1462,7 @@ input[type="checkbox"]:checked::after {
     color: var(--gray-9);
     height: var(--h-md);
     padding: 0 var(--space-3);
-    font-size: 11px;
+    font-size: var(--fs-sm);
     cursor: pointer;
     text-transform: uppercase;
     font-family: inherit;
@@ -1568,3 +1588,174 @@ input[type="checkbox"]:checked::after {
         z-index: 200;
     }
 }
+
+/* ════════════════════════════════════════
+   Feedback Widget
+   ════════════════════════════════════════ */
+
+.feedback-trigger {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    color: var(--text-dim);
+    height: var(--h-sm);
+    padding: 0 var(--space-2);
+    font-size: var(--fs-ctrl);
+    font-family: inherit;
+    cursor: pointer;
+    border-radius: var(--radius-md);
+    transition: color 0.15s, background 0.15s;
+    white-space: nowrap;
+}
+
+.feedback-trigger:hover,
+.feedback-trigger.active {
+    color: var(--text-main);
+    background: var(--gray-3);
+}
+
+.feedback-popover {
+    position: fixed;
+    z-index: 9990;
+    width: 380px;
+    background: var(--panel-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-2xl);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+    pointer-events: none;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.feedback-popover.open {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+.feedback-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-3) var(--space-3) var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.feedback-title {
+    font-size: var(--fs-ctrl);
+    font-weight: 500;
+    color: var(--text-main);
+}
+
+.feedback-close {
+    background: none;
+    border: none;
+    padding: 0;
+    width: var(--h-sm);
+    height: var(--h-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-dim);
+    border-radius: var(--radius-md);
+    font-size: var(--fs-2xl);
+    font-family: inherit;
+    transition: background 0.15s, color 0.15s;
+}
+
+.feedback-close:hover {
+    background: var(--gray-4);
+    color: var(--text-main);
+}
+
+.feedback-popover .control-group--select {
+    margin: 0 var(--space-3) var(--space-3);
+}
+
+.feedback-textarea {
+    display: block;
+    resize: none;
+    border: none;
+    background: transparent;
+    padding: var(--space-4);
+    font-size: var(--fs-ctrl);
+    font-family: inherit;
+    color: var(--text-main);
+    width: 100%;
+    min-height: 128px;
+    box-sizing: border-box;
+    line-height: 1.6;
+}
+
+.feedback-textarea:focus {
+    outline: none;
+}
+
+.feedback-textarea::placeholder {
+    color: var(--text-dim);
+}
+
+.feedback-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding: var(--space-3) var(--space-3);
+    border-top: 1px solid var(--border-color);
+}
+
+.feedback-send {
+    background: var(--accent-bg);
+    color: var(--accent-text);
+    border: none;
+    border-radius: var(--radius-full);
+    height: var(--h-lg);
+    padding: 0 var(--space-5);
+    font-size: var(--fs-ctrl);
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    letter-spacing: -0.1px;
+}
+
+.feedback-send:hover:not(:disabled) {
+    opacity: 0.8;
+}
+
+.feedback-send:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.feedback-success[hidden] { display: none; }
+
+.feedback-success {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-10) var(--space-6);
+    gap: var(--space-2);
+    text-align: center;
+}
+
+.feedback-success i {
+    font-size: var(--fs-3xl);
+    color: var(--toggle-on);
+}
+
+.feedback-success p {
+    margin: 0;
+    font-size: var(--fs-md);
+    color: var(--text-main);
+}
+
+/* ── Inline-style migrations ── */
+#blend-group                 { margin-top: var(--space-3_5); }
+#bg-drop-zone                { margin-top: var(--space-1); }
+#wrapper-context-sliders     { flex-direction: column; gap: var(--space-2); }
+[data-toggle="pingpong"]     { margin-top: var(--space-2); }
+#code-modal .modal-box       { width: 90vw; max-width: 56.25rem; /* 900px */ }
+#code-output                 { min-height: 21.25rem; /* 340px */ }
