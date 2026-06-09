@@ -9,7 +9,6 @@ export default defineConfig({
     ['meta', { property: 'og:description', content: 'Documentation for GradLab, a browser-based WebGL gradient tool.' }],
   ],
   themeConfig: {
-    logo: { light: '/logo-light.svg', dark: '/logo-dark.svg', alt: 'GradLab' },
     siteTitle: 'GradLab',
     nav: [
       { text: 'Launch App ↗', link: 'https://gradlab.app' }
