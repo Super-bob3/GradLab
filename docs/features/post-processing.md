@@ -1,0 +1,44 @@
+---
+title: Post-Processing
+description: Layer film grain, inner border, corner radius, and 3D tilt over your gradient for a finished, production-ready look.
+---
+
+# Post-Processing
+
+Post-processing effects are applied on top of the rendered gradient as a compositing pass. They are non-destructive — adjusting or disabling them never changes the underlying shader output.
+
+## Film Grain
+
+Film grain adds a layer of analog noise over the canvas, simulating the texture of photographic film or printed media.
+
+- **Intensity** — controls how visible the grain is, from imperceptible texture to heavy noise
+- **Blend Mode** — determines how the grain interacts with the gradient beneath it
+
+| Blend Mode | Effect |
+|------------|--------|
+| **Overlay** | Grain lightens highlights and darkens shadows — the most natural film look |
+| **Screen** | Grain only brightens, adding a luminous haze |
+| **Multiply** | Grain only darkens, adding depth and grit |
+
+::: tip
+Grain at 15–25 intensity with Overlay blend gives the gradient a subtle tactile quality that prints especially well.
+:::
+
+## Inner Border
+
+Adds a soft vignette or hard frame inside the canvas edges. Increases visual depth and focus on the center. Adjustable radius controls how far the border extends inward.
+
+## Corner Radius
+
+Rounds the corners of the rendered canvas. The exported PNG and HTML both respect the corner radius, producing output ready for rounded-corner UI components without masking.
+
+- **0** — perfectly square corners
+- Higher values — progressively rounded, up to a full circle at maximum
+
+## 3D Tilt
+
+Adds a subtle perspective warp to the canvas that responds to mouse movement. As the cursor moves, the gradient tilts along the X and Y axes, creating a parallax depth illusion.
+
+::: info
+3D Tilt is a preview-only effect and does not affect PNG or video exports.
+:::
