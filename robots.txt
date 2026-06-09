@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://www.gradlab.app/sitemap.xml
+Sitemap: https://docs.gradlab.app/sitemap.xml
