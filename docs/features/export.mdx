@@ -1,0 +1,72 @@
+---
+title: "Export"
+description: "Export your gradient as a high-resolution PNG, an MP4 or WebM video loop, or a self-contained HTML file ready to embed anywhere."
+---
+
+## Overview
+
+GradLab offers three export formats. All exports capture the full composited output — gradient, halftone, ASCII matrix, and grain — at the native render resolution (minimum 2× device pixel ratio).
+
+## PNG Screenshot
+
+**Download Frame** captures the current canvas state as a PNG.
+
+- Resolution matches the WebGL render buffer — at minimum 2× device pixel ratio, so a 1440px-wide window produces a 2880px image on standard displays
+- Includes all active layers: gradient, halftone, ASCII matrix, and film grain
+- Corner radius is embedded in the PNG alpha channel if enabled
+- Instant — no processing delay
+
+### When to use
+
+Static assets for presentations, social media, UI mockups, print, or anywhere a single frame is needed.
+
+## Video Recording
+
+**Record MP4** captures a live video of the animation.
+
+1. Click **Record MP4** to begin — the button shows an elapsed timer
+2. Click **Stop** when done
+3. GradLab encodes the captured frames and downloads the file
+
+| Setting | Options |
+|---------|---------|
+| **Format** | MP4 (H.264) when supported; WebM (VP8) as fallback |
+| **Ping-pong Loop** | When enabled, the recording plays forward then reverses, producing a seamless infinite loop |
+
+<Note>
+  Enable **Ping-pong Loop** before starting the recording if you intend to use the video as a looping background. The resulting file loops without a visible cut point.
+</Note>
+
+### Tips for clean recordings
+
+- Record a short clip (3–8 seconds) and rely on ping-pong loop for looping — this keeps file sizes small
+- Lower **Speed** before recording for a slower, more atmospheric loop
+- Disable **3D Tilt** — it is screen-relative and will produce inconsistent motion in the exported file
+
+## HTML Code Export
+
+**Export Code** produces a fully self-contained `.html` file containing:
+
+- The complete WebGL shader source (vertex + fragment)
+- All current parameter values embedded as uniforms
+- The canvas rendering loop
+- No external dependencies — the file runs in any browser offline
+
+This is GradLab's most versatile export. The resulting HTML can be:
+
+- Dropped into a `<iframe>` in any web project
+- Used as a standalone full-screen background
+- Opened directly as a file in any browser
+- Shared as a single-file artifact with all visual state preserved
+
+<Tip>
+  The exported HTML is a snapshot of your current settings. If you adjust the gradient after exporting, export again — there is no live link between the HTML file and the app.
+</Tip>
+
+## Resolution Notes
+
+GradLab renders at `Math.max(2, devicePixelRatio)`, guaranteeing:
+
+- **Mac (Retina):** 2× or 3× depending on display
+- **Windows (1× DPI):** renders at 2× regardless, ensuring consistent output quality across platforms
+- **Export size:** a maximized browser window on a 1440p Mac produces ~5760 × 3240px PNG exports
