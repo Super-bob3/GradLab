@@ -1,9 +1,11 @@
 ---
-title: "Shape & Flow"
-description: "Choose from 13 GPU-rendered fluid algorithms — from classic sine waves to curl noise vortices, radial topology, and signed-distance field shapes."
+title: Shape & Flow
+description: Choose from 13 GPU-rendered fluid algorithms — from classic sine waves to curl noise vortices, radial topology, and signed-distance field shapes.
 ---
 
-## Overview
+import { Callout } from 'nextra/components'
+
+# Shape & Flow
 
 Shape & Flow defines the underlying mathematical structure that drives your gradient's motion and form. Each algorithm runs entirely on the GPU as a GLSL fragment shader, enabling smooth 60fps animation even on complex patterns.
 
@@ -23,7 +25,7 @@ Shape & Flow defines the underlying mathematical structure that drives your grad
 |-----------|-----------|
 | **Fluid Dynamics (Chaos)** | Simulates turbulent fluid motion using layered noise. High entropy, organic, unpredictable. |
 | **Domain Warp (Marble)** | Iteratively warps UV coordinates to produce marble-like veining and folded structures. |
-| **Curl Noise (Vortex)** | Derives motion from the curl of a noise field — produces smooth, divergence-free swirling vortices. |
+| **Curl Noise (Vortex)** | Derives motion from the curl of a noise field — smooth, divergence-free swirling vortices. |
 | **Polar Vortex (Cosmic)** | Combines polar coordinates with noise for cosmic spiral structures. |
 
 ### Topology & Geometry
@@ -31,7 +33,7 @@ Shape & Flow defines the underlying mathematical structure that drives your grad
 | Algorithm | Character |
 |-----------|-----------|
 | **Radial Topography (Rings)** | Concentric rings radiating from the canvas center, reminiscent of contour maps or sound wave visualizations. |
-| **Conic Sweep (Angular)** | Angular color sweeps derived from polar angles — produces pie-chart-like sectors with smooth gradient transitions. |
+| **Conic Sweep (Angular)** | Angular color sweeps derived from polar angles — pie-chart-like sectors with smooth gradient transitions. |
 | **Nested SDF Shape (Core Glow)** | Uses signed-distance field math to render a geometric shape with a glowing core. Clean, sharp, sculptural. |
 
 ### Diffusion
@@ -41,24 +43,22 @@ Diffusion algorithms push gradient colors through a simulated diffusion field, p
 | Algorithm | Character |
 |-----------|-----------|
 | **Diffusion Gradient (Organic)** | Pure procedural diffusion — soft, natural color spread without hard edges. |
-| **Diffusion Fluid (Image)** | Upload a background image; the diffusion field warps and blends it into the gradient. Produces textured, photo-infused gradients. |
+| **Diffusion Fluid (Image)** | Upload a background image; the diffusion field warps and blends it into the gradient. |
 | **Diffusion Fluid (Procedural SDF)** | Uses multi-point signed-distance fields as the diffusion source — geometric but organic. |
 
 ## Motion Controls
 
-All algorithms share four universal motion parameters:
-
 | Parameter | Effect |
 |-----------|--------|
 | **Speed** | How fast the animation progresses. 0 freezes the frame; higher values produce rapid motion. |
-| **Zoom** | Spatial scale of the pattern — zoom in for close-up detail, zoom out for a broad view of the structure. |
-| **Liquid** | Blends between the algorithm's structured output and a fluid noise layer, adding organic fluidity to geometric patterns. |
+| **Zoom** | Spatial scale of the pattern — zoom in for close-up detail, zoom out for a broad view. |
+| **Liquid** | Blends between the algorithm's structured output and a fluid noise layer. |
 | **Morph** | Context-sensitive. On wave-based algorithms it adjusts wave distortion; on SDF shapes it morphs the base geometry. |
 
 ## Camera Pan
 
-Click and drag directly on the canvas to pan the view. This works on all algorithms and lets you frame the exact portion of the pattern you want. The position is saved with the current preset.
+Click and drag directly on the canvas to pan the view. Works on all algorithms and lets you frame the exact portion of the pattern you want.
 
-<Note>
+<Callout type="info">
   Pan position is stored per-preset, so switching presets restores the last-used camera position for that preset.
-</Note>
+</Callout>

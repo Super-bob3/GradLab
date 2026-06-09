@@ -1,0 +1,16 @@
+:root {
+  --nextra-primary-hue: 0deg;
+  --nextra-primary-saturation: 0%;
+}
+
+/* Light mode — near-black accent (#202020) */
+html:not(.dark) {
+  --nextra-primary-hue: 0deg;
+  --nextra-primary-saturation: 0%;
+}
+
+/* Dark mode — near-white accent (#eeeeee) */
+html.dark {
+  --nextra-primary-hue: 0deg;
+  --nextra-primary-saturation: 0%;
+}

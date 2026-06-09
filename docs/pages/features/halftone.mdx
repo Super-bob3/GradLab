@@ -1,15 +1,15 @@
 ---
-title: "Halftone"
-description: "Apply dithered halftone patterns over your gradient using 4 dither matrices and 6 dot shapes for print-ready and retro aesthetics."
+title: Halftone
+description: Apply dithered halftone patterns over your gradient using 4 dither matrices and 6 dot shapes for print-ready and retro aesthetics.
 ---
 
-## Overview
+import { Callout } from 'nextra/components'
+
+# Halftone
 
 The Halftone layer converts the continuous gradient into a pattern of discrete dots or shapes, mimicking traditional print halftone screens. It's rendered as a GPU compositing pass over the base gradient, giving you full control over density, shape, and contrast without affecting the underlying animation.
 
 ## Dither Matrix
-
-The dither matrix controls how luminance thresholds are calculated across each halftone cell:
 
 | Matrix | Character |
 |--------|-----------|
@@ -19,8 +19,6 @@ The dither matrix controls how luminance thresholds are calculated across each h
 | **8×8 Ordered** | High-precision Bayer matrix — fine dot control, closest to commercial print halftone |
 
 ## Dot Shape
-
-Six shapes define the geometry of each halftone cell:
 
 | Shape | Description |
 |-------|-------------|
@@ -37,15 +35,15 @@ Controls the diameter of each dot cell. Smaller values produce fine, high-freque
 
 ## Contrast
 
-Shifts the luminance threshold at which dots appear, effectively brightening or darkening the overall halftone layer. Increase contrast to push dots toward full-on or full-off; decrease to preserve gradient tonal nuance within the pattern.
+Shifts the luminance threshold at which dots appear. Increase contrast to push dots toward full-on or full-off; decrease to preserve gradient tonal nuance within the pattern.
 
-<Tip>
+<Callout emoji="💡">
   Combine **8×8 Ordered** dither with **Circle** shape and a low contrast setting to get the closest result to traditional offset print halftone. Pair with a two-color palette for a spot-color print aesthetic.
-</Tip>
+</Callout>
 
 ## Use Cases
 
 - **Editorial design** — halftone backgrounds for magazine-style layouts
 - **Risograph / screen print** — simulate ink-on-paper printing aesthetics
-- **Brand visuals** — add texture and depth to gradient backgrounds without complex illustrations
+- **Brand visuals** — add texture and depth to gradient backgrounds
 - **Retro UI** — combine with a limited palette for a nostalgic digital feel

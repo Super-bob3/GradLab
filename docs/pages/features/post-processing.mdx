@@ -1,9 +1,11 @@
 ---
-title: "Post-Processing"
-description: "Layer film grain, inner border, corner radius, and 3D tilt over your gradient for a finished, production-ready look."
+title: Post-Processing
+description: Layer film grain, inner border, corner radius, and 3D tilt over your gradient for a finished, production-ready look.
 ---
 
-## Overview
+import { Callout } from 'nextra/components'
+
+# Post-Processing
 
 Post-processing effects are applied on top of the rendered gradient as a compositing pass. They are non-destructive — adjusting or disabling them never changes the underlying shader output.
 
@@ -20,9 +22,9 @@ Film grain adds a layer of analog noise over the canvas, simulating the texture 
 | **Screen** | Grain only brightens, adding a luminous haze |
 | **Multiply** | Grain only darkens, adding depth and grit |
 
-<Tip>
+<Callout emoji="💡">
   Grain at 15–25 intensity with Overlay blend gives the gradient a subtle tactile quality that prints especially well.
-</Tip>
+</Callout>
 
 ## Inner Border
 
@@ -43,10 +45,9 @@ Rounds the corners of the rendered canvas. The exported PNG and HTML both respec
 
 Adds a subtle perspective warp to the canvas that responds to mouse movement. As the cursor moves across the page, the gradient tilts along the X and Y axes, creating a parallax depth illusion.
 
-- Entirely CSS/canvas-layer — zero cost to the WebGL render pass
+- Zero cost to the WebGL render pass
 - Disabled automatically during video recording to keep exported loops clean
-- Suitable for landing pages, portfolio pieces, or any context where the gradient is interactive
 
-<Note>
+<Callout type="info">
   3D Tilt is a preview-only effect and does not affect PNG or video exports.
-</Note>
+</Callout>

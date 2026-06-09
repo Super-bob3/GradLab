@@ -1,9 +1,11 @@
 ---
-title: "ASCII Matrix"
-description: "Layer an interactive ASCII character grid over the gradient — with heatmap decay, mouse interaction, custom charsets, and independent blend control."
+title: ASCII Matrix
+description: Layer an interactive ASCII character grid over the gradient — with heatmap decay, mouse interaction, custom charsets, and independent blend control.
 ---
 
-## Overview
+import { Callout } from 'nextra/components'
+
+# ASCII Matrix
 
 The ASCII Matrix renders a full-canvas grid of characters over the gradient layer. Characters respond to mouse proximity in real time — brightening, shifting, or decaying based on where the cursor moves — creating a dynamic, interactive typographic texture.
 
@@ -11,11 +13,9 @@ The matrix runs on a separate canvas layer composited over the WebGL output, kee
 
 ## Character Sets
 
-Choose which characters populate the grid:
-
 | Charset | Characters | Character |
 |---------|-----------|-----------|
-| **Code** | A scrolling code snippet (`import`, `Engine`, `applyForce`…) | Technical, developer aesthetic |
+| **Code** | A scrolling code snippet | Technical, developer aesthetic |
 | **Standard** | `@%#*+=-:. ` | Classic ASCII brightness mapping |
 | **Blocks** | `██▓▒░ ` | Chunky, graphic block shading |
 | **Detailed** | Full 70-character luminance ramp | Maximum tonal detail |
@@ -29,14 +29,14 @@ Enter any text in the custom field — a brand name, a phrase, a single repeated
 
 ## Mouse Interaction
 
-Move the cursor over the canvas to activate the heatmap. Characters within the **Interaction Radius** respond with increased brightness and animation activity. The effect decays over time based on the **Decay** setting.
+Move the cursor over the canvas to activate the heatmap. Characters within the **Interaction Radius** respond with increased brightness and animation activity.
 
 | Parameter | Effect |
 |-----------|--------|
 | **Radius** | Size of the interaction zone around the cursor |
 | **Decay** | How quickly characters return to their resting state after the cursor leaves |
 | **Smooth** | Easing on the interaction response — higher values produce a softer, more gradual activation |
-| **Gravity** | Pulls activated characters toward the cursor position; at 0 characters stay in place |
+| **Gravity** | Pulls activated characters toward the cursor; at 0 characters stay in place |
 
 ## Display Controls
 
@@ -44,13 +44,11 @@ Move the cursor over the canvas to activate the heatmap. Characters within the *
 |-----------|--------|
 | **Size** | Font size of each character cell |
 | **Spacing** | Line-height multiplier — tighter values pack characters closer vertically |
-| **Font** | Selects from a set of monospaced typefaces to match the desired aesthetic |
+| **Font** | Selects from a set of monospaced typefaces |
 | **Color** | The fill color of the characters |
 | **Blend Mode** | How the character layer composites over the gradient |
 
 ## Blend Modes
-
-The matrix layer supports all standard canvas blend modes. The most useful combinations:
 
 | Blend Mode | Effect |
 |------------|--------|
@@ -61,13 +59,11 @@ The matrix layer supports all standard canvas blend modes. The most useful combi
 
 ## Interaction Mode
 
-Switch between two interaction modes:
-
 | Mode | Description |
 |------|-------------|
 | **Heatmap Decay** | Characters brighten on cursor contact, then fade back — decay leaves a glowing trail |
-| **Dynamic Background** | The full character grid animates continuously; cursor interaction shifts character density rather than brightness |
+| **Dynamic Background** | The full character grid animates continuously; cursor interaction shifts character density |
 
-<Tip>
+<Callout emoji="💡">
   For landing page hero sections, try **Code** charset at a medium size with **Overlay** blend and a 20% decay — it creates a living background texture that doesn't compete with foreground text.
-</Tip>
+</Callout>
