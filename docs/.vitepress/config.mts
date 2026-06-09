@@ -65,6 +65,7 @@ const zhSidebar = [
 export default defineConfig({
   title: 'GradLab',
   cleanUrls: true,
+  sitemap: { hostname: 'https://docs.gradlab.app' },
 
   locales: {
     root: {
