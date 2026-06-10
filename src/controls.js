@@ -13,6 +13,10 @@ export const MIN_COLORS = 2;
 export let currentColors = [];
 let currentThemeKey = 'theme1';
 let draggedColorIndex = null;
+let touchDragIndex   = null;
+let touchDragEl      = null;
+let touchDragClone   = null;
+let touchDragOver    = null;
 let activeMarker = null;
 
 // Full theme presets — each theme stores colors + all shader/post parameters
@@ -604,6 +608,62 @@ function renderColorList() {
         handle.innerHTML = '<i class="ri-draggable"></i>';
         const label    = document.createElement('span'); label.className = 'color-item-label'; label.innerText = `Color ${index + 1}`;
         leftWrap.appendChild(handle); leftWrap.appendChild(label);
+
+        handle.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            touchDragIndex = index;
+            touchDragEl    = item;
+            item.classList.add('dragging');
+            // ghost clone that follows the finger
+            touchDragClone = item.cloneNode(true);
+            touchDragClone.style.cssText = `
+                position:fixed;pointer-events:none;z-index:9999;
+                width:${item.offsetWidth}px;opacity:0.85;
+                box-shadow:0 4px 16px rgba(0,0,0,.25);border-radius:8px;
+            `;
+            const r = item.getBoundingClientRect();
+            touchDragClone.style.top  = r.top  + 'px';
+            touchDragClone.style.left = r.left + 'px';
+            document.body.appendChild(touchDragClone);
+        }, { passive: false });
+
+        handle.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (touchDragIndex === null) return;
+            const t = e.touches[0];
+            touchDragClone.style.top  = (t.clientY - touchDragClone.offsetHeight / 2) + 'px';
+            touchDragClone.style.left = (t.clientX - touchDragClone.offsetWidth  / 2) + 'px';
+            // find target item under finger
+            touchDragClone.style.display = 'none';
+            const el = document.elementFromPoint(t.clientX, t.clientY);
+            touchDragClone.style.display = '';
+            const target = el && el.closest('.color-item');
+            if (touchDragOver && touchDragOver !== target) touchDragOver.classList.remove('drag-over');
+            if (target && target !== touchDragEl) {
+                touchDragOver = target;
+                target.classList.add('drag-over');
+            } else {
+                touchDragOver = null;
+            }
+        }, { passive: false });
+
+        handle.addEventListener('touchend', () => {
+            if (touchDragClone) { touchDragClone.remove(); touchDragClone = null; }
+            document.querySelectorAll('.color-item').forEach(el => el.classList.remove('dragging', 'drag-over'));
+            if (touchDragOver) {
+                const toIdx = parseInt(touchDragOver.dataset.index, 10);
+                if (!isNaN(toIdx) && toIdx !== touchDragIndex) {
+                    const dragged = currentColors[touchDragIndex];
+                    currentColors.splice(touchDragIndex, 1);
+                    currentColors.splice(toIdx, 0, dragged);
+                    saveToCurrentTheme();
+                    renderColorList();
+                }
+            }
+            touchDragIndex = null;
+            touchDragEl    = null;
+            touchDragOver  = null;
+        });
 
         // Right: color pill
         const pill       = document.createElement('div'); pill.className = 'color-pill';

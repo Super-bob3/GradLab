@@ -1075,9 +1075,6 @@ select {
     font-family: inherit;
     border-radius: var(--radius-lg);
     flex-shrink: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
     transition: background 0.15s, box-shadow 0.15s;
 }
 
@@ -1510,7 +1507,7 @@ input[type="checkbox"]:checked::after {
         right: 0;
         width: 100%;
         height: auto;
-        max-height: 70vh;
+        max-height: 70dvh;
         padding: 0;
         /* default collapsed: only the handle + section-title visible (~72px) */
         transform: translateY(calc(100% - 72px));
@@ -1527,8 +1524,9 @@ input[type="checkbox"]:checked::after {
         border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
         border-bottom: none;
         height: auto;
-        max-height: 70vh;
-        padding-top: var(--space-2);
+        max-height: 70dvh;
+        padding-top: 0;
+        padding-bottom: env(safe-area-inset-bottom, 0px);
         /* subtle shadow to lift the sheet */
         box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.18);
     }
@@ -1538,10 +1536,21 @@ input[type="checkbox"]:checked::after {
         display: flex;
         justify-content: center;
         align-items: center;
-        padding: var(--space-2) 0 var(--space-1_5);
+        /* generous hit area for fingers */
+        padding: var(--space-4) 0 var(--space-3);
         cursor: grab;
         flex-shrink: 0;
         touch-action: none;
+        position: sticky;
+        top: 0;
+        /* above slider z-index (3) so nothing renders over the bar */
+        z-index: 10;
+        background: var(--gray-2);
+        /* stretch edge-to-edge over the panel's side padding */
+        margin: 0 calc(-1 * var(--space-4));
+        padding-left: var(--space-4);
+        padding-right: var(--space-4);
+        border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
     }
 
     .sheet-handle:active {
