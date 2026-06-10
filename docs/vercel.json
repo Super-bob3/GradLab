@@ -1,5 +1,9 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": ".vitepress/dist",
-  "framework": null
+  "framework": null,
+  "rewrites": [
+    { "source": "/stats/script.js", "destination": "https://cloud.umami.is/script.js" },
+    { "source": "/stats/api/send",  "destination": "https://cloud.umami.is/api/send" }
+  ]
 }

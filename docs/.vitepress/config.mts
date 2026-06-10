@@ -66,6 +66,9 @@ export default defineConfig({
   title: 'GradLab',
   cleanUrls: true,
   sitemap: { hostname: 'https://docs.gradlab.app' },
+  head: [
+    ['script', { defer: '', src: '/stats/script.js', 'data-website-id': 'b9ccd18e-7c2c-451d-b544-4bbe48757067', 'data-host-url': 'https://docs.gradlab.app/stats' }]
+  ],
 
   locales: {
     root: {
