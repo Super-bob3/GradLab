@@ -9,6 +9,8 @@ import {
 } from './engine.js';
 import { VERTEX_SHADER_SRC, FRAGMENT_SHADER_SRC } from './shaders.js';
 import { sound } from './sound.js';
+import { exportParams } from './params.js';
+import { generateBarcodeBlob } from './barcode.js';
 
 export let isChinese = false;
 export function setIsChinese(val) { isChinese = val; }
@@ -194,7 +196,20 @@ export function initCodeExport(getCurrentColors) {
 
     const closeCode = () => { sound.close(); document.getElementById('code-modal').style.display = 'none'; };
     document.getElementById('btn-close-code').addEventListener('click', closeCode);
-    document.getElementById('btn-close-code2').addEventListener('click', closeCode);
+    document.getElementById('btn-close-code2').addEventListener('click', async () => {
+        sound.tap();
+        try {
+            const blob = await generateBarcodeBlob(exportParams());
+            const url  = URL.createObjectURL(blob);
+            const a    = document.createElement('a');
+            a.download = 'gradlab-params.png';
+            a.href     = url;
+            a.click();
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        } catch (e) {
+            console.error('[barcode] generate failed:', e);
+        }
+    });
     document.getElementById('code-modal').addEventListener('click', (e) => {
         if (e.target === document.getElementById('code-modal')) closeCode();
     });

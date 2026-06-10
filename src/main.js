@@ -5,7 +5,9 @@
 
 import { initEngine, uploadBgTexture, syncSlider, setCameraPos, getCameraPos } from './engine.js';
 import { initMatrixCanvas, initMatrix } from './matrix.js';
-import { initControls, getCurrentColors } from './controls.js';
+import { initControls, getCurrentColors, setImageFileHook } from './controls.js';
+import { importParams } from './params.js';
+import { decodeBarcode } from './barcode.js';
 import { initDownload, initRecording, initCodeExport } from './export.js';
 import { mountControls } from './components.js';
 import { splitHover } from './split-hover.js';
@@ -58,6 +60,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 7. Feedback widget
     initFeedback();
+
+    // 8a. Barcode import hook — intercepts Upload Image if a PDF417 barcode is detected
+    setImageFileHook(async (file) => {
+        try {
+            const text = await decodeBarcode(file);
+            if (text && importParams(text)) return true;
+        } catch (e) {
+            console.warn('[barcode] import failed:', e);
+        }
+        return false;
+    });
 
     // 8b. Docs link sound
     document.querySelector('a.feedback-trigger')

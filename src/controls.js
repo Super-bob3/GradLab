@@ -11,6 +11,10 @@ export const MAX_COLORS = 8;
 export const MIN_COLORS = 2;
 
 export let currentColors = [];
+let _onMatrixRebuild = null;
+let _imageFileHook = null;
+
+export function setImageFileHook(fn) { _imageFileHook = fn; }
 let currentThemeKey = 'theme1';
 let draggedColorIndex = null;
 let touchDragIndex   = null;
@@ -229,7 +233,7 @@ const dict = {
     '- Color': '- 移除', '+ Color': '+ 新增', 'Done': '完成',
     '⏺ Record MP4': '⏺ 录制视频', '⟨/⟩ Export Code': '⟨/⟩ 导出代码',
     'Export Standalone Code': '导出独立代码', 'Copy Code': '复制代码',
-    'Download Code': '下载代码', 'Close': '关闭', 'Loop (Pingpong)': '乒乓循环',
+    'Download Code': '下载代码', 'Download Param Code': '下载参数码', 'Close': '关闭', 'Loop (Pingpong)': '乒乓循环',
 };
 const reverseDict = Object.fromEntries(Object.entries(dict).map(([k, v]) => [v, k]));
 
@@ -255,7 +259,67 @@ function toggleLanguage() {
 }
 
 // ── Init Controls ─────────────────────────────────────────────
+function _setCtrl(id, val) {
+    const el = document.getElementById('ctrl-' + id);
+    if (!el) return;
+    if (el.type === 'checkbox') el.checked = val;
+    else el.value = val;
+    const span = document.getElementById('val-' + id);
+    if (span) span.innerText = val;
+}
+
+function _setCtrlSync(id, val) {
+    const el = document.getElementById('ctrl-' + id);
+    if (!el) return;
+    el.value = val;
+    const span = document.getElementById('val-' + id);
+    if (span) span.innerText = val;
+    el.dispatchEvent(new Event('input'));
+}
+
+export function applyStateObject(t) {
+    currentColors = [...t.colors];
+    renderColorList();
+
+    _setCtrl('color-mode',    t.colorMode ?? true);
+    _setCtrl('blend-bias',    t.blendBias);
+    _setCtrl('blend-sharp',   t.blendSharp);
+    _setCtrl('type',          t.type);
+    _setCtrl('zoom',          t.zoom);
+    _setCtrl('speed',         t.speed);
+    _setCtrl('liquid',        t.liquid);
+    _setCtrl('morph',         t.morph);
+    _setCtrl('rotation',      t.rotation);
+    _setCtrl('grain',         t.grain);
+    _setCtrl('grain-blend',   t.grainBlend);
+    _setCtrl('art-enable',    t.artEnable);
+    _setCtrl('art-type',      t.artType);
+    _setCtrl('art-size',      t.artSize);
+    _setCtrl('art-shape',     t.artShape);
+    _setCtrl('art-contrast',  t.artContrast);
+    _setCtrl('ascii-enable',  t.asciiEnable);
+    _setCtrl('ascii-mode',    t.asciiMode);
+    document.getElementById('ctrl-ascii-mode').dispatchEvent(new Event('change'));
+    _setCtrlSync('ascii-dither',  t.asciiDither);
+    _setCtrlSync('ascii-size',    t.asciiSize);
+    _setCtrlSync('ascii-spacing', t.asciiSpacing);
+    _setCtrlSync('ascii-font',    t.asciiFont);
+    _setCtrlSync('ascii-color',   t.asciiColor);
+    _setCtrlSync('ascii-blend',   t.asciiBlend);
+    _setCtrlSync('ascii-decay',   t.asciiDecay);
+    _setCtrlSync('ascii-radius',  t.asciiRadius);
+    _setCtrlSync('ascii-smooth',  t.asciiSmooth);
+    _setCtrlSync('ascii-gravity', t.asciiGravity);
+    _setCtrlSync('ascii-charset', t.asciiCharset);
+    _setCtrlSync('ascii-custom',  t.asciiCustom);
+
+    if (window._setCameraPos) window._setCameraPos(t.panX || 0, t.panY || 0);
+    document.getElementById('ctrl-type').dispatchEvent(new Event('change'));
+    if (_onMatrixRebuild) _onMatrixRebuild();
+}
+
 export function initControls(onMatrixRebuild) {
+    _onMatrixRebuild = onMatrixRebuild;
     // Initial colors (full theme applied later in main.js after engine init)
     currentColors = [...themePresets[currentThemeKey].colors];
     renderColorList();
@@ -285,88 +349,11 @@ export function initControls(onMatrixRebuild) {
     window.applyColorPreset = function(name, btnEl, _fromInit = false) {
         sound.preset();
         if (!_fromInit && typeof umami !== 'undefined') umami.track('apply_preset', { preset: name });
-        // Save current theme's live state before switching
-        if (currentThemeKey && currentThemeKey !== name) {
-            _saveThemeState(currentThemeKey);
-        }
+        if (currentThemeKey && currentThemeKey !== name) _saveThemeState(currentThemeKey);
         currentThemeKey = name;
-
-        // Load from runtime state (preserves user edits; falls back to preset defaults)
-        const t = themeStates[name];
-
-        // Colors
-        currentColors = [...t.colors];
-        renderColorList();
-
-        // Helper to set a control value and sync its display span
-        function setCtrl(id, val) {
-            const el = document.getElementById('ctrl-' + id);
-            if (!el) return;
-            if (el.type === 'checkbox') el.checked = val;
-            else el.value = val;
-            const span = document.getElementById('val-' + id);
-            if (span) span.innerText = val;
-        }
-
-        setCtrl('color-mode',    t.colorMode ?? true);
-        setCtrl('blend-bias',    t.blendBias);
-        setCtrl('blend-sharp',   t.blendSharp);
-        setCtrl('type',          t.type);
-        setCtrl('zoom',          t.zoom);
-        setCtrl('speed',         t.speed);
-        setCtrl('liquid',        t.liquid);
-        setCtrl('morph',         t.morph);
-        setCtrl('rotation',      t.rotation);
-        setCtrl('grain',         t.grain);
-        setCtrl('grain-blend',   t.grainBlend);
-        setCtrl('art-enable',    t.artEnable);
-        setCtrl('art-type',      t.artType);
-        setCtrl('art-size',      t.artSize);
-        setCtrl('art-shape',     t.artShape);
-        setCtrl('art-contrast',  t.artContrast);
-        setCtrl('ascii-enable', t.asciiEnable);
-
-        // Trigger ascii-mode change first so internal currentAsciiMode is correct,
-        // then override all sub-controls and fire input to sync asciiModeStates
-        setCtrl('ascii-mode', t.asciiMode);
-        document.getElementById('ctrl-ascii-mode').dispatchEvent(new Event('change'));
-
-        // Helper: set value + fire input so asciiModeStates stays in sync
-        function setCtrlSync(id, val) {
-            const el = document.getElementById('ctrl-' + id);
-            if (!el) return;
-            el.value = val;
-            const span = document.getElementById('val-' + id);
-            if (span) span.innerText = val;
-            el.dispatchEvent(new Event('input'));
-        }
-        setCtrlSync('ascii-dither',  t.asciiDither);
-        setCtrlSync('ascii-size',    t.asciiSize);
-        setCtrlSync('ascii-spacing', t.asciiSpacing);
-        setCtrlSync('ascii-font',    t.asciiFont);
-        setCtrlSync('ascii-color',   t.asciiColor);
-        setCtrlSync('ascii-blend',   t.asciiBlend);
-        setCtrlSync('ascii-decay',   t.asciiDecay);
-        setCtrlSync('ascii-radius',  t.asciiRadius);
-        setCtrlSync('ascii-smooth',  t.asciiSmooth);
-        setCtrlSync('ascii-gravity', t.asciiGravity);
-        setCtrlSync('ascii-charset', t.asciiCharset);
-        setCtrlSync('ascii-custom',  t.asciiCustom);
-
-        // Pan position
-        if (window._setCameraPos) window._setCameraPos(t.panX || 0, t.panY || 0);
-
-        // Grain is rendered each frame by engine._renderGrain()
-
-        // ASCII mode visibility is handled by the change event dispatched above
-
-        // Sync context-aware UI (morph/rotation visibility)
-        document.getElementById('ctrl-type').dispatchEvent(new Event('change'));
-
+        applyStateObject(themeStates[name]);
         document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
         if (btnEl) btnEl.classList.add('active');
-
-        if (onMatrixRebuild) onMatrixRebuild();
     };
 
     // Add color
@@ -736,6 +723,16 @@ function _initImagePicker() {
 
     function handleImageFile(file) {
         if (!file || !file.type.startsWith('image/')) return;
+        if (_imageFileHook) {
+            _imageFileHook(file)
+                .then(intercepted => { if (!intercepted) _openImagePicker(file); })
+                .catch(() => _openImagePicker(file));
+            return;
+        }
+        _openImagePicker(file);
+    }
+
+    function _openImagePicker(file) {
         const reader = new FileReader();
         reader.onload = (event) => {
             const img = new Image();
