@@ -357,13 +357,13 @@ canvas {
     background: transparent;
     border: none;
     box-shadow: none;
-    color: var(--gray-11);
+    color: var(--text-dim);
     width: var(--h-sm);
     height: var(--h-sm);
     padding: 0;
     font-size: var(--fs-xl);
     cursor: pointer;
-    transition: all 0.2s;
+    transition: background 0.2s, color 0.2s;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -834,55 +834,37 @@ input[type="color"]::-webkit-color-swatch {
     padding-top: 6px;
 }
 
-/* Ghost variant of action-btn (outlined, no fill) */
-.action-btn--ghost {
-    background: transparent;
-    color: var(--text-main);
-    box-shadow: inset 0 0 0 1px var(--border-color);
-}
 
-.action-btn--ghost:hover {
-    opacity: 1;
-    box-shadow: inset 0 0 0 1px var(--border-strong);
-}
-
-.btn-ghost {
+.btn-line {
     background: transparent;
     border: none;
-    box-shadow: 0 0 0 1px var(--slider-stroke);
+    box-shadow: inset 0 0 0 0.5px var(--border-color);
     color: var(--text-main);
     height: var(--h-md);
     padding: 0 var(--space-2_5);
     font-size: var(--fs-xs);
     cursor: pointer;
-    text-transform: uppercase;
-    letter-spacing: 1px;
     width: 100%;
     transition: all 0.2s;
     font-family: inherit;
     border-radius: var(--radius-full);
 }
 
-.btn-ghost:hover {
-    box-shadow: 0 0 0 1px var(--border-strong);
+.btn-line:hover {
+    background: var(--gray-a3);
+    box-shadow: inset 0 0 0 0.5px var(--border-color);
 }
 
-/* ── Add Color button — matches color-item row style ── */
+/* ── Add Color button ── */
 #btn-add-color {
     min-height: var(--h-ctrl);
     margin-top: var(--space-2);
     border-radius: var(--radius-xl);
-    background: var(--ctrl-bg);
-    box-shadow: inset 0 0 0 0.5px var(--slider-stroke);
-    color: var(--gray-9);
     font-size: var(--fs-ctrl);
-    letter-spacing: 0;
-    text-transform: none;
 }
 
 #btn-add-color:hover {
-    background: var(--gray-3);
-    color: var(--text-main);
+    background: var(--gray-a3);
 }
 
 /* ── Upload Area ── */
@@ -1199,20 +1181,30 @@ input[type="checkbox"]:checked::after {
     color: var(--panel-bg);
     font-weight: 500;
     font-size: var(--fs-ctrl);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
     cursor: pointer;
     font-family: inherit;
     border-radius: var(--radius-xl);
-    transition: opacity 0.2s;
+    transition: background 0.2s;
 }
 
 .action-btn:hover {
-    opacity: 0.8;
+    background: var(--gray-11);
 }
 
 .action-btn:active {
     transform: scale(0.98);
+}
+
+.action-btn--line {
+    background: transparent;
+    color: var(--text-main);
+    box-shadow: inset 0 0 0 0.5px var(--border-color);
+}
+
+.action-btn--line:hover {
+    opacity: 1;
+    background: var(--gray-a3);
+    box-shadow: inset 0 0 0 0.5px var(--border-color);
 }
 
 .btn-record-active {
@@ -1366,7 +1358,7 @@ input[type="checkbox"]:checked::after {
     width: var(--h-sm);
     height: var(--h-sm);
     flex-shrink: 0;
-    background: var(--ctrl-bg);
+    background: transparent;
     border: none;
     border-radius: var(--radius-md);
     color: var(--text-dim);
@@ -1375,7 +1367,7 @@ input[type="checkbox"]:checked::after {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.15s, color 0.15s;
+    transition: background 0.2s, color 0.2s;
     margin-top: 2px;
 }
 
@@ -1458,16 +1450,15 @@ input[type="checkbox"]:checked::after {
 .btn-mini {
     background: var(--ctrl-bg);
     border: none;
-    box-shadow: inset 0 0 0 0.5px var(--slider-stroke);
-    color: var(--gray-9);
+    box-shadow: inset 0 0 0 0.5px var(--border-color);
+    color: var(--text-dim);
     height: var(--h-md);
     padding: 0 var(--space-3);
     font-size: var(--fs-sm);
     cursor: pointer;
-    text-transform: uppercase;
     font-family: inherit;
     border-radius: var(--radius-md);
-    transition: all 0.2s;
+    transition: background 0.2s, color 0.2s;
 }
 
 .btn-mini:hover {
@@ -1604,7 +1595,7 @@ input[type="checkbox"]:checked::after {
     font-family: inherit;
     cursor: pointer;
     border-radius: var(--radius-md);
-    transition: color 0.15s, background 0.15s;
+    transition: background 0.2s, color 0.2s;
     white-space: nowrap;
     text-decoration: none;
     display: inline-flex;
@@ -1666,11 +1657,11 @@ input[type="checkbox"]:checked::after {
     border-radius: var(--radius-md);
     font-size: var(--fs-2xl);
     font-family: inherit;
-    transition: background 0.15s, color 0.15s;
+    transition: background 0.2s, color 0.2s;
 }
 
 .feedback-close:hover {
-    background: var(--gray-4);
+    background: var(--gray-3);
     color: var(--text-main);
 }
 
@@ -1719,12 +1710,12 @@ input[type="checkbox"]:checked::after {
     font-weight: 500;
     font-family: inherit;
     cursor: pointer;
-    transition: opacity 0.15s;
+    transition: background 0.2s;
     letter-spacing: -0.1px;
 }
 
 .feedback-send:hover:not(:disabled) {
-    opacity: 0.8;
+    background: var(--gray-11);
 }
 
 .feedback-send:disabled {
