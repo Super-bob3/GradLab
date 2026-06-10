@@ -3,6 +3,8 @@
  * 替换 WEBHOOK_URL 为你的 Discord Webhook 地址。
  */
 
+import { sound } from './sound.js';
+
 const WEBHOOK_URL = 'https://discord.com/api/webhooks/1513490047725469856/pHCVTu4HgvycbrORgpTBUPemcqate5hw-tkq_u0VMe_21ek6jyUsQZE77gcuAwfnp08g';
 
 const TOPICS = [
@@ -32,6 +34,7 @@ export function initFeedback() {
     popover.classList.add('open');
     btn.classList.add('active');
     isOpen = true;
+    sound.open();
     textarea.focus();
   }
 
@@ -39,6 +42,7 @@ export function initFeedback() {
     popover.classList.remove('open');
     btn.classList.remove('active');
     isOpen = false;
+    sound.close();
   }
 
   function resetForm() {
@@ -100,6 +104,7 @@ export function initFeedback() {
 
       normalView.hidden  = true;
       successView.hidden = false;
+      sound.confirm();
       setTimeout(() => {
         closePopover();
         setTimeout(resetForm, 350);

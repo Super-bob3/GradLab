@@ -10,6 +10,7 @@ import { initDownload, initRecording, initCodeExport } from './export.js';
 import { mountControls } from './components.js';
 import { splitHover } from './split-hover.js';
 import { initFeedback } from './feedback.js';
+import { sound } from './sound.js';
 
 // ── DOM References ────────────────────────────────────────────
 const glCanvas       = document.getElementById('glCanvas');
@@ -58,7 +59,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // 7. Feedback widget
     initFeedback();
 
-    // 8. Mobile bottom sheet
+    // 8b. Docs link sound
+    document.querySelector('a.feedback-trigger')
+        ?.addEventListener('click', () => sound.tap());
+
+    // 9. Mobile bottom sheet
     initBottomSheet();
 });
 
