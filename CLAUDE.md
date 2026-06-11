@@ -54,6 +54,8 @@ npm run preview  # 预览构建产物（模拟 Vercel 行为）
 
 **每次功能开发必须走这个流程，不允许直接在 main 上开发后推送：**
 
+> **例外**：纯配置 / 文档 / 清理类变更（不影响运行时行为）可直接提交到 main，无需 Preview 验证。
+
 ```
 1. git checkout -b feature/xxx        # 从 main 创建功能分支
 2. 开发 + npm run dev 本地验证
