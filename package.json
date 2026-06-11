@@ -3,9 +3,20 @@
   "version": "7.0.0",
   "description": "Pipeline Shader — WebGL OKLab fluid shader engine with interactive controls",
   "scripts": {
-    "dev":     "npx serve . --cors -p 3000",
-    "preview": "npx serve . --cors -p 3000"
+    "dev":     "vite",
+    "build":   "vite build",
+    "preview": "vite preview"
   },
-  "keywords": ["webgl", "shader", "fluid", "oklab", "halftone", "ascii"],
-  "license": "MIT"
+  "keywords": [
+    "webgl",
+    "shader",
+    "fluid",
+    "oklab",
+    "halftone",
+    "ascii"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "vite": "^8.0.16"
+  }
 }
