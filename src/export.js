@@ -9,7 +9,7 @@ import {
 } from './engine.js';
 import { VERTEX_SHADER_SRC, FRAGMENT_SHADER_SRC } from './shaders.js';
 import { sound } from './sound.js';
-import { exportParams } from './params.js';
+import { exportParamsJson } from './params.js';
 import { generateBarcodeBlob } from './barcode.js';
 
 export let isChinese = false;
@@ -199,7 +199,7 @@ export function initCodeExport(getCurrentColors) {
     document.getElementById('btn-close-code2').addEventListener('click', async () => {
         sound.tap();
         try {
-            const blob = await generateBarcodeBlob(exportParams());
+            const blob = await generateBarcodeBlob(exportParamsJson());
             const url  = URL.createObjectURL(blob);
             const a    = document.createElement('a');
             a.download = 'gradlab-params.png';

@@ -1,6 +1,8 @@
-const BWIPJS_CDN = 'https://cdn.jsdelivr.net/npm/bwip-js@4/dist/bwip-js-min.js';
-const ZXING_CDN  = 'https://cdn.jsdelivr.net/npm/@zxing/library@0.18.6/umd/index.min.js';
+const BWIPJS_CDN  = 'https://cdn.jsdelivr.net/npm/bwip-js@4/dist/bwip-js-min.js';
+const ZXING_CDN   = 'https://cdn.jsdelivr.net/npm/@zxing/library@0.18.6/umd/index.min.js';
 const PNG_KEYWORD = 'GradLab';
+const WORKER_URL  = import.meta.env.VITE_WORKER_URL || 'https://gradlab-params.workers.dev';
+const SHORT_ID_RE = /^GL\|[0-9A-Za-z]{6}$/;
 
 function _loadScript(url, globalKey) {
     if (window[globalKey]) return Promise.resolve(window[globalKey]);
@@ -92,12 +94,33 @@ async function _readTextChunk(file, keyword) {
 
 // ── Public API ────────────────────────────────────────────────
 
-// Generates a DataMatrix PNG Blob with params embedded as tEXt metadata.
-export async function generateBarcodeBlob(text) {
-    const bwipjs = await _loadScript(BWIPJS_CDN, 'bwipjs');
-    const canvas = document.createElement('canvas');
-    bwipjs.toCanvas(canvas, { bcid: 'datamatrix', text, scale: 4 });
-    return _embedTextChunk(canvas.toDataURL('image/png'), PNG_KEYWORD, text);
+// Stores params JSON in KV via Worker, returns short ID string "GL|xxxxxx".
+async function _storeParams(paramsObj) {
+    const res = await fetch(`${WORKER_URL}/api/params`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(paramsObj),
+    });
+    if (!res.ok) throw new Error(`[barcode] Worker error ${res.status}`);
+    const { id } = await res.json();
+    return `GL|${id}`;
+}
+
+// Fetches params JSON from KV via Worker by short ID (without "GL|" prefix).
+export async function fetchParamsById(id) {
+    const res = await fetch(`${WORKER_URL}/api/params/${id}`);
+    if (!res.ok) return null;
+    return res.json();
+}
+
+// Generates a DataMatrix PNG Blob. paramsObj is the named JSON from exportParamsJson().
+// Stores params in Worker KV and encodes only the short ID in the barcode (14×14).
+export async function generateBarcodeBlob(paramsObj) {
+    const shortId = await _storeParams(paramsObj);
+    const bwipjs  = await _loadScript(BWIPJS_CDN, 'bwipjs');
+    const canvas  = document.createElement('canvas');
+    bwipjs.toCanvas(canvas, { bcid: 'datamatrix', text: shortId, scale: 4 });
+    return _embedTextChunk(canvas.toDataURL('image/png'), PNG_KEYWORD, shortId);
 }
 
 // Decodes params from a PNG File.

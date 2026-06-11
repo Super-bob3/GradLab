@@ -1,0 +1,7 @@
+name            = "gradlab-params"
+main            = "index.js"
+compatibility_date = "2024-09-23"
+
+[[kv_namespaces]]
+binding = "KV"
+id      = "a5fb20108b6b4b89ac0fa1748ec77acd"

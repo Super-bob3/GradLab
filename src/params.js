@@ -11,6 +11,53 @@ function _i(arr, val) { const i = arr.indexOf(val); return i >= 0 ? i : 0; }
 function _v(arr, i)   { return arr[+i] ?? arr[0]; }
 
 // ── Export ────────────────────────────────────────────────────
+// Named JSON object — consumed by Cloudflare Worker (KV storage) and applyStateObject.
+// Field names are stable; add new fields at the end, never remove or rename existing ones.
+export function exportParamsJson() {
+    function r(id)  { const el = document.getElementById('ctrl-' + id); return el ? el.value   : ''; }
+    function rb(id) { const el = document.getElementById('ctrl-' + id); return el ? el.checked  : false; }
+
+    const panX = window._getCameraPos ? window._getCameraPos().x : 0;
+    const panY = window._getCameraPos ? window._getCameraPos().y : 0;
+
+    return {
+        v:            1,
+        colors:       currentColors,
+        colorMode:    rb('color-mode'),
+        blendBias:    r('blend-bias'),
+        blendSharp:   r('blend-sharp'),
+        type:         r('type'),
+        zoom:         r('zoom'),
+        speed:        r('speed'),
+        liquid:       r('liquid'),
+        morph:        r('morph'),
+        rotation:     r('rotation'),
+        grain:        r('grain'),
+        grainBlend:   r('grain-blend'),
+        artEnable:    rb('art-enable'),
+        artType:      r('art-type'),
+        artSize:      r('art-size'),
+        artShape:     r('art-shape'),
+        artContrast:  r('art-contrast'),
+        asciiEnable:  rb('ascii-enable'),
+        asciiMode:    r('ascii-mode'),
+        asciiDither:  r('ascii-dither'),
+        asciiSize:    r('ascii-size'),
+        asciiSpacing: r('ascii-spacing'),
+        asciiFont:    r('ascii-font'),
+        asciiColor:   r('ascii-color') || '#000000',
+        asciiBlend:   r('ascii-blend'),
+        asciiDecay:   r('ascii-decay'),
+        asciiRadius:  r('ascii-radius'),
+        asciiSmooth:  r('ascii-smooth'),
+        asciiGravity: r('ascii-gravity'),
+        asciiCharset: r('ascii-charset'),
+        asciiCustom:  r('ascii-custom') || '',
+        panX,
+        panY,
+    };
+}
+
 // Compact pipe-delimited format: GL|colors|...34 fields total
 // Example: GL|FB7C47,E1B8FF|1|65|0|11|18|25|25|69|80|20|0|0|3|5.3|0|30|1|1|0|14|1|14|FFFFFF|0|20|50|60|0|0||0|0
 export function exportParams() {

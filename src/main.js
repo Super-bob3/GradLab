@@ -7,7 +7,8 @@ import { initEngine, uploadBgTexture, syncSlider, setCameraPos, getCameraPos } f
 import { initMatrixCanvas, initMatrix } from './matrix.js';
 import { initControls, getCurrentColors, setImageFileHook } from './controls.js';
 import { importParams } from './params.js';
-import { decodeBarcode } from './barcode.js';
+import { decodeBarcode, fetchParamsById } from './barcode.js';
+import { applyStateObject } from './controls.js';
 import { initDownload, initRecording, initCodeExport } from './export.js';
 import { mountControls } from './components.js';
 import { splitHover } from './split-hover.js';
@@ -65,7 +66,13 @@ document.addEventListener('DOMContentLoaded', () => {
     setImageFileHook(async (file) => {
         try {
             const text = await decodeBarcode(file);
-            if (text && importParams(text)) return true;
+            if (!text) return false;
+            if (/^GL\|[0-9A-Za-z]{6}$/.test(text)) {
+                const params = await fetchParamsById(text.slice(3));
+                if (params) { applyStateObject(params); return true; }
+                return false;
+            }
+            if (importParams(text)) return true;
         } catch (e) {
             console.warn('[barcode] import failed:', e);
         }
