@@ -200,6 +200,11 @@ export function initCodeExport(getCurrentColors) {
     btnBarcode.addEventListener('click', async () => {
         if (btnBarcode.disabled) return;
         sound.tap();
+
+        const label = btnBarcode.innerHTML;
+        btnBarcode.disabled = true;
+        btnBarcode.innerHTML = `<i class="ri-loader-4-line" style="animation:spin .8s linear infinite"></i>`;
+
         try {
             const blob = await generateBarcodeBlob(exportParamsJson());
             const url  = URL.createObjectURL(blob);
@@ -210,8 +215,6 @@ export function initCodeExport(getCurrentColors) {
             setTimeout(() => URL.revokeObjectURL(url), 1000);
             sound.confirm();
 
-            btnBarcode.disabled = true;
-            const label = btnBarcode.innerHTML;
             let remaining = 5;
             btnBarcode.innerHTML = `${remaining}s`;
             const timer = setInterval(() => {
@@ -226,6 +229,8 @@ export function initCodeExport(getCurrentColors) {
             }, 1000);
         } catch (e) {
             console.error('[barcode] generate failed:', e);
+            btnBarcode.disabled = false;
+            btnBarcode.innerHTML = label;
         }
     });
     document.getElementById('code-modal').addEventListener('click', (e) => {
