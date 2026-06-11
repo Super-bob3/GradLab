@@ -5,7 +5,9 @@ const B62 = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 const ALLOWED = ['https://gradlab.app', 'https://www.gradlab.app'];
 
 function corsHeaders(origin) {
-    const ok = ALLOWED.includes(origin) || /^https?:\/\/localhost/.test(origin);
+    const ok = ALLOWED.includes(origin)
+            || /^https?:\/\/localhost/.test(origin)
+            || /\.vercel\.app$/.test(origin);
     return {
         'Access-Control-Allow-Origin':  ok ? origin : ALLOWED[0],
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
