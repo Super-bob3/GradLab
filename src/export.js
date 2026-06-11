@@ -196,7 +196,9 @@ export function initCodeExport(getCurrentColors) {
 
     const closeCode = () => { sound.close(); document.getElementById('code-modal').style.display = 'none'; };
     document.getElementById('btn-close-code').addEventListener('click', closeCode);
-    document.getElementById('btn-close-code2').addEventListener('click', async () => {
+    const btnBarcode = document.getElementById('btn-close-code2');
+    btnBarcode.addEventListener('click', async () => {
+        if (btnBarcode.disabled) return;
         sound.tap();
         try {
             const blob = await generateBarcodeBlob(exportParamsJson());
@@ -206,6 +208,22 @@ export function initCodeExport(getCurrentColors) {
             a.href     = url;
             a.click();
             setTimeout(() => URL.revokeObjectURL(url), 1000);
+            sound.confirm();
+
+            btnBarcode.disabled = true;
+            const label = btnBarcode.innerHTML;
+            let remaining = 5;
+            btnBarcode.innerHTML = `${remaining}s`;
+            const timer = setInterval(() => {
+                remaining -= 1;
+                if (remaining <= 0) {
+                    clearInterval(timer);
+                    btnBarcode.disabled = false;
+                    btnBarcode.innerHTML = label;
+                } else {
+                    btnBarcode.innerHTML = `${remaining}s`;
+                }
+            }, 1000);
         } catch (e) {
             console.error('[barcode] generate failed:', e);
         }
