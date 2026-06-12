@@ -4,15 +4,24 @@ const PNG_KEYWORD = 'GradLab';
 const WORKER_URL  = import.meta.env.VITE_WORKER_URL || 'https://gradlab-params.workers.dev';
 const SHORT_ID_RE = /^GL\|[0-9A-Za-z]{6}$/;
 
+const _inflight = {};
 function _loadScript(url, globalKey) {
     if (window[globalKey]) return Promise.resolve(window[globalKey]);
-    return new Promise((resolve, reject) => {
+    if (_inflight[url]) return _inflight[url];
+    _inflight[url] = new Promise((resolve, reject) => {
         const s = document.createElement('script');
         s.src = url;
-        s.onload  = () => window[globalKey] ? resolve(window[globalKey]) : reject(new Error(`${globalKey} not found`));
-        s.onerror = () => reject(new Error(`Failed to load ${url}`));
+        s.onload = () => {
+            delete _inflight[url];
+            window[globalKey] ? resolve(window[globalKey]) : reject(new Error(`${globalKey} not found`));
+        };
+        s.onerror = () => {
+            delete _inflight[url];
+            reject(new Error(`Failed to load ${url}`));
+        };
         document.head.appendChild(s);
     });
+    return _inflight[url];
 }
 
 // ── CRC32 (for PNG chunk) ─────────────────────────────────────
@@ -93,6 +102,10 @@ async function _readTextChunk(file, keyword) {
 }
 
 // ── Public API ────────────────────────────────────────────────
+
+// Fire-and-forget preload — call when the code modal opens so bwip-js is
+// already cached by the time the user clicks Download Param Code.
+export function preloadBwipjs() { _loadScript(BWIPJS_CDN, 'bwipjs').catch(() => {}); }
 
 // Stores params JSON in KV via Worker, returns short ID string "GL|xxxxxx".
 async function _storeParams(paramsObj) {

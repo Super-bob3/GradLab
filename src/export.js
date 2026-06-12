@@ -10,7 +10,7 @@ import {
 import { VERTEX_SHADER_SRC, FRAGMENT_SHADER_SRC } from './shaders.js';
 import { sound } from './sound.js';
 import { exportParamsJson } from './params.js';
-import { generateBarcodeBlob } from './barcode.js';
+import { generateBarcodeBlob, preloadBwipjs } from './barcode.js';
 
 export let isChinese = false;
 export function setIsChinese(val) { isChinese = val; }
@@ -171,6 +171,7 @@ export function initCodeExport(getCurrentColors) {
         const code   = _buildExportCode(params);
         document.getElementById('code-output').value = code;
         document.getElementById('code-modal').style.display = 'flex';
+        preloadBwipjs();
     });
 
     document.getElementById('btn-copy-code').addEventListener('click', () => {
@@ -232,7 +233,8 @@ export function initCodeExport(getCurrentColors) {
         } catch (e) {
             console.error('[barcode] generate failed:', e);
             btnBarcode.disabled = false;
-            btnBarcode.innerHTML = label;
+            btnBarcode.innerHTML = isChinese ? '<i class="ri-error-warning-line"></i> 失败，重试' : '<i class="ri-error-warning-line"></i> Failed, retry';
+            setTimeout(() => { btnBarcode.innerHTML = label; }, 3000);
         }
     });
     document.getElementById('code-modal').addEventListener('click', (e) => {
