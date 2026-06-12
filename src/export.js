@@ -211,7 +211,9 @@ export function initCodeExport(getCurrentColors) {
             const a    = document.createElement('a');
             a.download = 'gradlab-params.png';
             a.href     = url;
+            document.body.appendChild(a);
             a.click();
+            document.body.removeChild(a);
             setTimeout(() => URL.revokeObjectURL(url), 1000);
             sound.confirm();
 
