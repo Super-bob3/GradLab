@@ -1730,6 +1730,7 @@ input[type="checkbox"]:checked::after {
     cursor: not-allowed;
 }
 
+.feedback-normal[hidden],
 .feedback-success[hidden] { display: none; }
 
 .feedback-success {
