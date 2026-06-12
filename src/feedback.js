@@ -21,7 +21,6 @@ export function initFeedback() {
   const topicSel    = document.getElementById('ctrl-feedback-topic');
   const textarea    = popover.querySelector('#feedback-text');
   const sendBtn     = popover.querySelector('#feedback-send');
-  const closeBtn    = popover.querySelector('#feedback-close');
   const normalView  = popover.querySelector('.feedback-normal');
   const successView = popover.querySelector('.feedback-success');
 
@@ -35,7 +34,6 @@ export function initFeedback() {
     btn.classList.add('active');
     isOpen = true;
     sound.open();
-    textarea.focus();
   }
 
   function closePopover() {
@@ -72,10 +70,12 @@ export function initFeedback() {
     if (e.key === 'Escape' && isOpen) closePopover();
   });
 
-  closeBtn.addEventListener('click', closePopover);
-
+  textarea.addEventListener('focus', () => sound.tap());
   textarea.addEventListener('input', updateSendBtn);
-  topicSel.addEventListener('change', updateSendBtn);
+  topicSel.addEventListener('change', () => {
+    updateSendBtn();
+    textarea.focus();
+  });
 
   sendBtn.addEventListener('click', async () => {
     const text = textarea.value.trim();

@@ -321,12 +321,12 @@
     <!-- ── FEEDBACK POPOVER ── -->
     <div class="feedback-popover" id="feedback-popover" role="dialog" aria-label="Send feedback">
         <div class="feedback-normal">
-            <div class="feedback-header">
-                <span class="feedback-title">Send Feedback</span>
-                <button class="feedback-close" id="feedback-close" aria-label="Close"><i class="ri-close-line"></i></button>
-            </div>
             <div data-select="feedback-topic"></div>
-            <textarea class="feedback-textarea" id="feedback-text" placeholder="Your feedback…" maxlength="2000"></textarea>
+            <div class="ds-textarea">
+                <div class="ds-textarea__body">
+                    <textarea class="ds-textarea__input" id="feedback-text" placeholder="Your feedback…" maxlength="2000"></textarea>
+                </div>
+            </div>
             <div class="feedback-footer">
                 <button class="feedback-send" id="feedback-send" disabled>Send</button>
             </div>
