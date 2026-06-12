@@ -233,9 +233,8 @@ export function initCodeExport(getCurrentColors) {
         } catch (e) {
             console.error('[barcode] generate failed:', e);
             btnBarcode.disabled = false;
-            const msg = String(e?.message || e).slice(0, 60);
-            btnBarcode.innerHTML = `<i class="ri-error-warning-line"></i> ${msg}`;
-            setTimeout(() => { btnBarcode.innerHTML = label; }, 6000);
+            btnBarcode.innerHTML = isChinese ? '<i class="ri-error-warning-line"></i> 失败，重试' : '<i class="ri-error-warning-line"></i> Failed, retry';
+            setTimeout(() => { btnBarcode.innerHTML = label; }, 3000);
         }
     });
     document.getElementById('code-modal').addEventListener('click', (e) => {
