@@ -1083,6 +1083,10 @@ select:hover {
     box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1), 0 0 0 0.5px var(--border-strong);
 }
 
+select:has(option[value=""]:checked) {
+    color: var(--gray-9);
+}
+
 select option,
 select optgroup {
     background: var(--panel-bg);

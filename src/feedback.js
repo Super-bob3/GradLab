@@ -45,8 +45,12 @@ export function initFeedback() {
     sound.close();
   }
 
+  function updateSendBtn() {
+    sendBtn.disabled = !textarea.value.trim() || !topicSel.value;
+  }
+
   function resetForm() {
-    topicSel.value      = 'bug';
+    topicSel.value      = '';
     topicSel.dispatchEvent(new Event('change'));
     textarea.value      = '';
     sendBtn.disabled    = true;
@@ -70,9 +74,8 @@ export function initFeedback() {
 
   closeBtn.addEventListener('click', closePopover);
 
-  textarea.addEventListener('input', () => {
-    sendBtn.disabled = !textarea.value.trim();
-  });
+  textarea.addEventListener('input', updateSendBtn);
+  topicSel.addEventListener('change', updateSendBtn);
 
   sendBtn.addEventListener('click', async () => {
     const text = textarea.value.trim();

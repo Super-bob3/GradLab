@@ -159,8 +159,9 @@ export const SELECT_CONFIGS = {
     },
     'feedback-topic': {
         label: 'Topic', id: 'feedback-topic',
+        placeholder: 'Please select',
         options: [
-            { value: 'bug',     label: 'Bug Report',      selected: true },
+            { value: 'bug',     label: 'Bug Report' },
             { value: 'feature', label: 'Feature Request' },
             { value: 'general', label: 'General Feedback' },
         ],
@@ -179,14 +180,17 @@ function _renderOptions(options) {
     }).join('');
 }
 
-export function createSelect({ label, id, options, groupId, hidden }) {
+export function createSelect({ label, id, options, groupId, hidden, placeholder }) {
     const group = document.createElement('div');
     group.className = 'control-group control-group--select';
     if (groupId) group.id = groupId;
     if (hidden)  group.style.display = 'none';
+    const placeholderOpt = placeholder
+        ? `<option value="" disabled selected hidden>${placeholder}</option>`
+        : '';
     group.innerHTML = `
         <label>${label}</label>
-        <select id="ctrl-${id}">${_renderOptions(options)}</select>`;
+        <select id="ctrl-${id}">${placeholderOpt}${_renderOptions(options)}</select>`;
     return group;
 }
 
