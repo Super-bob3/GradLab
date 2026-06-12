@@ -94,6 +94,10 @@ async function _readTextChunk(file, keyword) {
 
 // ── Public API ────────────────────────────────────────────────
 
+// Fire-and-forget preload — call when the code modal opens so bwip-js is
+// already cached by the time the user clicks Download Param Code.
+export function preloadBwipjs() { _loadScript(BWIPJS_CDN, 'bwipjs').catch(() => {}); }
+
 // Stores params JSON in KV via Worker, returns short ID string "GL|xxxxxx".
 async function _storeParams(paramsObj) {
     const res = await fetch(`${WORKER_URL}/api/params`, {
