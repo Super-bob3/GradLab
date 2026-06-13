@@ -1308,6 +1308,7 @@ input[type="checkbox"]:checked::after {
     to { transform: rotate(360deg); }
 }
 
+/* Button loading state: <i class="ri-loader-4-line spin"></i> — see DS doc for dynamic-text pattern */
 .spin { animation: spin .8s linear infinite; display: inline-block; }
 
 @keyframes modal-in {
