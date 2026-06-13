@@ -1609,8 +1609,7 @@ input[type="checkbox"]:checked::after {
     /* ── Feedback Popover: clamp to viewport on mobile ── */
     .feedback-popover {
         right: 8px !important;
-        left: 8px !important;
-        width: auto;
+        max-width: calc(100vw - 16px);
     }
 
     /* ── Export Code modal footer: stack buttons on mobile ── */
