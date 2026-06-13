@@ -1385,12 +1385,6 @@ input[type="checkbox"]:checked::after {
     box-shadow: var(--shadow-pill), 0 0 0 0.5px var(--border-color);
 }
 
-@media (max-width: 768px) {
-    #section-canvas-size,
-    #group-canvas-size {
-        display: none;
-    }
-}
 
 /* ── Code Export Modal ── */
 

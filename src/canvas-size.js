@@ -1,6 +1,5 @@
 /**
  * canvas-size.js — Canvas dimension control & scale-to-fit preview
- * Desktop only. Mobile keeps its full-bleed layout.
  */
 
 import { sound } from './sound.js';
@@ -53,8 +52,6 @@ function _updatePresetActive(w, h) {
 }
 
 export function initCanvasSize() {
-    if (window.innerWidth <= 768) return;
-
     const inputW      = document.getElementById('ctrl-canvas-w');
     const inputH      = document.getElementById('ctrl-canvas-h');
     const presetBtns  = document.querySelectorAll('.canvas-preset-btn');
