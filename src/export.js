@@ -137,6 +137,11 @@ function _encodeAndDownload(glCanvas, btn) {
     const total = allFrames.length;
     const FPS_INTERVAL = 1000 / 30;
 
+    btn.innerHTML = isChinese
+        ? '<i class="ri-loader-4-line spin"></i> <span class="encode-pct">编码中 0%</span>'
+        : '<i class="ri-loader-4-line spin"></i> <span class="encode-pct">Encoding 0%</span>';
+    const pctEl = btn.querySelector('.encode-pct');
+
     function drawNext() {
         if (i >= total) {
             recorder.stop();
@@ -146,7 +151,7 @@ function _encodeAndDownload(glCanvas, btn) {
         tmpCtx.drawImage(allFrames[i], 0, 0);
         i++;
         const pct = Math.round((i / total) * 100);
-        btn.innerHTML = isChinese ? `<i class="ri-loader-4-line spin"></i> 编码中 ${pct}%` : `<i class="ri-loader-4-line spin"></i> Encoding ${pct}%`;
+        if (pctEl) pctEl.textContent = isChinese ? `编码中 ${pct}%` : `Encoding ${pct}%`;
         setTimeout(drawNext, FPS_INTERVAL);
     }
     drawNext();
