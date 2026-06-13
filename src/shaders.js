@@ -17,7 +17,7 @@ export const FRAGMENT_SHADER_SRC = `
     precision mediump float;
 #endif
 
-uniform vec2 u_resolution; uniform float u_time;
+uniform vec2 u_resolution; uniform float u_ref_height; uniform float u_time;
 uniform vec3 u_colors[8]; uniform int u_colorCount;
 uniform float u_flow_type; uniform float u_zoom;
 uniform vec2 u_pan; uniform float u_flow_speed; uniform float u_liquid_str;
@@ -192,6 +192,7 @@ void main() {
     vec2 uv = fragCoord / u_resolution.xy;
     vec2 S = uv - 0.5;
     S.x *= u_resolution.x / u_resolution.y;
+    S *= u_resolution.y / u_ref_height;
     vec2 p = S / u_zoom + u_pan;
     p += 0.5;
 

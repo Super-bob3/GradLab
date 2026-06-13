@@ -400,10 +400,12 @@ function _buildExportCode(params) {
   })();` : ''}
 
   const loc = (n) => gl.getUniformLocation(program, n);
+  let _refHeight = 0;
   function resize() {
     // Math.max(2, ...) 保底 2x：Windows DPR=1 也需要与 Mac Retina 输出一致的渲染分辨率，不要改成纯 devicePixelRatio
     const dpr = Math.max(2, window.devicePixelRatio || 1);
     canvas.width = canvas.clientWidth * dpr; canvas.height = canvas.clientHeight * dpr;
+    if (!_refHeight) _refHeight = canvas.height;
     gl.viewport(0, 0, canvas.width, canvas.height);
   }
   window.addEventListener('resize', resize); resize();
@@ -411,6 +413,7 @@ function _buildExportCode(params) {
   function render(time) {
     time *= 0.001;
     gl.uniform2f(loc('u_resolution'), canvas.width, canvas.height);
+    gl.uniform1f(loc('u_ref_height'), _refHeight || canvas.height);
     gl.uniform1f(loc('u_time'), time);
     gl.uniform1i(loc('u_colorCount'), COLORS.length);
     const cd = new Float32Array(8 * 3);
