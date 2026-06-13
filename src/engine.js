@@ -10,6 +10,7 @@ import { renderMatrix } from './matrix.js';
 let gl = null;
 let program = null;
 let locs = {};
+let _refHeight = 0;
 let bgTextureObj = null;
 export let hasBgTextureFlag = false;
 export let bgTextureDataURLStored = '';
@@ -122,6 +123,7 @@ export function initEngine(canvasEl, noiseOverlayEl, containerEl, cardEl, getCol
         colorMode:  gl.getUniformLocation(program, 'u_color_mode'),
         blendBias:  gl.getUniformLocation(program, 'u_blend_bias'),
         blendSharp: gl.getUniformLocation(program, 'u_blend_sharp'),
+        refHeight:  gl.getUniformLocation(program, 'u_ref_height'),
     };
 
     // Noise grain — driven by canvas, not CSS overlay
@@ -133,6 +135,7 @@ export function initEngine(canvasEl, noiseOverlayEl, containerEl, cardEl, getCol
         const dpr = Math.max(2, window.devicePixelRatio || 1);
         canvasEl.width  = canvasEl.clientWidth  * dpr;
         canvasEl.height = canvasEl.clientHeight * dpr;
+        if (!_refHeight) _refHeight = canvasEl.height;
         gl.viewport(0, 0, canvasEl.width, canvasEl.height);
         noiseCanvas.width  = canvasEl.width;
         noiseCanvas.height = canvasEl.height;
@@ -180,6 +183,7 @@ function render(time, canvasEl, noiseOverlayEl, getColors) {
     const colors = getColors();
 
     gl.uniform2f(locs.res, canvasEl.width, canvasEl.height);
+    gl.uniform1f(locs.refHeight, _refHeight || canvasEl.height);
     gl.uniform1f(locs.time, time);
     gl.uniform1i(locs.count, colors.length);
 

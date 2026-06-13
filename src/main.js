@@ -13,6 +13,7 @@ import { initDownload, initRecording, initCodeExport } from './export.js';
 import { mountControls } from './components.js';
 import { splitHover } from './split-hover.js';
 import { initFeedback } from './feedback.js';
+import { initCanvasSize } from './canvas-size.js';
 import { sound } from './sound.js';
 
 // ── DOM References ────────────────────────────────────────────
@@ -62,6 +63,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // 7. Feedback widget
     initFeedback();
 
+    // 8. Canvas size control (desktop only)
+    initCanvasSize();
+
     // 8a. Barcode import hook — intercepts Upload Image if a PDF417 barcode is detected
     setImageFileHook(async (file) => {
         try {
@@ -106,7 +110,7 @@ function initBottomSheet() {
     }
 
     function getCollapsedTranslate() {
-        return wrapper.offsetHeight - 72;
+        return wrapper.offsetHeight - 200;
     }
 
     function open() {
