@@ -1606,22 +1606,11 @@ input[type="checkbox"]:checked::after {
         z-index: 200;
     }
 
-    /* ── Feedback Popover: bottom sheet on mobile ── */
+    /* ── Feedback Popover: clamp to viewport on mobile ── */
     .feedback-popover {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        width: 100%;
-        top: auto !important;
-        border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
-        transform: translateY(100%);
-        padding-bottom: env(safe-area-inset-bottom, 0px);
-    }
-
-    .feedback-popover.open {
-        transform: translateY(0);
-        opacity: 1;
+        right: 8px !important;
+        left: 8px !important;
+        width: auto;
     }
 
     /* ── Export Code modal footer: stack buttons on mobile ── */
