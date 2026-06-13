@@ -77,7 +77,7 @@ export function initRecording(glCanvas, getCurrentColors) {
             stopRecording();
             btn.classList.remove('btn-record-active');
             btn.innerHTML = isChinese ? '<i class="ri-record-circle-line"></i> 录制视频' : '<i class="ri-record-circle-line"></i> Record MP4';
-            _encodeAndDownload(glCanvas, btn);
+            _encodeAndDownload(glCanvas, btn, getCurrentColors);
         } else {
             sound.recordStart();
             startRecording();
@@ -95,7 +95,7 @@ function _getIsRecording() {
     return isRecording;
 }
 
-function _encodeAndDownload(glCanvas, btn) {
+function _encodeAndDownload(glCanvas, btn, getCurrentColors) {
     const mimeType = pickMime();
     const ext      = mimeType.includes('mp4') ? 'mp4' : 'webm';
     const pingpong = document.getElementById('ctrl-pingpong').checked;
@@ -126,8 +126,8 @@ function _encodeAndDownload(glCanvas, btn) {
         const blob = new Blob(chunks, { type: mimeType });
         _downloadBlob(blob, ext);
         sound.complete();
-        if (typeof umami !== 'undefined') umami.track('download_video', { format: ext, duration: getRecordSeconds(), pingpong, ..._trackParams(getCurrentColors) });
         btn.innerHTML = isChinese ? '<i class="ri-record-circle-line"></i> 录制视频' : '<i class="ri-record-circle-line"></i> Record MP4';
+        if (typeof umami !== 'undefined') umami.track('download_video', { format: ext, duration: getRecordSeconds(), pingpong, ..._trackParams(getCurrentColors) });
         allFrames.forEach(bmp => { if (bmp.close) bmp.close(); });
     };
 
