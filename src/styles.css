@@ -1308,6 +1308,8 @@ input[type="checkbox"]:checked::after {
     to { transform: rotate(360deg); }
 }
 
+.spin { animation: spin .8s linear infinite; display: inline-block; }
+
 @keyframes modal-in {
     from { opacity: 0; transform: scale(0.96) translateY(6px); }
     to   { opacity: 1; transform: scale(1)    translateY(0);   }
@@ -1602,6 +1604,41 @@ input[type="checkbox"]:checked::after {
     /* Modals should sit above the sheet */
     .modal-backdrop {
         z-index: 200;
+    }
+
+    /* ── Feedback Popover: bottom sheet on mobile ── */
+    .feedback-popover {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        top: auto !important;
+        border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+        transform: translateY(100%);
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    .feedback-popover.open {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    /* ── Export Code modal footer: stack buttons on mobile ── */
+    #code-modal .modal-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    #code-modal .modal-footer .action-btn {
+        width: 100%;
+        padding: 0;
+    }
+
+    /* ── Slider thumb: enlarged touch target on mobile ── */
+    .control-group--slider input[type="range"]::-webkit-slider-thumb {
+        width: 44px;
+        height: 44px;
     }
 }
 

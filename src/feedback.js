@@ -27,9 +27,14 @@ export function initFeedback() {
   let isOpen = false;
 
   function openPopover() {
-    const rect = btn.getBoundingClientRect();
-    popover.style.top   = (rect.bottom + 6) + 'px';
-    popover.style.right = (window.innerWidth - rect.right) + 'px';
+    if (window.innerWidth > 768) {
+      const rect = btn.getBoundingClientRect();
+      popover.style.top   = (rect.bottom + 6) + 'px';
+      popover.style.right = (window.innerWidth - rect.right) + 'px';
+    } else {
+      popover.style.top   = '';
+      popover.style.right = '';
+    }
     popover.classList.add('open');
     btn.classList.add('active');
     isOpen = true;

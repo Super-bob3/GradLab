@@ -33,7 +33,7 @@ export function initDownload(glCanvas, getCurrentColors) {
     document.getElementById('btn-download').addEventListener('click', () => {
         sound.confirm();
         const btn = document.getElementById('btn-download');
-        btn.innerText = 'PROCESSING...';
+        btn.innerHTML = isChinese ? '<i class="ri-loader-4-line spin"></i> 处理中…' : '<i class="ri-loader-4-line spin"></i> Processing…';
 
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width  = glCanvas.width;
@@ -62,7 +62,7 @@ export function initDownload(glCanvas, getCurrentColors) {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        btn.innerText = 'DOWNLOAD FRAME';
+        btn.innerHTML = isChinese ? '<i class="ri-download-2-line"></i> 下载帧' : '<i class="ri-download-2-line"></i> Download Frame';
         if (typeof umami !== 'undefined') umami.track('download_image', _trackParams(getCurrentColors));
     });
 }
@@ -146,7 +146,7 @@ function _encodeAndDownload(glCanvas, btn) {
         tmpCtx.drawImage(allFrames[i], 0, 0);
         i++;
         const pct = Math.round((i / total) * 100);
-        btn.innerHTML = isChinese ? `<i class="ri-loader-4-line"></i> 编码中 ${pct}%` : `<i class="ri-loader-4-line"></i> Encoding ${pct}%`;
+        btn.innerHTML = isChinese ? `<i class="ri-loader-4-line spin"></i> 编码中 ${pct}%` : `<i class="ri-loader-4-line spin"></i> Encoding ${pct}%`;
         setTimeout(drawNext, FPS_INTERVAL);
     }
     drawNext();
@@ -204,7 +204,7 @@ export function initCodeExport(getCurrentColors) {
 
         const label = btnBarcode.innerHTML;
         btnBarcode.disabled = true;
-        btnBarcode.innerHTML = `<i class="ri-loader-4-line" style="animation:spin .8s linear infinite"></i>`;
+        btnBarcode.innerHTML = isChinese ? '<i class="ri-loader-4-line spin"></i> 生成中…' : '<i class="ri-loader-4-line spin"></i> Generating…';
 
         try {
             const blob = await generateBarcodeBlob(exportParamsJson());
