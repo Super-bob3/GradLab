@@ -110,7 +110,7 @@ function initBottomSheet() {
     }
 
     function getCollapsedTranslate() {
-        return wrapper.offsetHeight - 72;
+        return wrapper.offsetHeight - 200;
     }
 
     function open() {

@@ -1618,7 +1618,7 @@ input[type="checkbox"]:checked::after {
     }
 
     .canvas-area {
-        padding: var(--space-3) var(--space-3) 72px;
+        padding: var(--space-3) var(--space-3) 200px;
     }
 
     .card-container {
@@ -1636,8 +1636,8 @@ input[type="checkbox"]:checked::after {
         height: auto;
         max-height: 70dvh;
         padding: 0;
-        /* default collapsed: only the handle + section-title visible (~72px) */
-        transform: translateY(calc(100% - 72px));
+        /* default collapsed: show handle + presets + canvas controls (~200px) */
+        transform: translateY(calc(100% - 200px));
         transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
         z-index: 100;
         box-sizing: border-box;
