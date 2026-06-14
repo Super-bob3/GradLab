@@ -1370,31 +1370,122 @@ input[type="checkbox"]:checked::after {
 
 /* ── Code Export Modal ── */
 
+.code-wrap {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
 .code-textarea {
     width: 100%;
     flex: 1;
     min-height: 0;
-    background: var(--bg-color);
-    color: var(--text-main);
-    border: 1px solid var(--border-color);
-    font-family: "Geist Mono", ui-monospace, monospace;
-    font-size: var(--fs-sm);
-    padding: var(--space-3);
-    resize: none;
-    outline: none;
-    box-shadow: none;
-    tab-size: 2;
-    white-space: pre;
     overflow: auto;
     box-sizing: border-box;
     display: block;
+    margin: 0;
 }
 
-.code-textarea:focus {
-    outline: none;
-    box-shadow: none;
-    border-color: var(--border-strong);
+#code-modal .modal-body {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
+
+#code-modal .modal-footer {
+    justify-content: flex-end;
+}
+
+.code-copy-btn {
+    position: absolute;
+    top: var(--space-2);
+    right: var(--space-2);
+    width: 30px;
+    height: 30px;
+    border: none;
+    border-radius: var(--radius-md);
+    box-shadow: inset 0 0 0 0.5px var(--border-color);
+    background: var(--bg-color);
+    color: var(--text-dim);
+    font-size: var(--fs-md);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, color 0.15s;
+}
+
+.code-copy-btn:hover {
+    background: var(--gray-a3);
+    color: var(--text-main);
+}
+
+.code-copy-btn--copied,
+.code-copy-btn--copied:hover {
+    color: #50a14f;
+}
+
+.code-textarea code {
+    display: block;
+    font-family: "Geist Mono", ui-monospace, monospace;
+    font-size: var(--fs-sm);
+    line-height: 1.65;
+    padding: var(--space-3);
+    tab-size: 2;
+    white-space: pre;
+    min-height: 100%;
+}
+
+/* ── One Dark Pro Night Flat (dark) ── */
+.code-textarea { background: var(--ctrl-bg); }
+.hljs          { color: #abb2bf; background: transparent; }
+.hljs-comment,
+.hljs-quote    { color: #5c6370; font-style: italic; }
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-doctag   { color: #c678dd; }
+.hljs-name     { color: #e06c75; }
+.hljs-attr     { color: #d19a66; }
+.hljs-string,
+.hljs-addition { color: #98c379; }
+.hljs-number,
+.hljs-literal  { color: #d19a66; }
+.hljs-title,
+.hljs-section,
+.hljs-link     { color: #61afef; }
+.hljs-built_in,
+.hljs-title.class_ { color: #e5c07b; }
+.hljs-meta     { color: #56b6c2; }
+.hljs-deletion { color: #e06c75; }
+
+/* ── Atom One Light (light) ── */
+:root[data-theme="light"] .code-textarea          { background: var(--ctrl-bg); }
+:root[data-theme="light"] .hljs                   { color: #383a42; }
+:root[data-theme="light"] .hljs-comment,
+:root[data-theme="light"] .hljs-quote             { color: #a0a1a7; font-style: italic; }
+:root[data-theme="light"] .hljs-keyword,
+:root[data-theme="light"] .hljs-selector-tag,
+:root[data-theme="light"] .hljs-doctag            { color: #a626a4; }
+:root[data-theme="light"] .hljs-name              { color: #e45649; }
+:root[data-theme="light"] .hljs-attr              { color: #986801; }
+:root[data-theme="light"] .hljs-string,
+:root[data-theme="light"] .hljs-addition          { color: #50a14f; }
+:root[data-theme="light"] .hljs-number,
+:root[data-theme="light"] .hljs-literal           { color: #986801; }
+:root[data-theme="light"] .hljs-title,
+:root[data-theme="light"] .hljs-section,
+:root[data-theme="light"] .hljs-link              { color: #4078f2; }
+:root[data-theme="light"] .hljs-built_in,
+:root[data-theme="light"] .hljs-title.class_      { color: #c18401; }
+:root[data-theme="light"] .hljs-meta              { color: #4078f2; }
+:root[data-theme="light"] .hljs-deletion          { color: #e45649; }
 
 @keyframes spin {
     to { transform: rotate(360deg); }
@@ -1406,6 +1497,15 @@ input[type="checkbox"]:checked::after {
 @keyframes modal-in {
     from { opacity: 0; transform: scale(0.96) translateY(6px); }
     to   { opacity: 1; transform: scale(1)    translateY(0);   }
+}
+
+@keyframes modal-out {
+    from { opacity: 1; transform: scale(1)    translateY(0);   }
+    to   { opacity: 0; transform: scale(0.96) translateY(6px); }
+}
+
+.modal-overlay--closing .modal-box {
+    animation: modal-out 0.18s cubic-bezier(.22,1,.36,1) both;
 }
 
 .modal-overlay {
@@ -1422,7 +1522,7 @@ input[type="checkbox"]:checked::after {
 
 .modal-box {
     background: var(--bg-color);
-    border: 1px solid var(--slider-stroke);
+    border: 1px solid var(--border-color);
     padding: 0;
     display: flex;
     flex-direction: column;
@@ -1480,12 +1580,12 @@ input[type="checkbox"]:checked::after {
 }
 
 .modal-close:hover {
-    background: var(--gray-3);
+    background: var(--gray-a3);
     color: var(--text-main);
 }
 
 .modal-body {
-    padding: 0 var(--space-5);
+    padding: 0 var(--space-5) var(--space-5);
     overflow-y: auto;
     flex: 1;
     min-height: 0;
@@ -1494,11 +1594,12 @@ input[type="checkbox"]:checked::after {
 .modal-footer {
     flex-shrink: 0;
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
     gap: var(--space-2);
     padding: var(--space-4) var(--space-5);
     border-top: 1px solid var(--slider-stroke);
+    background: var(--panel-bg);
 }
 
 .modal-footer .action-btn {
@@ -1506,8 +1607,8 @@ input[type="checkbox"]:checked::after {
     padding: 0 var(--space-4);
 }
 
-.modal-footer-left {
-    flex: 1;
+.modal-footer-left,
+.modal-footer-right {
     display: flex;
     gap: var(--space-2);
 }

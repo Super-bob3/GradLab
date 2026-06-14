@@ -19,6 +19,7 @@
  */
 
 import { openColorPicker } from './color-picker.js';
+import { sound } from './sound.js';
 
 // ─────────────────────────────────────────────────────────────────
 // SLIDER
@@ -285,6 +286,86 @@ export function createColorPill({ label, id, value = '#ffffff', onChange }) {
     });
 
     return group;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// MODAL
+//
+// createModal({ title, description?, content, footerLeft?, footerRight?, onOpen?, onClose? })
+//
+// footerLeft / footerRight: 数组，每项 { label, icon?, className?, onClick, disabled? }
+//   icon: Remix Icon class，如 'ri-close-line'
+//   className 默认 'action-btn'，次要按钮传 'action-btn action-btn--line'
+// content: HTMLElement | string（innerHTML）
+// 返回 { el, open(), close(), body }
+// ─────────────────────────────────────────────────────────────────
+
+export function createModal({ title, description = '', content, footerLeft = [], footerRight = [], onOpen, onClose } = {}) {
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.style.display = 'none';
+
+    const _btnHtml = ({ label, icon = '', className = 'action-btn', disabled = false }) =>
+        `<button class="${className}"${disabled ? ' disabled' : ''}>${icon ? `<i class="${icon}"></i> ` : ''}${label}</button>`;
+
+    overlay.innerHTML = `
+        <div class="modal-box">
+            <div class="modal-header">
+                <div class="modal-header-text">
+                    <span class="modal-title">${title}</span>
+                    ${description ? `<span class="modal-description">${description}</span>` : ''}
+                </div>
+                <button class="modal-close"><i class="ri-close-line"></i></button>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer">
+                <div class="modal-footer-left">${footerLeft.map(_btnHtml).join('')}</div>
+                <div class="modal-footer-right">${footerRight.map(_btnHtml).join('')}</div>
+            </div>
+        </div>`;
+
+    document.body.appendChild(overlay);
+
+    const box  = overlay.querySelector('.modal-box');
+    const body = overlay.querySelector('.modal-body');
+
+    if (typeof content === 'string') {
+        body.innerHTML = content;
+    } else if (content instanceof HTMLElement) {
+        body.appendChild(content);
+    }
+
+    const _wire = (buttons, container) => {
+        buttons.forEach((cfg, i) => {
+            if (cfg.onClick) container.children[i].addEventListener('click', cfg.onClick);
+        });
+    };
+    _wire(footerLeft,  overlay.querySelector('.modal-footer-left'));
+    _wire(footerRight, overlay.querySelector('.modal-footer-right'));
+
+    function open() {
+        sound.open();
+        overlay.style.display = 'flex';
+        onOpen?.();
+    }
+
+    function close() {
+        sound.close();
+        overlay.classList.add('modal-overlay--closing');
+        box.addEventListener('animationend', () => {
+            overlay.classList.remove('modal-overlay--closing');
+            overlay.style.display = 'none';
+            onClose?.();
+        }, { once: true });
+    }
+
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && overlay.style.display === 'flex') close(); });
+    overlay.querySelector('.modal-close').addEventListener('click', close);
+
+    return { el: overlay, open, close, body };
 }
 
 // ─────────────────────────────────────────────────────────────────
