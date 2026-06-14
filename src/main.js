@@ -14,6 +14,7 @@ import { mountControls } from './components.js';
 import { splitHover } from './split-hover.js';
 import { initFeedback } from './feedback.js';
 import { initCanvasSize } from './canvas-size.js';
+import { initColorPicker } from './color-picker.js';
 import { sound } from './sound.js';
 
 // ── DOM References ────────────────────────────────────────────
@@ -27,6 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. Mount slider components, then wire controls
     mountControls();
     initControls(() => initMatrix());
+    initColorPicker();
 
     // 2. Matrix canvas overlay
     initMatrixCanvas(glCanvas, cardContainer);

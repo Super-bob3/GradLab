@@ -5,6 +5,7 @@
  */
 
 import { sound } from './sound.js';
+import { openColorPicker } from './color-picker.js';
 
 // ── Color State ───────────────────────────────────────────────
 export const MAX_COLORS = 8;
@@ -661,8 +662,16 @@ function renderColorList() {
         btnDel.innerHTML = '<i class="ri-close-line"></i>';
         btnDel.disabled  = currentColors.length <= MIN_COLORS;
 
-        // Click swatch → open native color picker
-        swatch.addEventListener('click', () => inputColor.click());
+        // Click swatch → open custom color picker
+        swatch.addEventListener('click', () => {
+            openColorPicker(swatch, inputColor.value || hex, (newHex) => {
+                inputHex.value            = newHex.toUpperCase();
+                inputColor.value          = newHex.toLowerCase();
+                swatch.style.background   = newHex;
+                currentColors[index]      = newHex.toLowerCase();
+                saveToCurrentTheme();
+            });
+        });
 
         inputColor.addEventListener('input', (e) => {
             const val = e.target.value.toUpperCase();
