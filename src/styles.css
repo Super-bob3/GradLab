@@ -1247,28 +1247,6 @@ input[type="checkbox"]:checked::after {
 
 /* ── Text Input control row ── */
 
-.control-group--text {
-    height: var(--h-ctrl);
-    padding: var(--ctrl-inset) var(--ctrl-inset) var(--ctrl-inset) 16px;
-    background: var(--ctrl-bg);
-    box-shadow: inset 0 0 0 0.5px var(--slider-stroke);
-    border-radius: var(--radius-xl);
-    gap: var(--space-2);
-    box-sizing: border-box;
-}
-
-.control-group--text input[type="text"] {
-    flex: 1;
-    background: transparent;
-    color: var(--text-main);
-    border: none;
-    outline: none;
-    padding: 0 var(--space-2_5);
-    font-size: var(--fs-md);
-    font-family: "Geist Mono", ui-monospace, monospace;
-    height: 100%;
-    box-sizing: border-box;
-}
 
 /* ── Canvas Size Control ── */
 .canvas-size-row {
@@ -1318,7 +1296,8 @@ input[type="checkbox"]:checked::after {
     user-select: none;
 }
 
-.canvas-size-field input[type="number"] {
+.canvas-size-field input[type="number"],
+.canvas-size-field input[type="text"] {
     flex: 1;
     height: 34px;
     padding: var(--space-1) var(--space-2) var(--space-1) 0;
@@ -1328,9 +1307,12 @@ input[type="checkbox"]:checked::after {
     font-size: var(--fs-ctrl);
     font-family: inherit;
     color: var(--text-main);
-    -moz-appearance: textfield;
     box-sizing: border-box;
     min-width: 0;
+}
+
+.canvas-size-field input[type="number"] {
+    -moz-appearance: textfield;
 }
 
 .canvas-size-field input[type="number"]::-webkit-outer-spin-button,
