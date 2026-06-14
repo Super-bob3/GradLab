@@ -295,11 +295,13 @@
                 <button class="modal-close" id="btn-close-code"><i class="ri-close-line"></i></button>
             </div>
             <div class="modal-body">
-                <textarea class="code-textarea" id="code-output" readonly></textarea>
+                <div class="code-wrap">
+                    <pre class="code-textarea" id="code-output"><code></code></pre>
+                    <button class="code-copy-btn" id="btn-copy-code" title="Copy code"><i class="ri-file-copy-line"></i></button>
+                </div>
             </div>
             <div class="modal-footer">
                 <button class="action-btn action-btn--line" id="btn-close-code2"><i class="ri-qr-code-line"></i> Download Param Code</button>
-                <button class="action-btn action-btn--line" id="btn-copy-code"><i class="ri-file-copy-line"></i> Copy Code</button>
                 <button class="action-btn" id="btn-download-code"><i class="ri-download-2-line"></i> Download</button>
             </div>
         </div>

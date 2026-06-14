@@ -11,6 +11,13 @@ import { VERTEX_SHADER_SRC, FRAGMENT_SHADER_SRC } from './shaders.js';
 import { sound } from './sound.js';
 import { exportParamsJson } from './params.js';
 import { generateBarcodeBlob, preloadBwipjs } from './barcode.js';
+import hljs from 'highlight.js/lib/core';
+import langHtml from 'highlight.js/lib/languages/xml';
+import langJs from 'highlight.js/lib/languages/javascript';
+import langCss from 'highlight.js/lib/languages/css';
+hljs.registerLanguage('html', langHtml);
+hljs.registerLanguage('javascript', langJs);
+hljs.registerLanguage('css', langCss);
 
 export let isChinese = false;
 export function setIsChinese(val) { isChinese = val; }
@@ -170,11 +177,16 @@ function _downloadBlob(blob, ext) {
 
 // ── Code Export ───────────────────────────────────────────────
 export function initCodeExport(getCurrentColors) {
+    let _exportCode = '';
+
     document.getElementById('btn-export-code').addEventListener('click', () => {
         sound.open();
         const params = _gatherParams(getCurrentColors);
-        const code   = _buildExportCode(params);
-        document.getElementById('code-output').value = code;
+        _exportCode  = _buildExportCode(params);
+        const codeEl = document.querySelector('#code-output code');
+        codeEl.removeAttribute('data-highlighted');
+        codeEl.textContent = _exportCode;
+        hljs.highlightElement(codeEl);
         document.getElementById('code-modal').style.display = 'flex';
         preloadBwipjs();
     });
@@ -182,17 +194,21 @@ export function initCodeExport(getCurrentColors) {
     document.getElementById('btn-copy-code').addEventListener('click', () => {
         sound.confirm();
         const btn = document.getElementById('btn-copy-code');
-        navigator.clipboard.writeText(document.getElementById('code-output').value).then(() => {
+        navigator.clipboard.writeText(_exportCode).then(() => {
             if (typeof umami !== 'undefined') umami.track('copy_code', _trackParams(getCurrentColors));
-            btn.innerHTML = isChinese ? '<i class="ri-check-line"></i> 已复制' : '<i class="ri-check-line"></i> Copied';
-            setTimeout(() => { btn.innerHTML = isChinese ? '<i class="ri-file-copy-line"></i> 复制代码' : '<i class="ri-file-copy-line"></i> Copy Code'; }, 2000);
+            btn.innerHTML = '<i class="ri-checkbox-circle-line"></i>';
+            btn.classList.add('code-copy-btn--copied');
+            setTimeout(() => {
+                btn.innerHTML = '<i class="ri-file-copy-line"></i>';
+                btn.classList.remove('code-copy-btn--copied');
+            }, 2000);
         });
     });
 
     document.getElementById('btn-download-code').addEventListener('click', () => {
         sound.confirm();
         const btn  = document.getElementById('btn-download-code');
-        const code = document.getElementById('code-output').value;
+        const code = _exportCode;
         const blob = new Blob([code], { type: 'text/html;charset=utf-8' });
         _downloadBlob(blob, 'html');
         if (typeof umami !== 'undefined') umami.track('download_code', _trackParams(getCurrentColors));

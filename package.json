@@ -3,8 +3,8 @@
   "version": "7.0.0",
   "description": "Pipeline Shader — WebGL OKLab fluid shader engine with interactive controls",
   "scripts": {
-    "dev":     "vite",
-    "build":   "vite build",
+    "dev": "vite",
+    "build": "vite build",
     "preview": "vite preview"
   },
   "keywords": [
@@ -18,5 +18,8 @@
   "license": "MIT",
   "devDependencies": {
     "vite": "^8.0.16"
+  },
+  "dependencies": {
+    "highlight.js": "^11.11.1"
   }
 }
