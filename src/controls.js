@@ -462,7 +462,14 @@ export function initControls(onMatrixRebuild) {
         if (asciiColorInput)  asciiColorInput.value = hex;
     }
 
-    if (asciiColorSwatch) asciiColorSwatch.addEventListener('click', () => asciiColorInput.click());
+    if (asciiColorSwatch) {
+        asciiColorSwatch.addEventListener('click', () => {
+            openColorPicker(asciiColorSwatch, asciiColorInput.value, (newHex) => {
+                syncAsciiColorPill(newHex);
+                asciiColorInput.dispatchEvent(new Event('input'));
+            });
+        });
+    }
 
     if (asciiColorHex) {
         asciiColorHex.addEventListener('input', (e) => {
