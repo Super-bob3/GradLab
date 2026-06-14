@@ -69,21 +69,41 @@ export function initCanvasSize() {
         });
     });
 
-    // Manual input — debounced
+    const MIN_W = 100, MAX_W = 3840;
+    const MIN_H = 100, MAX_H = 2160;
+
+    // Manual input — debounced during typing, clamped on commit
     let _debounce;
     function onInput() {
         clearTimeout(_debounce);
         _debounce = setTimeout(() => {
-            const w = Math.max(100, Math.min(3840, parseInt(inputW.value) || 640));
-            const h = Math.max(100, Math.min(2160, parseInt(inputH.value) || 360));
-            inputW.value = w;
-            inputH.value = h;
-            _updatePresetActive(w, h);
-            _applySize(w, h);
+            const rawW = parseInt(inputW.value);
+            const rawH = parseInt(inputH.value);
+            // Only apply to canvas if both values are already in valid range.
+            // Don't write back to the input — let the user finish typing first.
+            if (rawW >= MIN_W && rawH >= MIN_H) {
+                const w = Math.min(MAX_W, rawW);
+                const h = Math.min(MAX_H, rawH);
+                _updatePresetActive(w, h);
+                _applySize(w, h);
+            }
         }, 600);
+    }
+    function onCommit() {
+        clearTimeout(_debounce);
+        const w = Math.max(MIN_W, Math.min(MAX_W, parseInt(inputW.value) || 640));
+        const h = Math.max(MIN_H, Math.min(MAX_H, parseInt(inputH.value) || 360));
+        inputW.value = w;
+        inputH.value = h;
+        _updatePresetActive(w, h);
+        _applySize(w, h);
     }
     inputW.addEventListener('input', onInput);
     inputH.addEventListener('input', onInput);
+    inputW.addEventListener('blur', onCommit);
+    inputH.addEventListener('blur', onCommit);
+    inputW.addEventListener('keydown', e => { if (e.key === 'Enter') inputW.blur(); });
+    inputH.addEventListener('keydown', e => { if (e.key === 'Enter') inputH.blur(); });
 
     // Re-scale on viewport resize (don't re-trigger engine resize)
     window.addEventListener('resize', () => {
