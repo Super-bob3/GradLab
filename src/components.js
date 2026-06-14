@@ -11,7 +11,14 @@
  *   <div data-select="key">      → createSelect()
  *   <div data-toggle="key">      → createToggle()
  *   <div data-colorpill="key">   → createColorPill()
+ *
+ * 组件约定（props-in / onChange-out）：
+ *   - 每个 factory 接受 props 配置对象 + 可选 onChange 回调
+ *   - 组件内部自己处理 UI 同步（swatch/display 更新）
+ *   - controls.js 只提供业务回调，不再手动 querySelector + 绑事件
  */
+
+import { openColorPicker } from './color-picker.js';
 
 // ─────────────────────────────────────────────────────────────────
 // SLIDER
@@ -226,8 +233,7 @@ export const COLORPILL_CONFIGS = {
     'ascii-color': { label: 'Base Color', id: 'ascii-color', value: '#ffffff' },
 };
 
-export function createColorPill({ label, id, value = '#ffffff' }) {
-    const hex = value.toUpperCase();
+export function createColorPill({ label, id, value = '#ffffff', onChange }) {
     const group = document.createElement('div');
     group.className = 'control-group control-group--color-pill';
     group.innerHTML = `
@@ -235,8 +241,49 @@ export function createColorPill({ label, id, value = '#ffffff' }) {
         <div class="color-pill">
             <div class="color-swatch" id="${id}-swatch" style="background:${value}"></div>
             <input type="color" id="ctrl-${id}" value="${value}" class="color-picker-input">
-            <input type="text" class="hex-input" id="val-${id}" value="${hex}" maxlength="7">
+            <input type="text" class="hex-input" id="val-${id}" value="${value.toUpperCase()}" maxlength="7">
         </div>`;
+
+    const swatch      = group.querySelector('.color-swatch');
+    const hiddenInput = group.querySelector('.color-picker-input');
+    const hexInput    = group.querySelector('.hex-input');
+
+    function _sync(hex) {
+        swatch.style.background = hex;
+        hexInput.value          = hex.toUpperCase();
+        hiddenInput.value       = hex;
+    }
+
+    // Keep display in sync when value is changed programmatically (e.g. _setCtrlSync / theme apply)
+    hiddenInput.addEventListener('input', () => {
+        swatch.style.background = hiddenInput.value;
+        hexInput.value          = hiddenInput.value.toUpperCase();
+    });
+
+    swatch.addEventListener('click', () => {
+        openColorPicker(swatch, hiddenInput.value, (newHex) => {
+            _sync(newHex);
+            hiddenInput.dispatchEvent(new Event('input'));
+            onChange?.(newHex);
+        });
+    });
+
+    hexInput.addEventListener('input', (e) => {
+        let val = e.target.value.trim();
+        if (!val.startsWith('#')) val = '#' + val;
+        if (/^#[0-9A-F]{6}$/i.test(val)) {
+            _sync(val);
+            hiddenInput.dispatchEvent(new Event('input'));
+            onChange?.(val);
+        }
+    });
+
+    hexInput.addEventListener('blur', () => {
+        let val = hexInput.value.trim();
+        if (!val.startsWith('#')) val = '#' + val;
+        if (!/^#[0-9A-F]{6}$/i.test(val)) _sync(hiddenInput.value);
+    });
+
     return group;
 }
 

@@ -451,45 +451,13 @@ export function initControls(onMatrixRebuild) {
     let currentAsciiMode = document.getElementById('ctrl-ascii-mode').value;
     const asciiControls  = Object.keys(asciiModeStates['0']);
 
-    // Sync Base Color pill (swatch + hex text)
-    const asciiColorInput  = document.getElementById('ctrl-ascii-color');
-    const asciiColorSwatch = document.getElementById('ascii-color-swatch');
-    const asciiColorHex    = document.getElementById('val-ascii-color');
-
-    function syncAsciiColorPill(hex) {
-        if (asciiColorSwatch) asciiColorSwatch.style.background = hex;
-        if (asciiColorHex)    asciiColorHex.value = hex.toUpperCase();
-        if (asciiColorInput)  asciiColorInput.value = hex;
-    }
-
-    if (asciiColorSwatch) {
-        asciiColorSwatch.addEventListener('click', () => {
-            openColorPicker(asciiColorSwatch, asciiColorInput.value, (newHex) => {
-                syncAsciiColorPill(newHex);
-                asciiColorInput.dispatchEvent(new Event('input'));
-            });
-        });
-    }
-
-    if (asciiColorHex) {
-        asciiColorHex.addEventListener('input', (e) => {
-            let val = e.target.value.trim();
-            if (!val.startsWith('#')) val = '#' + val;
-            if (/^#[0-9A-F]{6}$/i.test(val)) syncAsciiColorPill(val);
-        });
-        asciiColorHex.addEventListener('blur', (e) => {
-            let val = e.target.value.trim();
-            if (!val.startsWith('#')) val = '#' + val;
-            if (!/^#[0-9A-F]{6}$/i.test(val)) syncAsciiColorPill(asciiColorInput.value);
-        });
-    }
-
+    // createColorPill handles its own swatch/hex/hidden-input sync.
+    // We only need to hook into the hidden input's input event for state + rebuild.
     asciiControls.forEach(id => {
         const el = document.getElementById(id);
         if (!el) return;
         el.addEventListener('input', (e) => {
             asciiModeStates[currentAsciiMode][id] = e.target.value;
-            if (id === 'ctrl-ascii-color') syncAsciiColorPill(e.target.value);
             if (id === 'ctrl-ascii-charset') {
                 document.getElementById('group-custom-text').style.display = e.target.value === 'custom' ? 'flex' : 'none';
             }
@@ -669,39 +637,29 @@ function renderColorList() {
         btnDel.innerHTML = '<i class="ri-close-line"></i>';
         btnDel.disabled  = currentColors.length <= MIN_COLORS;
 
-        // Click swatch → open custom color picker
+        function _syncPill(newHex) {
+            swatch.style.background = newHex;
+            inputHex.value          = newHex.toUpperCase();
+            inputColor.value        = newHex.toLowerCase();
+            currentColors[index]    = newHex.toLowerCase();
+            saveToCurrentTheme();
+        }
+
         swatch.addEventListener('click', () => {
             openColorPicker(swatch, inputColor.value || hex, (newHex) => {
-                inputHex.value            = newHex.toUpperCase();
-                inputColor.value          = newHex.toLowerCase();
-                swatch.style.background   = newHex;
-                currentColors[index]      = newHex.toLowerCase();
-                saveToCurrentTheme();
+                _syncPill(newHex);
+                if (typeof umami !== 'undefined') umami.track('edit_color', { method: 'picker' });
             });
         });
 
-        inputColor.addEventListener('input', (e) => {
-            const val = e.target.value.toUpperCase();
-            inputHex.value = val;
-            swatch.style.background = val;
-            currentColors[index] = e.target.value;
-            saveToCurrentTheme();
-        });
-        inputColor.addEventListener('change', () => {
-            if (typeof umami !== 'undefined') umami.track('edit_color', { method: 'picker' });
-        });
         inputHex.addEventListener('input', (e) => {
             let val = e.target.value.trim();
             if (!val.startsWith('#')) val = '#' + val;
-            if (/^#[0-9A-F]{6}$/i.test(val)) {
-                inputColor.value = val;
-                swatch.style.background = val;
-                currentColors[index] = val;
-                saveToCurrentTheme();
-            }
+            if (/^#[0-9A-F]{6}$/i.test(val)) _syncPill(val);
         });
-        inputHex.addEventListener('blur', (e) => {
-            let val = e.target.value.trim();
+
+        inputHex.addEventListener('blur', () => {
+            let val = inputHex.value.trim();
             if (!val.startsWith('#')) val = '#' + val;
             if (/^#[0-9A-F]{6}$/i.test(val)) {
                 inputHex.value = val.toUpperCase();
