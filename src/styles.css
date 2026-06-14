@@ -1259,21 +1259,15 @@ input[type="checkbox"]:checked::after {
 
 .control-group--text input[type="text"] {
     flex: 1;
-    background: var(--ctrl-chip);
+    background: transparent;
     color: var(--text-main);
     border: none;
-    box-shadow: var(--shadow-pill), inset 0 0 0 0.5px var(--border-color);
-    border-radius: var(--radius-lg);
+    outline: none;
     padding: 0 var(--space-2_5);
     font-size: var(--fs-md);
     font-family: "Geist Mono", ui-monospace, monospace;
     height: 100%;
-    outline: none;
     box-sizing: border-box;
-}
-
-.control-group--text input[type="text"]:focus {
-    box-shadow: var(--shadow-pill), inset 0 0 0 1px var(--border-strong);
 }
 
 /* ── Canvas Size Control ── */
