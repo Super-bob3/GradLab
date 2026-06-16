@@ -1,6 +1,6 @@
 <script setup>
 import { useData } from 'vitepress'
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
 import { splitHover } from '../../../src/split-hover.js'
 
 const { lang } = useData()
@@ -110,6 +110,8 @@ const zh = {
 const t = computed(() => isZh.value ? zh : en)
 const heroLines = computed(() => t.value.hero.title.split('\n'))
 const navScrolled = ref(false)
+const heroCanvas  = ref(null)
+const heroNoise   = ref(null)
 
 /* ── Liquid glass: SVG feDisplacementMap on real backdrop ── */
 /* Technique from shuding/liquid-glass — CPU computes a pill-SDF  */
@@ -134,7 +136,11 @@ function setupGlassFilter(navEl) {
   const defs   = document.createElementNS('http://www.w3.org/2000/svg', 'defs')
   const filter = document.createElementNS('http://www.w3.org/2000/svg', 'filter')
   filter.setAttribute('id', id)
-  filter.setAttribute('filterUnits', 'userSpaceOnUse')
+  /* objectBoundingBox anchors the filter region to the element's visual bounding
+     box automatically, bypassing coordinate-system conflicts caused by the nav's
+     transform: translateX(-50%) and Chrome's userSpaceOnUse viewport-vs-local
+     ambiguity in backdrop-filter contexts. */
+  filter.setAttribute('filterUnits', 'objectBoundingBox')
   filter.setAttribute('colorInterpolationFilters', 'sRGB')
 
   /* Single displacement map image — shared across all three channel passes */
@@ -200,12 +206,12 @@ function setupGlassFilter(navEl) {
 
     const halfW = W / 2, halfH = H / 2
 
-    /* Filter covers the element exactly — NO negative x/y.
-       Extending beyond causes Chrome to render the displaced backdrop
-       outside the pill, overflowing overflow:hidden and creating a
-       visible rectangle artifact around the capsule.                    */
+    /* filterUnits="objectBoundingBox": x/y/width/height are fractions of the
+       element's bounding box — (0,0,1,1) always covers the element exactly.
+       primitiveUnits stays "userSpaceOnUse" (default) so feImage and
+       SourceGraphic share the same element-local CSS-pixel coordinate system. */
     filter.setAttribute('x', '0'); filter.setAttribute('y', '0')
-    filter.setAttribute('width', String(W)); filter.setAttribute('height', String(H))
+    filter.setAttribute('width', '1'); filter.setAttribute('height', '1')
     feImg.setAttribute('x', '0'); feImg.setAttribute('y', '0')
     feImg.setAttribute('width', String(W)); feImg.setAttribute('height', String(H))
 
@@ -213,6 +219,13 @@ function setupGlassFilter(navEl) {
     canvas.width = W; canvas.height = H
     const ctx  = canvas.getContext('2d')
     const data = new Uint8ClampedArray(W * H * 4)
+    // Neutral displacement = R:128 G:128 (0.5 → 0 displacement).
+    // Without this init, zero-filled pixels outside/inside the pill get
+    // R=0,G=0 which feDisplacementMap reads as −maxD shift → rectangular ghost.
+    for (let i = 0; i < W * H; i++) {
+      data[i * 4] = 128; data[i * 4 + 1] = 128
+      data[i * 4 + 2] = 128; data[i * 4 + 3] = 255
+    }
     const rawDx = new Float32Array(W * H)
     const rawDy = new Float32Array(W * H)
 
@@ -228,9 +241,12 @@ function setupGlassFilter(navEl) {
        dispH = (ior-1) * thickness * scale * halfH * tuning
              = 0.15    * 5         * 0.25  * halfH * 13  ≈ halfH * 2.44 ≈ 68px
        dispV kept small (flat glass sides, no curvature = less vertical refraction). */
-    const transRange = halfH * 0.55
-    const dispH      = halfH * 2.44  /* ≈ 68px at H=56 */
-    const dispV      = halfH * 0.42  /* ≈ 12px at H=56 */
+    const p = window.__glass ?? {}
+    const transRange = halfH * (p.transRange ?? 0.55)
+    const dispH      = halfH * (p.dispH      ?? 0.50)
+    const dispYScale =          p.dispYScale ?? 0.65
+    const dispYSign  =          p.dispYSign  ?? 1
+    const caSpread   =          p.caSpread   ?? 0.25
 
     for (let py = 0; py < H; py++) {
       for (let px = 0; px < W; px++) {
@@ -239,8 +255,13 @@ function setupGlassFilter(navEl) {
         const sdf = pillSDF(cx, cy)
 
         if (sdf < -transRange) continue
+        if (sdf >= 0) continue  // outside pill: keep neutral, prevents ghost at rounded corners
 
-        const edgeProx = sStep(-transRange, 0, sdf)
+        // Bell curve peaking at mid-transition, 0 at interior boundary AND pill edge.
+        // Displacement fades to zero before reaching the element boundary so
+        // Chrome's backdrop-filter has nothing displaced outside the pill shape.
+        // ×4 restores peak to 1.0 (s*(1-s) peaks at 0.25 when s=0.5).
+        const edgeProx = 4 * sStep(-transRange, 0, sdf) * sStep(0, -transRange, sdf)
         if (edgeProx < 0.001) continue
 
         /* SDF gradient = outward surface normal (accurate for pill shape):
@@ -251,10 +272,9 @@ function setupGlassFilter(navEl) {
         const gLen = Math.sqrt(gx * gx + gy * gy) + 0.001
         const nx = gx / gLen, ny = gy / gLen
 
-        /* INWARD pull with per-axis scaling: large horizontal at caps,
-           small vertical at flat sides.                                     */
         rawDx[py * W + px] = -nx * edgeProx * dispH
-        rawDy[py * W + px] = -ny * edgeProx * dispV
+        /* dispYSign: tune in dev panel to find correct Chrome objectBoundingBox Y direction */
+        rawDy[py * W + px] = dispYSign * ny * edgeProx * dispH * dispYScale
       }
     }
 
@@ -278,11 +298,13 @@ function setupGlassFilter(navEl) {
 
     /* Chromatic aberration: R=0.88×, G=1.0×, B=1.14× displacement.
        Blue bends most (physically correct); creates color fringing at edges. */
-    /* CA=0.1 → ±5% channel spread (R bends least, B bends most) */
-    dispR.setAttribute('scale', String(svgScale * 0.950))
+    /* caSpread controls RGB channel separation independently of displacement size */
+    dispR.setAttribute('scale', String(svgScale * (1 - caSpread)))
     dispG.setAttribute('scale', String(svgScale * 1.000))
-    dispB.setAttribute('scale', String(svgScale * 1.050))
+    dispB.setAttribute('scale', String(svgScale * (1 + caSpread)))
   }
+
+  window.__glassRecompute = () => { lastW = 0; lastH = 0; computeMap() }
 
   setTimeout(computeMap, 60)
   const ro = new ResizeObserver(() => setTimeout(computeMap, 16))
@@ -299,19 +321,203 @@ onMounted(() => {
     { threshold: 0.08 }
   )
   document.querySelectorAll('.gl-reveal').forEach(el => obs.observe(el))
-  const onScroll = () => { navScrolled.value = window.scrollY > 40 }
+  let prevScrolled = false
+  const onScroll = () => {
+    const isScrolled = window.scrollY > 40
+    navScrolled.value = isScrolled
+    if (isScrolled && !prevScrolled) {
+      /* nextTick: wait for Vue to finish patching the class binding
+         (adding gl-nav--scrolled) before we add gl-nav--spring,
+         otherwise Vue's className overwrite removes the spring class
+         before the animation can start. */
+      nextTick(() => {
+        const navHost = document.querySelector('.gl-nav-host')
+        if (!navHost) return
+        // Spring on the HOST: backdrop-filter and animation share the same element,
+        // so the filter region scales with the pill — no corona ghost.
+        navHost.classList.remove('gl-nav-host--spring')
+        void navHost.offsetWidth
+        navHost.classList.add('gl-nav-host--spring')
+        navHost.addEventListener('animationend', () => navHost.classList.remove('gl-nav-host--spring'), { once: true })
+      })
+    }
+    prevScrolled = isScrolled
+  }
   window.addEventListener('scroll', onScroll, { passive: true })
 
   const logoEl = document.querySelector('.gl-nav-logo')
   if (logoEl) splitHover(logoEl, { stagger: 40, duration: 380 })
 
-  const navEl = document.querySelector('.gl-nav')
+  // Detect Safari: CSS.supports('-webkit-touch-callout','none') is true only in Safari/WebKit.
+  // @supports does NOT work for this — Safari evaluates @supports not(-webkit-touch-callout:none)
+  // as true (bug), so we must use JS to inject Chrome-only rules.
+  // CSS.supports('-webkit-touch-callout','none') only works on iOS Safari, not macOS Safari.
+  // navigator.vendor is reliable: Safari → "Apple Computer, Inc.", Chrome → "Google Inc."
+  const isSafari = typeof navigator !== 'undefined' && navigator.vendor.startsWith('Apple')
+
+  const navEl = document.querySelector('.gl-nav-host')
   const glassCleanup = navEl ? setupGlassFilter(navEl) : null
+
+  // Chrome-only: inject SVG displacement filter rule.
+  // Cannot use @supports for this — see comment above.
+  let chromeStyleEl = null
+  if (!isSafari) {
+    chromeStyleEl = document.createElement('style')
+    chromeStyleEl.textContent = '.gl-nav-host--scrolled{backdrop-filter:url(#gl-nav-glass-fx) blur(2px) brightness(1.08) saturate(1.12)!important}'
+    document.head.appendChild(chromeStyleEl)
+  }
+
+  // ── Hero WebGL gradient ────────────────────────────────────────────
+  // Safari: WebGL canvas is GPU IOSurface-backed → separate compositor layer →
+  // backdrop-filter can't sample it. Fix: Canvas 2D bridge — render WebGL to an
+  // offscreen canvas (with preserveDrawingBuffer:true so readback works), then
+  // blit each frame to the visible Canvas 2D canvas. Canvas 2D goes through the
+  // normal rendering pipeline and is visible to backdrop-filter.
+  let heroRafId = null
+  const canvas = heroCanvas.value
+  if (canvas) {
+    const glTarget = isSafari ? document.createElement('canvas') : canvas
+    const ctx2d    = isSafari ? canvas.getContext('2d') : null
+    const gl = glTarget.getContext('webgl', { preserveDrawingBuffer: isSafari }) ||
+               glTarget.getContext('experimental-webgl', { preserveDrawingBuffer: isSafari })
+    if (gl) {
+      // Grain noise overlay
+      if (heroNoise.value) {
+        const nc = document.createElement('canvas')
+        nc.width = 256; nc.height = 256
+        const nctx = nc.getContext('2d')
+        const img = nctx.createImageData(256, 256)
+        for (let i = 0; i < img.data.length; i += 4) {
+          const v = Math.random() * 255
+          img.data[i] = v; img.data[i+1] = v; img.data[i+2] = v; img.data[i+3] = 255
+        }
+        nctx.putImageData(img, 0, 0)
+        heroNoise.value.style.backgroundImage = 'url(' + nc.toDataURL() + ')'
+      }
+
+      const VERT = `attribute vec2 position;void main(){gl_Position=vec4(position,0.0,1.0);}`
+      const FRAG = `
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+  precision highp float;
+#else
+  precision mediump float;
+#endif
+uniform vec2 u_resolution;uniform float u_ref_height;uniform float u_time;
+uniform vec3 u_colors[8];uniform int u_colorCount;
+uniform float u_flow_type;uniform float u_zoom;
+uniform vec2 u_pan;uniform float u_flow_speed;uniform float u_liquid_str;
+uniform float u_morph;uniform float u_rotation;
+uniform int u_color_mode;uniform float u_blend_bias;uniform float u_blend_sharp;
+mat2 rot(float a){return mat2(cos(a),-sin(a),sin(a),cos(a));}
+float sdCircle(vec2 p,float r){return length(p)-r;}
+float sdHexagon(vec2 p,float r){const vec3 k=vec3(-0.866025404,0.5,0.577350269);p=abs(p);p-=2.0*min(dot(k.xy,p),0.0)*k.xy;p-=vec2(clamp(p.x,-k.z*r,k.z*r),r);return length(p)*sign(p.y);}
+float sdBox(vec2 p,vec2 b){vec2 d=abs(p)-b;return length(max(d,0.0))+min(max(d.x,d.y),0.0);}
+float sdEquilateralTriangle(vec2 p,float r){const float k=sqrt(3.0);p.x=abs(p.x)-r;p.y=p.y+r/k;if(p.x+k*p.y>0.0)p=vec2(p.x-k*p.y,-k*p.x-p.y)/2.0;p.x-=clamp(p.x,-2.0*r,0.0);return -length(p)*sign(p.y);}
+vec3 mod289(vec3 x){return x-floor(x*(1.0/289.0))*289.0;}
+vec2 mod289(vec2 x){return x-floor(x*(1.0/289.0))*289.0;}
+vec3 permute(vec3 x){return mod289(((x*34.0)+1.0)*x);}
+float random(vec2 st){return fract(sin(dot(st.xy,vec2(12.9898,78.233)))*43758.5453123);}
+float noise(in vec2 st){vec2 i=floor(st);vec2 f=fract(st);float a=random(i);float b=random(i+vec2(1.0,0.0));float c=random(i+vec2(0.0,1.0));float d=random(i+vec2(1.0,1.0));vec2 u=f*f*(3.0-2.0*f);return mix(a,b,u.x)+(c-a)*u.y*(1.0-u.x)+(d-b)*u.x*u.y;}
+float snoise(vec2 st){return noise(st)*2.0-1.0;}
+float fbm(vec2 p){float f=0.0;float amp=0.5;mat2 r=mat2(cos(0.65),sin(0.65),-sin(0.65),cos(0.65));for(int i=0;i<4;i++){f+=amp*noise(p);p=r*p*2.01;amp*=0.5;}return f;}
+float sfbm(vec2 p){return fbm(p)*2.0-1.0;}
+vec3 srgbToLinear(vec3 c){return mix(c/12.92,pow((c+0.055)/1.055,vec3(2.4)),step(0.04045,c));}
+vec3 linearToSrgb(vec3 c){c=clamp(c,0.0,1.0);return mix(c*12.92,1.055*pow(c,vec3(1.0/2.4))-0.055,step(0.0031308,c));}
+vec3 linearToOklab(vec3 c){float l=0.4122214708*c.r+0.5363325363*c.g+0.0514459929*c.b;float m=0.2119034982*c.r+0.6806995451*c.g+0.1073969566*c.b;float s=0.0883024619*c.r+0.2817188376*c.g+0.6299787005*c.b;float l_=pow(max(l,0.0),1.0/3.0);float m_=pow(max(m,0.0),1.0/3.0);float s_=pow(max(s,0.0),1.0/3.0);return vec3(0.2104542553*l_+0.7936177850*m_-0.0040720468*s_,1.9779984951*l_-2.4285922050*m_+0.4505937099*s_,0.0259040371*l_+0.7827717662*m_-0.8086757660*s_);}
+vec3 oklabToLinear(vec3 c){float l_=c.x+0.3963377774*c.y+0.2158037573*c.z;float m_=c.x-0.1055613458*c.y-0.0638541728*c.z;float s_=c.x-0.0894841775*c.y-1.2914855480*c.z;float l=l_*l_*l_;float m=m_*m_*m_;float s=s_*s_*s_;return vec3(4.0767416621*l-3.3077115913*m+0.2309699292*s,-1.2684380046*l+2.6097574011*m-0.3413193965*s,-0.0041960863*l-0.7034186147*m+1.7076147010*s);}
+vec3 oklabToOklch(vec3 lab){return vec3(lab.x,length(lab.yz),atan(lab.z,lab.y));}
+vec3 oklchToOklab(vec3 lch){return vec3(lch.x,lch.y*cos(lch.z),lch.y*sin(lch.z));}
+float applyBlend(float t){float gamma;if(u_blend_bias<0.5){gamma=1.0+(1.0-u_blend_bias*2.0)*3.0;}else{gamma=1.0-(u_blend_bias-0.5)*2.0*0.75;}gamma=max(gamma,0.1);float biased=pow(clamp(t,0.001,0.999),gamma);float halfRange=0.5-u_blend_sharp*0.48;return smoothstep(0.5-halfRange,0.5+halfRange,biased);}
+vec3 mixOklab(vec3 a,vec3 b,float t){float bt=applyBlend(t);if(u_color_mode==0){return mix(a,b,bt);}vec3 lchA=oklabToOklch(linearToOklab(srgbToLinear(a)));vec3 lchB=oklabToOklch(linearToOklab(srgbToLinear(b)));float L=mix(lchA.x,lchB.x,bt);float C=mix(lchA.y,lchB.y,bt);float dH=lchB.z-lchA.z;if(dH>3.14159265)dH-=6.28318530;if(dH<-3.14159265)dH+=6.28318530;float H=lchA.z+dH*bt;return linearToSrgb(oklabToLinear(oklchToOklab(vec3(L,C,H))));}
+void main(){vec2 fragCoord=gl_FragCoord.xy;vec2 uv=fragCoord/u_resolution.xy;vec2 S=uv-0.5;S.x*=u_resolution.x/u_resolution.y;S*=u_resolution.y/u_ref_height;vec2 p=S/u_zoom+u_pan;p+=0.5;float t=u_time*u_flow_speed;vec3 finalColor=u_colors[0];vec2 flowP=p;float amt=u_liquid_str*0.15;for(int i=0;i<3;i++){float ang=snoise(flowP*2.0+t*0.2)*3.14159;flowP+=vec2(cos(ang),sin(ang))*amt;amt*=0.7;}vec2 centerP=flowP-0.5;centerP*=rot(u_rotation);float d1=sdCircle(centerP,0.3);float d2=sdHexagon(centerP,0.3);float d3=sdBox(centerP,vec2(0.25));float d4=sdEquilateralTriangle(centerP*vec2(1.0,-1.0)-vec2(0.0,0.1),0.35);float morphVal=u_morph*3.0;float finalD=0.0;if(morphVal<1.0)finalD=mix(d1,d2,morphVal);else if(morphVal<2.0)finalD=mix(d2,d3,morphVal-1.0);else finalD=mix(d3,d4,morphVal-2.0);finalColor=u_colors[0];for(int i=1;i<8;i++){if(i<u_colorCount){float ratio=float(i)/float(u_colorCount-1);float targetR=ratio*1.5;float mask=smoothstep(targetR-0.35,targetR+0.35,finalD);finalColor=mixOklab(finalColor,u_colors[i],mask);}}gl_FragColor=vec4(finalColor,1.0);}
+`
+      function compileShader(type, src) {
+        const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return s
+      }
+      const prog = gl.createProgram()
+      gl.attachShader(prog, compileShader(gl.VERTEX_SHADER, VERT))
+      gl.attachShader(prog, compileShader(gl.FRAGMENT_SHADER, FRAG))
+      gl.linkProgram(prog); gl.useProgram(prog)
+
+      const buf = gl.createBuffer()
+      gl.bindBuffer(gl.ARRAY_BUFFER, buf)
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]), gl.STATIC_DRAW)
+      const pos = gl.getAttribLocation(prog, 'position')
+      gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0); gl.enableVertexAttribArray(pos)
+
+      const L = {
+        res: gl.getUniformLocation(prog,'u_resolution'), refH: gl.getUniformLocation(prog,'u_ref_height'),
+        time: gl.getUniformLocation(prog,'u_time'), colors: gl.getUniformLocation(prog,'u_colors'),
+        count: gl.getUniformLocation(prog,'u_colorCount'), zoom: gl.getUniformLocation(prog,'u_zoom'),
+        pan: gl.getUniformLocation(prog,'u_pan'), flow: gl.getUniformLocation(prog,'u_flow_speed'),
+        liquid: gl.getUniformLocation(prog,'u_liquid_str'), morph: gl.getUniformLocation(prog,'u_morph'),
+        rotation: gl.getUniformLocation(prog,'u_rotation'), colorMode: gl.getUniformLocation(prog,'u_color_mode'),
+        blendBias: gl.getUniformLocation(prog,'u_blend_bias'), blendSh: gl.getUniformLocation(prog,'u_blend_sharp'),
+      }
+
+      const COLORS_HEX = ['#FB7C47','#E1B8FF','#0883F7']
+      const COLOR_DATA = new Float32Array(8*3)
+      COLORS_HEX.forEach((hex,i) => {
+        COLOR_DATA[i*3]   = parseInt(hex.slice(1,3),16)/255
+        COLOR_DATA[i*3+1] = parseInt(hex.slice(3,5),16)/255
+        COLOR_DATA[i*3+2] = parseInt(hex.slice(5,7),16)/255
+      })
+
+      let refH = 0
+      function resizeHero() {
+        const dpr = Math.max(2, window.devicePixelRatio || 1)
+        canvas.width  = Math.round(canvas.clientWidth  * dpr)
+        canvas.height = Math.round(canvas.clientHeight * dpr)
+        // Safari bridge: offscreen WebGL canvas must match the visible 2D canvas
+        if (ctx2d) { glTarget.width = canvas.width; glTarget.height = canvas.height }
+        if (!refH) refH = canvas.height
+        gl.viewport(0, 0, glTarget.width, glTarget.height)
+      }
+      resizeHero()
+      window.addEventListener('resize', resizeHero)
+
+      let heroStart = null
+      function heroFrame(ts) {
+        if (!heroStart) heroStart = ts
+        const t = (ts - heroStart) * 0.001
+        gl.uniform2f(L.res, glTarget.width, glTarget.height)
+        gl.uniform1f(L.refH, refH || glTarget.height)
+        gl.uniform1f(L.time, t)
+        gl.uniform3fv(L.colors, COLOR_DATA)
+        gl.uniform1i(L.count, COLORS_HEX.length)
+        gl.uniform1f(L.zoom, 49*0.028+0.2)
+        gl.uniform2f(L.pan, -1.2917147663632156, -1.2322853637889368)
+        gl.uniform1f(L.flow, 25*0.02)
+        gl.uniform1f(L.liquid, 25*0.02)
+        gl.uniform1f(L.morph, 69/100.0*3.0)
+        gl.uniform1f(L.rotation, 80*(Math.PI/180.0))
+        gl.uniform1i(L.colorMode, 1)
+        gl.uniform1f(L.blendBias, 0.65)
+        gl.uniform1f(L.blendSh, 0.0)
+        gl.drawArrays(gl.TRIANGLES, 0, 6)
+        // Safari bridge: blit WebGL offscreen → visible Canvas 2D each frame
+        if (ctx2d) ctx2d.drawImage(glTarget, 0, 0)
+        heroRafId = requestAnimationFrame(heroFrame)
+      }
+      heroRafId = requestAnimationFrame(heroFrame)
+
+      onUnmounted(() => {
+        obs.disconnect()
+        window.removeEventListener('scroll', onScroll)
+        window.removeEventListener('resize', resizeHero)
+        if (glassCleanup) glassCleanup()
+        if (heroRafId) cancelAnimationFrame(heroRafId)
+        if (chromeStyleEl) chromeStyleEl.remove()
+      })
+      return
+    }
+  }
 
   onUnmounted(() => {
     obs.disconnect()
     window.removeEventListener('scroll', onScroll)
     if (glassCleanup) glassCleanup()
+    if (chromeStyleEl) chromeStyleEl.remove()
   })
 })
 </script>
@@ -319,21 +525,30 @@ onMounted(() => {
 <template>
   <div class="gl-home">
 
-    <!-- Nav — centered liquid glass capsule (SVG feDisplacementMap backdrop) -->
-    <header class="gl-nav" :class="{ 'gl-nav--scrolled': navScrolled }">
-      <div class="gl-nav-content">
-        <a href="/" class="gl-nav-logo" aria-label="GradLab home">GradLab</a>
-        <nav class="gl-nav-links" aria-label="Site navigation">
-          <a :href="link('quickstart')" class="gl-nav-link">{{ t.nav.docs }}</a>
-          <a href="https://gradlab.app" target="_blank" rel="noopener" class="gl-nav-launch">{{ t.nav.launch }}</a>
-        </nav>
-      </div>
-    </header>
+    <!-- Nav host: fixed position, never animated.
+         backdrop-filter lives here directly — applying it to a child inside
+         overflow:hidden breaks Safari; on the host itself with border-radius
+         Chrome and Safari both clip correctly. -->
+    <div class="gl-nav-host" :class="{ 'gl-nav-host--scrolled': navScrolled }">
+      <!-- Nav: spring animated, contains bg + content only (no backdrop-filter) -->
+      <header class="gl-nav" :class="{ 'gl-nav--scrolled': navScrolled }">
+        <div class="gl-nav-layer gl-nav-layer--bg" aria-hidden="true"></div>
+        <div class="gl-nav-content">
+          <a href="/" class="gl-nav-logo" aria-label="GradLab home">GradLab</a>
+          <nav class="gl-nav-links" aria-label="Site navigation">
+            <a :href="link('quickstart')" class="gl-nav-link">{{ t.nav.docs }}</a>
+            <a href="https://gradlab.app" target="_blank" rel="noopener" class="gl-nav-launch">{{ t.nav.launch }}</a>
+          </nav>
+        </div>
+      </header>
+    </div>
 
-    <!-- Hero — full-bleed shader -->
+    <!-- Hero — full-bleed shader (inline canvas, no iframe — Safari backdrop-filter
+         cannot sample through iframe compositor layers, breaking the nav glass effect) -->
     <section class="gl-hero" aria-label="GradLab hero">
       <div class="gl-hero-bg" aria-hidden="true">
-        <iframe src="/hero-gradient.html" title="" sandbox="allow-scripts" tabindex="-1"></iframe>
+        <canvas ref="heroCanvas" class="gl-hero-canvas"></canvas>
+        <div ref="heroNoise" class="gl-hero-noise"></div>
         <div class="gl-hero-vignette"></div>
       </div>
       <div class="gl-hero-content">
@@ -488,24 +703,86 @@ onMounted(() => {
 }
 
 /* ── Nav — liquid glass capsule ────────────────────────── */
-.gl-nav {
+
+/* Host: fixed position, never animated — glass layer lives here at rest.
+   Separating positioning from animation avoids Chrome's compositor issue
+   where backdrop-filter children are skipped inside animated elements. */
+.gl-nav-host {
   position: fixed;
   top: 14px;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
+  right: 0;
+  margin-inline: auto;
   z-index: 100;
   width: min(960px, calc(100vw - 32px));
   border-radius: 9999px;
-  overflow: hidden;
+  pointer-events: none;
+  /* No transform — transform creates a compositing stacking context that blocks
+     backdrop-filter in Safari and causes coordinate confusion in Chrome's SVG filter. */
+}
 
-  /* Default: fully transparent */
-  background: transparent;
-  border: none;
-  box-shadow: none;
+/* Nav: spring animated, no positioning of its own */
+.gl-nav {
+  border-radius: 9999px;
+  pointer-events: auto;
+}
 
-  transition:
-    background 400ms cubic-bezier(0.16,1,0.3,1),
-    box-shadow 400ms cubic-bezier(0.16,1,0.3,1);
+/* Shared layer base */
+.gl-nav-layer {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Glass effect on the host itself — not on a child layer.
+   Applying backdrop-filter to a child inside overflow:hidden breaks Safari.
+   On the host directly, border-radius clips the effect in both Chrome and Safari.
+   blur(0.001px) when not scrolled keeps the compositor layer warm (no cold-start). */
+.gl-nav-host {
+  -webkit-backdrop-filter: blur(0.001px);
+  backdrop-filter: blur(0.001px);
+}
+
+.gl-nav-host--scrolled {
+  /* Safari: -webkit-backdrop-filter handles the blur. Safari 15.4+ also processes
+     the standard backdrop-filter, but we keep it at blur(16px) here as the safe base. */
+  -webkit-backdrop-filter: blur(16px) saturate(1.6) brightness(1.08);
+  backdrop-filter: blur(16px) saturate(1.6) brightness(1.08);
+}
+
+/* Chrome SVG displacement filter is injected via JS in onMounted (only when !isSafari),
+   because @supports(-webkit-touch-callout) incorrectly evaluates in Safari. */
+
+/* Background + shadow layer: inside nav, smooth GPU opacity fade */
+.gl-nav-layer--bg {
+  background: rgba(255,255,255,0.14);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.10),
+              inset 0 0 0 0.5px rgba(0,0,0,0.10),
+              inset 0 -1px 2px rgba(0,0,0,0.10),
+              inset 0 0 1px 2px rgba(255,255,255,0.10);
+  transition: opacity 380ms cubic-bezier(0.16,1,0.3,1);
+}
+
+/* Scrolled: reveal bg layer */
+.gl-nav--scrolled .gl-nav-layer {
+  opacity: 1;
+}
+
+/* Spring pop — on the HOST so backdrop-filter scales with the pill (no corona ghost).
+   Chrome: backdrop-filter on the same element as will-change:transform works fine —
+   the Chrome bug only affects backdrop-filter on CHILDREN of animated elements. */
+@keyframes gl-nav-pop {
+  0%   { transform: translateY(-14px) scaleY(0.72) scaleX(0.96); opacity: 0; }
+  5%   { opacity: 1; }
+  60%  { transform: translateY(4px)   scaleY(1.06) scaleX(1.01); }
+  78%  { transform: translateY(-2px)  scaleY(0.98) scaleX(1.00); }
+  100% { transform: translateY(0)     scaleY(1)    scaleX(1);    opacity: 1; }
+}
+.gl-nav-host--spring {
+  will-change: transform, opacity;
+  animation: gl-nav-pop 640ms cubic-bezier(0.34, 1.4, 0.64, 1) forwards;
 }
 
 /* Content wrapper */
@@ -548,13 +825,8 @@ onMounted(() => {
 }
 .gl-nav-launch:hover { background: rgba(0,0,0,0.92); }
 
-/* Scrolled: liquid glass appears — text stays the same dark color */
-.gl-nav--scrolled {
-  background: rgba(255,255,255,0.14);
-  -webkit-backdrop-filter: blur(16px) saturate(1.6) brightness(1.08);
-  backdrop-filter: url(#gl-nav-glass-fx) blur(2px) brightness(1.08) saturate(1.12);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.1), inset 0px 0px 0px 0.5px rgba(0,0,0,0.1), inset 0 -1px 2px rgba(0,0,0,0.1), inset 0px 0px 1px 2px rgba(255,255,255,0.1);
-}
+/* Scrolled state: child layers handle all visuals via opacity */
+.gl-nav--scrolled { }
 
 /* ── Hero ──────────────────────────────────────────────── */
 .gl-hero {
@@ -564,11 +836,21 @@ onMounted(() => {
 }
 .gl-hero-bg {
   position: absolute; inset: 0; overflow: hidden;
-  /* pastel fallback (mobile / no-WebGL) */
-  background: linear-gradient(135deg, #d4aaff 0%, #b8d0ff 50%, #ffd0bb 100%);
+  /* Safari / no-WebGL fallback — matches preset colors so hero looks consistent */
+  background: linear-gradient(135deg, #FB7C47 0%, #E1B8FF 50%, #0883F7 100%);
 }
 .gl-hero-bg iframe {
   width: 100%; height: 100%; border: none; pointer-events: none; display: block;
+}
+.gl-hero-canvas {
+  display: block; width: 100%; height: 100%; pointer-events: none;
+}
+.gl-hero-noise {
+  position: absolute; inset: 0;
+  background-size: 128px 128px;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  opacity: 0.12;
 }
 /* White radial halo at text center + linear fade to white page at bottom */
 .gl-hero-vignette {
