@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Liquid Glass Lab — GradLab</title>
+<style>
+@font-face{font-family:'Geist';src:url('/fonts/Geist-Regular.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:'Geist';src:url('/fonts/Geist-Medium.woff2') format('woff2');font-weight:500;font-style:normal;font-display:swap}
+@font-face{font-family:'Geist Mono';src:url('/fonts/GeistMono-Regular.woff2') format('woff2');font-weight:400;font-style:normal;font-display:swap}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:auto}
+body{
+  font-family:'Geist','Helvetica Neue',Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  overflow-y:scroll;
+  background:#fff;
+}
+
+/* ── Background canvas ── */
+#bg{
+  position:fixed;inset:0;
+  width:100%;height:100%;
+  z-index:0;
+  display:block;
+}
+
+/* ── Content layer ── */
+#page{
+  position:relative;z-index:1;
+  padding-right:284px;
+}
+
+/* ── Nav host (mirrors HomeLayout exactly) ── */
+#nav-host{
+  position:fixed;
+  top:14px;
+  left:0;right:284px;
+  z-index:100;
+  width:min(900px,calc(100vw - 284px - 32px));
+  margin-inline:auto;
+  border-radius:9999px;
+  pointer-events:none;
+  -webkit-backdrop-filter:blur(0.001px);
+  backdrop-filter:blur(0.001px);
+}
+#glass-nav{
+  border-radius:9999px;
+  pointer-events:auto;
+  position:relative;
+}
+.nav-bg-layer{
+  position:absolute;inset:0;
+  border-radius:9999px;
+  background:rgba(255,255,255,0.14);
+  box-shadow:
+    0 8px 24px rgba(0,0,0,0.10),
+    inset 0 0 0 0.5px rgba(0,0,0,0.10),
+    inset 0 -1px 2px rgba(0,0,0,0.10),
+    inset 0 0 1px 2px rgba(255,255,255,0.10);
+  opacity:0;
+  transition:opacity 380ms cubic-bezier(0.16,1,0.3,1);
+}
+#nav-host.active .nav-bg-layer{opacity:1}
+.nav-content{
+  position:relative;z-index:1;
+  display:flex;align-items:center;gap:20px;
+  padding:8px 8px 8px 20px;
+}
+.nav-logo{
+  font-size:0.9375rem;font-weight:500;letter-spacing:-0.02em;
+  color:#111;white-space:nowrap;
+}
+.nav-links{display:flex;align-items:center;gap:4px;margin-left:auto}
+.nav-link{
+  font-size:0.875rem;color:rgba(0,0,0,0.44);
+  padding:7px 14px;border-radius:9999px;
+}
+.nav-cta{
+  display:inline-flex;align-items:center;
+  font-size:0.875rem;font-weight:500;
+  color:#fff;background:rgba(0,0,0,0.80);
+  border-radius:9999px;padding:7px 16px;white-space:nowrap;
+}
+
+/* ── Spring animation (same as HomeLayout) ── */
+@keyframes gl-nav-pop{
+  0%  {transform:translateY(-14px) scaleY(0.72) scaleX(0.96);opacity:0}
+  5%  {opacity:1}
+  60% {transform:translateY(4px)   scaleY(1.06) scaleX(1.01)}
+  78% {transform:translateY(-2px)  scaleY(0.98) scaleX(1.00)}
+  100%{transform:translateY(0)     scaleY(1)    scaleX(1);   opacity:1}
+}
+#nav-host.spring{
+  will-change:transform,opacity;
+  animation:gl-nav-pop 640ms cubic-bezier(0.34,1.4,0.64,1) forwards;
+}
+
+/* ── Page content ── */
+.hero{
+  height:100svh;min-height:560px;
+  display:flex;align-items:center;justify-content:center;
+  text-align:center;padding:0 32px;
+}
+.hero-inner{max-width:600px}
+.hero h1{
+  font-size:clamp(2.5rem,6vw,5rem);
+  font-weight:300;letter-spacing:-0.035em;line-height:1.05;
+  color:#111;margin-bottom:16px;
+}
+.hero p{font-size:1rem;color:#555;line-height:1.7}
+.scroll-hint{
+  margin-top:32px;
+  font-size:0.6875rem;color:rgba(0,0,0,0.28);letter-spacing:0.08em;
+  text-transform:uppercase;
+}
+.section{
+  max-width:680px;margin:0 auto;
+  padding:80px 32px;
+}
+.section+.section{border-top:1px solid rgba(0,0,0,0.07)}
+.section h2{
+  font-size:1.25rem;font-weight:400;letter-spacing:-0.02em;
+  color:#111;margin-bottom:14px;
+}
+.section p{font-size:0.9375rem;color:#555;line-height:1.7}
+
+/* ── Panel ── */
+#panel{
+  position:fixed;top:0;right:0;
+  width:284px;height:100vh;
+  background:rgba(10,10,12,0.95);
+  -webkit-backdrop-filter:blur(24px);
+  backdrop-filter:blur(24px);
+  border-left:1px solid rgba(255,255,255,0.05);
+  display:flex;flex-direction:column;
+  z-index:500;
+  font-family:'Geist','Helvetica Neue',Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* panel header */
+.ph{
+  padding:13px 16px 11px;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  display:flex;align-items:center;gap:8px;
+  flex-shrink:0;
+}
+.ph-title{
+  font-size:0.625rem;font-weight:500;letter-spacing:0.10em;
+  text-transform:uppercase;color:rgba(255,255,255,0.28);
+  flex:1;
+}
+.ph-mode{
+  font-size:0.5625rem;font-weight:500;letter-spacing:0.05em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,0.22);
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:4px;padding:2px 8px;
+  white-space:nowrap;
+}
+#copy-btn{
+  font-size:0.625rem;font-weight:500;letter-spacing:0.02em;
+  color:rgba(255,255,255,0.38);
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:5px;padding:4px 10px;
+  cursor:pointer;transition:all 100ms;white-space:nowrap;
+}
+#copy-btn:hover{background:rgba(255,255,255,0.10);color:rgba(255,255,255,0.65)}
+
+/* panel body */
+.pb{flex:1;overflow-y:auto;padding:4px 16px 20px}
+.pb::-webkit-scrollbar{width:3px}
+.pb::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.07);border-radius:2px}
+
+/* browser toggle */
+.mode-toggle{
+  display:flex;gap:3px;
+  margin:14px 0 2px;
+}
+.mt-btn{
+  flex:1;padding:5px 6px;
+  font-size:0.625rem;font-weight:500;text-align:center;
+  color:rgba(255,255,255,0.28);
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:5px;cursor:pointer;transition:all 100ms;
+}
+.mt-btn.on{
+  color:rgba(255,255,255,0.72);
+  background:rgba(255,255,255,0.08);
+  border-color:rgba(255,255,255,0.12);
+}
+
+/* param group label */
+.pgl{
+  font-size:0.5rem;font-weight:600;letter-spacing:0.12em;
+  text-transform:uppercase;color:rgba(255,255,255,0.18);
+  margin:18px 0 8px;
+}
+
+/* param row */
+.pr{
+  margin-bottom:13px;
+  transition:opacity 160ms;
+}
+.pr.dim{opacity:0.28;pointer-events:none}
+
+.plr{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px}
+.pl{font-size:0.8125rem;color:rgba(255,255,255,0.5)}
+.pv{
+  font-size:0.625rem;
+  font-family:'Geist Mono','SF Mono','Courier New',monospace;
+  color:rgba(255,255,255,0.24);
+  min-width:32px;text-align:right;
+}
+
+/* range slider */
+input[type=range]{
+  -webkit-appearance:none;appearance:none;
+  width:100%;height:2px;background:transparent;
+  cursor:pointer;outline:none;display:block;
+}
+input[type=range]::-webkit-slider-runnable-track{
+  height:2px;border-radius:1px;
+  background:linear-gradient(to right,
+    rgba(255,255,255,0.40) 0%,
+    rgba(255,255,255,0.40) var(--p,50%),
+    rgba(255,255,255,0.08) var(--p,50%)
+  );
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  width:11px;height:11px;margin-top:-4.5px;
+  border-radius:50%;
+  background:rgba(255,255,255,0.80);
+  box-shadow:0 0 0 1px rgba(0,0,0,0.15),0 1px 4px rgba(0,0,0,0.35);
+  transition:transform 80ms;
+}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.18)}
+
+/* config box */
+.cfg-box{
+  margin-top:20px;
+  border-top:1px solid rgba(255,255,255,0.05);
+  padding-top:14px;
+}
+.cfg-pre{
+  font-size:0.5625rem;
+  font-family:'Geist Mono','SF Mono','Courier New',monospace;
+  color:rgba(255,255,255,0.22);line-height:1.75;
+  background:rgba(255,255,255,0.025);
+  border:1px solid rgba(255,255,255,0.05);
+  border-radius:5px;padding:10px 12px;
+  white-space:pre;overflow-x:auto;
+}
+.cfg-pre::-webkit-scrollbar{height:2px}
+.cfg-pre::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.08)}
+
+#reset-btn{
+  width:100%;margin-top:8px;
+  font-size:0.625rem;font-weight:400;
+  color:rgba(255,255,255,0.22);
+  background:transparent;
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:5px;padding:6px;
+  cursor:pointer;transition:all 100ms;
+}
+#reset-btn:hover{background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.42)}
+
+/* spring demo button */
+.spring-btn{
+  width:100%;margin-top:6px;
+  font-size:0.625rem;font-weight:400;
+  color:rgba(255,255,255,0.22);
+  background:transparent;
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:5px;padding:6px;
+  cursor:pointer;transition:all 100ms;
+}
+.spring-btn:hover{background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.42)}
+</style>
+</head>
+<body>
+
+<!-- ── WebGL gradient background ── -->
+<canvas id="bg"></canvas>
+
+<!-- ── SVG displacement filter ── -->
+<svg style="position:fixed;top:0;left:0;width:0;height:0;pointer-events:none;overflow:visible" aria-hidden="true">
+  <defs>
+    <filter id="glass-fx" filterUnits="objectBoundingBox" colorInterpolationFilters="sRGB">
+      <feImage id="fi-img" result="dispMap" preserveAspectRatio="none"/>
+      <feDisplacementMap id="fi-R" in="SourceGraphic" in2="dispMap" xChannelSelector="R" yChannelSelector="G" result="dR"/>
+      <feColorMatrix id="fi-oR" in="dR" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="oR"/>
+      <feDisplacementMap id="fi-G" in="SourceGraphic" in2="dispMap" xChannelSelector="R" yChannelSelector="G" result="dG"/>
+      <feColorMatrix id="fi-oG" in="dG" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="oG"/>
+      <feDisplacementMap id="fi-B" in="SourceGraphic" in2="dispMap" xChannelSelector="R" yChannelSelector="G" result="dB"/>
+      <feColorMatrix id="fi-oB" in="dB" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="oB"/>
+      <feComposite in="oR" in2="oG" operator="arithmetic" k2="1" k3="1" result="rg"/>
+      <feComposite in="rg" in2="oB" operator="arithmetic" k2="1" k3="1"/>
+    </filter>
+  </defs>
+</svg>
+
+<!-- ── Glass nav ── -->
+<div id="nav-host">
+  <header id="glass-nav">
+    <div class="nav-bg-layer"></div>
+    <div class="nav-content">
+      <span class="nav-logo">GradLab</span>
+      <div class="nav-links">
+        <a class="nav-link" href="/zh/quickstart">Documentation</a>
+        <a class="nav-cta" href="https://gradlab.app" target="_blank" rel="noopener">Launch App ↗</a>
+      </div>
+    </div>
+  </header>
+</div>
+
+<!-- ── Scrollable page (mock content) ── -->
+<div id="page">
+  <section class="hero">
+    <div class="hero-inner">
+      <h1>WebGL<br>Gradient Engine</h1>
+      <p>OKLab color science. 13 fluid algorithms. Halftone, ASCII matrix, and three export formats. Free, runs entirely in your browser.</p>
+      <p class="scroll-hint">↓ scroll to activate the glass nav</p>
+    </div>
+  </section>
+  <section class="section">
+    <h2>Shape &amp; Flow</h2>
+    <p>13 GPU-shaded fluid algorithms — from sine waves to curl noise vortices and signed-distance field shapes. Every algorithm runs as a GLSL fragment shader on the GPU.</p>
+  </section>
+  <section class="section">
+    <h2>Palette &amp; OKLab</h2>
+    <p>Up to 8 colors blended in OKLab perceptual space. Drag to reorder. Extract a palette from any photo. Color transitions are perceptually uniform — no muddy intermediates.</p>
+  </section>
+  <section class="section">
+    <h2>Post-Processing</h2>
+    <p>Non-destructive compositing passes layered over the gradient. Film grain, inner border, corner radius, 3D parallax tilt. All computed on the GPU with zero performance cost.</p>
+  </section>
+  <section class="section">
+    <h2>Export Anywhere</h2>
+    <p>PNG at 2× minimum resolution, MP4/WebM with ping-pong loop, or a self-contained HTML file with zero dependencies. Drop into an iframe with no build step.</p>
+  </section>
+  <section class="section">
+    <h2>ASCII Matrix</h2>
+    <p>Full-canvas character grid that reacts to mouse proximity in real time. 7 character sets plus custom text input. Heat-map decay creates organic ripple effects.</p>
+  </section>
+  <section class="section" style="padding-bottom:180px">
+    <h2>Free &amp; Open</h2>
+    <p>No account. No install. Runs entirely in your browser with WebGL. Export as many gradients as you want, forever, for free.</p>
+  </section>
+</div>
+
+<!-- ── Parameter panel ── -->
+<aside id="panel">
+  <div class="ph">
+    <span class="ph-title">Liquid Glass</span>
+    <span class="ph-mode" id="ph-mode">chrome</span>
+    <button id="copy-btn">Copy Config</button>
+  </div>
+  <div class="pb" id="panel-body"></div>
+</aside>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// Defaults & state
+// ─────────────────────────────────────────────────────────────────────────────
+const DEF = {
+  dispH:      0.50,
+  transRange: 0.55,
+  dispYScale: 0.65,
+  caSpread:   0.25,
+  blur:       16,
+  saturate:   1.60,
+  brightness: 1.08,
+  svgBlur:    2,
+  svgBrt:     1.08,
+  svgSat:     1.12,
+}
+const S = { ...DEF }
+
+const isSafariUA = typeof navigator !== 'undefined' && navigator.vendor.startsWith('Apple')
+let mode = isSafariUA ? 'safari' : 'chrome'
+
+// param descriptor: safari=true → this param matters for Safari mode
+const PARAMS = [
+  { group: 'Displacement' },
+  { key:'dispH',      label:'Strength',       min:0,   max:2,   step:0.01, safari:false },
+  { key:'transRange', label:'Edge Zone',       min:0.1, max:1.5, step:0.01, safari:false },
+  { key:'dispYScale', label:'Y Scale',         min:0,   max:2,   step:0.01, safari:false },
+  { key:'caSpread',   label:'Chrom. Abbr.',    min:0,   max:0.8, step:0.01, safari:false },
+  { group: 'Backdrop' },
+  { key:'blur',       label:'Blur (px)',        min:0,   max:40,  step:0.5,  safari:true  },
+  { key:'saturate',   label:'Saturate',         min:1,   max:3,   step:0.05, safari:true  },
+  { key:'brightness', label:'Brightness',       min:0.8, max:1.5, step:0.01, safari:true  },
+  { group: 'SVG Lens (Chrome)' },
+  { key:'svgBlur',    label:'Lens Blur (px)',   min:0,   max:8,   step:0.25, safari:false },
+  { key:'svgBrt',     label:'Lens Brightness',  min:0.8, max:1.5, step:0.01, safari:false },
+  { key:'svgSat',     label:'Lens Saturate',    min:1,   max:2,   step:0.05, safari:false },
+]
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Glass displacement map
+// ─────────────────────────────────────────────────────────────────────────────
+const fiImg = document.getElementById('fi-img')
+const fiR   = document.getElementById('fi-R')
+const fiG   = document.getElementById('fi-G')
+const fiB   = document.getElementById('fi-B')
+const gfx   = document.querySelector('#glass-fx')
+const navHost = document.getElementById('nav-host')
+
+function sStep(a, b, t) {
+  t = Math.max(0, Math.min(1, (t - a) / (b - a)))
+  return t * t * (3 - 2 * t)
+}
+
+let lastW = 0, lastH = 0
+
+function computeMap() {
+  const W = Math.round(navHost.offsetWidth)
+  const H = Math.round(navHost.offsetHeight)
+  if (W < 4 || H < 4 || (W === lastW && H === lastH)) return
+  lastW = W; lastH = H
+
+  const halfW = W / 2, halfH = H / 2
+  const transRange = halfH * S.transRange
+  const dispH      = halfH * S.dispH
+
+  gfx.setAttribute('x','0'); gfx.setAttribute('y','0')
+  gfx.setAttribute('width','1'); gfx.setAttribute('height','1')
+  fiImg.setAttribute('x','0'); fiImg.setAttribute('y','0')
+  fiImg.setAttribute('width', String(W)); fiImg.setAttribute('height', String(H))
+
+  const cv = document.createElement('canvas')
+  cv.width = W; cv.height = H
+  const ctx = cv.getContext('2d')
+  const data = new Uint8ClampedArray(W * H * 4)
+  for (let i = 0; i < W * H; i++) {
+    data[i*4]=128; data[i*4+1]=128; data[i*4+2]=128; data[i*4+3]=255
+  }
+  const rawDx = new Float32Array(W * H)
+  const rawDy = new Float32Array(W * H)
+
+  function pillSDF(cx, cy) {
+    const r = halfH
+    const qx = Math.abs(cx) - (halfW - r)
+    const qy = Math.abs(cy)
+    return Math.sqrt(Math.max(qx,0)**2 + Math.max(qy,0)**2) + Math.min(Math.max(qx,qy),0) - r
+  }
+
+  for (let py = 0; py < H; py++) {
+    for (let px = 0; px < W; px++) {
+      const cx = px - halfW, cy = py - halfH
+      const sdf = pillSDF(cx, cy)
+      if (sdf < -transRange || sdf >= 0) continue
+      const ep = 4 * sStep(-transRange, 0, sdf) * sStep(0, -transRange, sdf)
+      if (ep < 0.001) continue
+      const eps = 0.5
+      const gx = pillSDF(cx+eps,cy) - pillSDF(cx-eps,cy)
+      const gy = pillSDF(cx,cy+eps) - pillSDF(cx,cy-eps)
+      const gl = Math.sqrt(gx*gx + gy*gy) + 0.001
+      rawDx[py*W+px] = -gx/gl * ep * dispH
+      rawDy[py*W+px] =  gy/gl * ep * dispH * S.dispYScale
+    }
+  }
+
+  let maxD = 1
+  for (let i = 0; i < W*H; i++) maxD = Math.max(maxD, Math.abs(rawDx[i]), Math.abs(rawDy[i]))
+  const sc = maxD * 2
+
+  for (let i = 0; i < W*H; i++) {
+    data[i*4]   = Math.round(Math.max(0, Math.min(255, (rawDx[i]/sc+0.5)*255)))
+    data[i*4+1] = Math.round(Math.max(0, Math.min(255, (rawDy[i]/sc+0.5)*255)))
+    data[i*4+2] = 128; data[i*4+3] = 255
+  }
+
+  ctx.putImageData(new ImageData(data, W, H), 0, 0)
+  fiImg.setAttribute('href', cv.toDataURL())
+  fiR.setAttribute('scale', String(sc * (1 - S.caSpread)))
+  fiG.setAttribute('scale', String(sc))
+  fiB.setAttribute('scale', String(sc * (1 + S.caSpread)))
+}
+
+function updateBackdrop() {
+  if (mode === 'safari') {
+    const v = `blur(${S.blur}px) saturate(${S.saturate}) brightness(${S.brightness})`
+    navHost.style.webkitBackdropFilter = v
+    navHost.style.backdropFilter = v
+  } else {
+    const v = `url(#glass-fx) blur(${S.svgBlur}px) brightness(${S.svgBrt}) saturate(${S.svgSat})`
+    navHost.style.webkitBackdropFilter = v
+    navHost.style.backdropFilter = v
+  }
+}
+
+function refresh() {
+  lastW = 0; lastH = 0
+  computeMap()
+  updateBackdrop()
+  renderConfig()
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Panel build
+// ─────────────────────────────────────────────────────────────────────────────
+const panelBody = document.getElementById('panel-body')
+
+function pct(min, max, val) {
+  return ((val - min) / (max - min) * 100).toFixed(1) + '%'
+}
+
+function applyDimState() {
+  panelBody.querySelectorAll('.pr[data-s]').forEach(el => {
+    const isSafariParam = el.dataset.s === '1'
+    el.classList.toggle('dim', mode === 'safari' ? !isSafariParam : isSafariParam)
+  })
+}
+
+function buildPanel() {
+  panelBody.innerHTML = ''
+
+  // Browser preview mode toggle
+  const modeLabel = document.createElement('div')
+  modeLabel.className = 'pgl'; modeLabel.textContent = 'Preview Mode'
+  panelBody.appendChild(modeLabel)
+
+  const toggle = document.createElement('div')
+  toggle.className = 'mode-toggle'
+  ;['chrome','safari'].forEach(m => {
+    const btn = document.createElement('button')
+    btn.className = 'mt-btn' + (mode === m ? ' on' : '')
+    btn.textContent = m
+    btn.dataset.m = m
+    btn.addEventListener('click', () => {
+      mode = m
+      document.getElementById('ph-mode').textContent = m
+      toggle.querySelectorAll('.mt-btn').forEach(b => b.classList.toggle('on', b.dataset.m === m))
+      applyDimState()
+      refresh()
+    })
+    toggle.appendChild(btn)
+  })
+  panelBody.appendChild(toggle)
+
+  // Param rows
+  PARAMS.forEach(p => {
+    if (p.group) {
+      const g = document.createElement('div')
+      g.className = 'pgl'; g.textContent = p.group
+      panelBody.appendChild(g)
+      return
+    }
+
+    const row = document.createElement('div')
+    row.className = 'pr'
+    row.dataset.s = p.safari ? '1' : '0'
+    const isSafariParam = p.safari
+    if (mode === 'safari' ? !isSafariParam : isSafariParam) row.classList.add('dim')
+
+    const lrow = document.createElement('div')
+    lrow.className = 'plr'
+    const lbl = document.createElement('span'); lbl.className = 'pl'; lbl.textContent = p.label
+    const val = document.createElement('span'); val.className = 'pv'; val.id = `v-${p.key}`
+    val.textContent = S[p.key].toFixed(p.step < 1 ? 2 : 0)
+    lrow.appendChild(lbl); lrow.appendChild(val)
+
+    const inp = document.createElement('input')
+    inp.type = 'range'; inp.min = p.min; inp.max = p.max; inp.step = p.step
+    inp.value = S[p.key]; inp.id = `i-${p.key}`
+    inp.style.setProperty('--p', pct(p.min, p.max, S[p.key]))
+
+    inp.addEventListener('input', () => {
+      S[p.key] = +inp.value
+      val.textContent = (+inp.value).toFixed(p.step < 1 ? 2 : 0)
+      inp.style.setProperty('--p', pct(p.min, p.max, +inp.value))
+      refresh()
+    })
+
+    row.appendChild(lrow); row.appendChild(inp)
+    panelBody.appendChild(row)
+  })
+
+  // Config output
+  const box = document.createElement('div'); box.className = 'cfg-box'
+  const pre = document.createElement('pre'); pre.className = 'cfg-pre'; pre.id = 'cfg-out'
+  box.appendChild(pre)
+
+  const springBtn = document.createElement('button'); springBtn.className = 'spring-btn'
+  springBtn.textContent = 'Preview spring animation'
+  springBtn.addEventListener('click', () => {
+    navHost.classList.remove('active')
+    navHost.classList.remove('spring')
+    void navHost.offsetWidth
+    navHost.classList.add('active')
+    navHost.classList.add('spring')
+    navHost.addEventListener('animationend', () => navHost.classList.remove('spring'), { once: true })
+  })
+  box.appendChild(springBtn)
+
+  const resetBtn = document.createElement('button'); resetBtn.id = 'reset-btn'; resetBtn.textContent = 'Reset to defaults'
+  resetBtn.addEventListener('click', () => {
+    Object.assign(S, DEF)
+    PARAMS.filter(p => p.key).forEach(p => {
+      const i = document.getElementById(`i-${p.key}`)
+      const v = document.getElementById(`v-${p.key}`)
+      if (i) { i.value = DEF[p.key]; i.style.setProperty('--p', pct(p.min, p.max, DEF[p.key])) }
+      if (v) v.textContent = DEF[p.key].toFixed(p.step < 1 ? 2 : 0)
+    })
+    refresh()
+  })
+  box.appendChild(resetBtn)
+  panelBody.appendChild(box)
+}
+
+function renderConfig() {
+  const out = document.getElementById('cfg-out')
+  if (!out) return
+  out.textContent =
+`// HomeLayout.vue — setupGlassFilter
+window.__glass = {
+  dispH:      ${S.dispH.toFixed(2)},
+  transRange: ${S.transRange.toFixed(2)},
+  dispYScale: ${S.dispYScale.toFixed(2)},
+  caSpread:   ${S.caSpread.toFixed(2)},
+}
+
+// Safari (HomeLayout CSS)
+// backdrop-filter:
+//   blur(${S.blur}px)
+//   saturate(${S.saturate.toFixed(2)})
+//   brightness(${S.brightness.toFixed(2)})
+
+// Chrome (injected style)
+// url(#gl-nav-glass-fx)
+//   blur(${S.svgBlur}px)
+//   brightness(${S.svgBrt.toFixed(2)})
+//   saturate(${S.svgSat.toFixed(2)})`
+}
+
+document.getElementById('copy-btn').addEventListener('click', () => {
+  const out = document.getElementById('cfg-out')
+  navigator.clipboard?.writeText(out.textContent).then(() => {
+    const btn = document.getElementById('copy-btn')
+    btn.textContent = 'Copied ✓'
+    setTimeout(() => { btn.textContent = 'Copy Config' }, 1400)
+  })
+})
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Scroll → activate/deactivate nav
+// ─────────────────────────────────────────────────────────────────────────────
+let prevScrolled = false
+window.addEventListener('scroll', () => {
+  const isScrolled = window.scrollY > 40
+  navHost.classList.toggle('active', isScrolled)
+  if (isScrolled && !prevScrolled) {
+    navHost.classList.remove('spring')
+    void navHost.offsetWidth
+    navHost.classList.add('spring')
+    navHost.addEventListener('animationend', () => navHost.classList.remove('spring'), { once: true })
+  }
+  prevScrolled = isScrolled
+}, { passive: true })
+
+// ─────────────────────────────────────────────────────────────────────────────
+// WebGL gradient background (same preset as HomeLayout hero)
+// ─────────────────────────────────────────────────────────────────────────────
+;(function initBG() {
+  const canvas = document.getElementById('bg')
+  const gl = canvas.getContext('webgl', { preserveDrawingBuffer: false }) ||
+             canvas.getContext('experimental-webgl')
+  if (!gl) { canvas.style.background = 'linear-gradient(135deg,#FB7C47,#E1B8FF,#0883F7)'; return }
+
+  const VERT = `attribute vec2 position;void main(){gl_Position=vec4(position,0.0,1.0);}`
+  const FRAG = `
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+  precision highp float;
+#else
+  precision mediump float;
+#endif
+uniform vec2 u_resolution;uniform float u_ref_height;uniform float u_time;
+uniform vec3 u_colors[8];uniform int u_colorCount;
+uniform float u_flow_type;uniform float u_zoom;
+uniform vec2 u_pan;uniform float u_flow_speed;uniform float u_liquid_str;
+uniform float u_morph;uniform float u_rotation;
+uniform int u_color_mode;uniform float u_blend_bias;uniform float u_blend_sharp;
+mat2 rot(float a){return mat2(cos(a),-sin(a),sin(a),cos(a));}
+float sdCircle(vec2 p,float r){return length(p)-r;}
+float sdHexagon(vec2 p,float r){const vec3 k=vec3(-0.866025404,0.5,0.577350269);p=abs(p);p-=2.0*min(dot(k.xy,p),0.0)*k.xy;p-=vec2(clamp(p.x,-k.z*r,k.z*r),r);return length(p)*sign(p.y);}
+float sdBox(vec2 p,vec2 b){vec2 d=abs(p)-b;return length(max(d,0.0))+min(max(d.x,d.y),0.0);}
+float sdEquilateralTriangle(vec2 p,float r){const float k=sqrt(3.0);p.x=abs(p.x)-r;p.y=p.y+r/k;if(p.x+k*p.y>0.0)p=vec2(p.x-k*p.y,-k*p.x-p.y)/2.0;p.x-=clamp(p.x,-2.0*r,0.0);return -length(p)*sign(p.y);}
+vec3 mod289(vec3 x){return x-floor(x*(1.0/289.0))*289.0;}
+vec2 mod289(vec2 x){return x-floor(x*(1.0/289.0))*289.0;}
+vec3 permute(vec3 x){return mod289(((x*34.0)+1.0)*x);}
+float random(vec2 st){return fract(sin(dot(st.xy,vec2(12.9898,78.233)))*43758.5453123);}
+float noise(in vec2 st){vec2 i=floor(st);vec2 f=fract(st);float a=random(i);float b=random(i+vec2(1.0,0.0));float c=random(i+vec2(0.0,1.0));float d=random(i+vec2(1.0,1.0));vec2 u=f*f*(3.0-2.0*f);return mix(a,b,u.x)+(c-a)*u.y*(1.0-u.x)+(d-b)*u.x*u.y;}
+float snoise(vec2 st){return noise(st)*2.0-1.0;}
+float fbm(vec2 p){float f=0.0;float amp=0.5;mat2 r=mat2(cos(0.65),sin(0.65),-sin(0.65),cos(0.65));for(int i=0;i<4;i++){f+=amp*noise(p);p=r*p*2.01;amp*=0.5;}return f;}
+float sfbm(vec2 p){return fbm(p)*2.0-1.0;}
+vec3 srgbToLinear(vec3 c){return mix(c/12.92,pow((c+0.055)/1.055,vec3(2.4)),step(0.04045,c));}
+vec3 linearToSrgb(vec3 c){c=clamp(c,0.0,1.0);return mix(c*12.92,1.055*pow(c,vec3(1.0/2.4))-0.055,step(0.0031308,c));}
+vec3 linearToOklab(vec3 c){float l=0.4122214708*c.r+0.5363325363*c.g+0.0514459929*c.b;float m=0.2119034982*c.r+0.6806995451*c.g+0.1073969566*c.b;float s=0.0883024619*c.r+0.2817188376*c.g+0.6299787005*c.b;float l_=pow(max(l,0.0),1.0/3.0);float m_=pow(max(m,0.0),1.0/3.0);float s_=pow(max(s,0.0),1.0/3.0);return vec3(0.2104542553*l_+0.7936177850*m_-0.0040720468*s_,1.9779984951*l_-2.4285922050*m_+0.4505937099*s_,0.0259040371*l_+0.7827717662*m_-0.8086757660*s_);}
+vec3 oklabToLinear(vec3 c){float l_=c.x+0.3963377774*c.y+0.2158037573*c.z;float m_=c.x-0.1055613458*c.y-0.0638541728*c.z;float s_=c.x-0.0894841775*c.y-1.2914855480*c.z;float l=l_*l_*l_;float m=m_*m_*m_;float s=s_*s_*s_;return vec3(4.0767416621*l-3.3077115913*m+0.2309699292*s,-1.2684380046*l+2.6097574011*m-0.3413193965*s,-0.0041960863*l-0.7034186147*m+1.7076147010*s);}
+vec3 oklabToOklch(vec3 lab){return vec3(lab.x,length(lab.yz),atan(lab.z,lab.y));}
+vec3 oklchToOklab(vec3 lch){return vec3(lch.x,lch.y*cos(lch.z),lch.y*sin(lch.z));}
+float applyBlend(float t){float gamma;if(u_blend_bias<0.5){gamma=1.0+(1.0-u_blend_bias*2.0)*3.0;}else{gamma=1.0-(u_blend_bias-0.5)*2.0*0.75;}gamma=max(gamma,0.1);float biased=pow(clamp(t,0.001,0.999),gamma);float halfRange=0.5-u_blend_sharp*0.48;return smoothstep(0.5-halfRange,0.5+halfRange,biased);}
+vec3 mixOklab(vec3 a,vec3 b,float t){float bt=applyBlend(t);if(u_color_mode==0){return mix(a,b,bt);}vec3 lchA=oklabToOklch(linearToOklab(srgbToLinear(a)));vec3 lchB=oklabToOklch(linearToOklab(srgbToLinear(b)));float L=mix(lchA.x,lchB.x,bt);float C=mix(lchA.y,lchB.y,bt);float dH=lchB.z-lchA.z;if(dH>3.14159265)dH-=6.28318530;if(dH<-3.14159265)dH+=6.28318530;float H=lchA.z+dH*bt;return linearToSrgb(oklabToLinear(oklchToOklab(vec3(L,C,H))));}
+void main(){vec2 fragCoord=gl_FragCoord.xy;vec2 uv=fragCoord/u_resolution.xy;vec2 S=uv-0.5;S.x*=u_resolution.x/u_resolution.y;S*=u_resolution.y/u_ref_height;vec2 p=S/u_zoom+u_pan;p+=0.5;float t=u_time*u_flow_speed;vec3 finalColor=u_colors[0];vec2 flowP=p;float amt=u_liquid_str*0.15;for(int i=0;i<3;i++){float ang=snoise(flowP*2.0+t*0.2)*3.14159;flowP+=vec2(cos(ang),sin(ang))*amt;amt*=0.7;}vec2 centerP=flowP-0.5;centerP*=rot(u_rotation);float d1=sdCircle(centerP,0.3);float d2=sdHexagon(centerP,0.3);float d3=sdBox(centerP,vec2(0.25));float d4=sdEquilateralTriangle(centerP*vec2(1.0,-1.0)-vec2(0.0,0.1),0.35);float morphVal=u_morph*3.0;float finalD=0.0;if(morphVal<1.0)finalD=mix(d1,d2,morphVal);else if(morphVal<2.0)finalD=mix(d2,d3,morphVal-1.0);else finalD=mix(d3,d4,morphVal-2.0);finalColor=u_colors[0];for(int i=1;i<8;i++){if(i<u_colorCount){float ratio=float(i)/float(u_colorCount-1);float targetR=ratio*1.5;float mask=smoothstep(targetR-0.35,targetR+0.35,finalD);finalColor=mixOklab(finalColor,u_colors[i],mask);}}gl_FragColor=vec4(finalColor,1.0);}
+`
+  function mkShader(type, src) {
+    const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return s
+  }
+  const prog = gl.createProgram()
+  gl.attachShader(prog, mkShader(gl.VERTEX_SHADER, VERT))
+  gl.attachShader(prog, mkShader(gl.FRAGMENT_SHADER, FRAG))
+  gl.linkProgram(prog); gl.useProgram(prog)
+
+  const buf = gl.createBuffer()
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf)
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]), gl.STATIC_DRAW)
+  const pos = gl.getAttribLocation(prog, 'position')
+  gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0); gl.enableVertexAttribArray(pos)
+
+  const L = {
+    res:gl.getUniformLocation(prog,'u_resolution'),
+    refH:gl.getUniformLocation(prog,'u_ref_height'),
+    time:gl.getUniformLocation(prog,'u_time'),
+    colors:gl.getUniformLocation(prog,'u_colors'),
+    count:gl.getUniformLocation(prog,'u_colorCount'),
+    zoom:gl.getUniformLocation(prog,'u_zoom'),
+    pan:gl.getUniformLocation(prog,'u_pan'),
+    flow:gl.getUniformLocation(prog,'u_flow_speed'),
+    liquid:gl.getUniformLocation(prog,'u_liquid_str'),
+    morph:gl.getUniformLocation(prog,'u_morph'),
+    rotation:gl.getUniformLocation(prog,'u_rotation'),
+    colorMode:gl.getUniformLocation(prog,'u_color_mode'),
+    blendBias:gl.getUniformLocation(prog,'u_blend_bias'),
+    blendSh:gl.getUniformLocation(prog,'u_blend_sharp'),
+  }
+
+  const COLORS_HEX = ['#FB7C47','#E1B8FF','#0883F7']
+  const COLOR_DATA = new Float32Array(8*3)
+  COLORS_HEX.forEach((hex,i) => {
+    COLOR_DATA[i*3]   = parseInt(hex.slice(1,3),16)/255
+    COLOR_DATA[i*3+1] = parseInt(hex.slice(3,5),16)/255
+    COLOR_DATA[i*3+2] = parseInt(hex.slice(5,7),16)/255
+  })
+
+  let refH = 0
+  function resize() {
+    const dpr = Math.max(2, window.devicePixelRatio || 1)
+    canvas.width  = Math.round(canvas.clientWidth  * dpr)
+    canvas.height = Math.round(canvas.clientHeight * dpr)
+    if (!refH) refH = canvas.height
+    gl.viewport(0, 0, canvas.width, canvas.height)
+  }
+  resize()
+  window.addEventListener('resize', resize)
+
+  let start = null
+  function frame(ts) {
+    if (!start) start = ts
+    const t = (ts - start) * 0.001
+    gl.uniform2f(L.res, canvas.width, canvas.height)
+    gl.uniform1f(L.refH, refH || canvas.height)
+    gl.uniform1f(L.time, t)
+    gl.uniform3fv(L.colors, COLOR_DATA)
+    gl.uniform1i(L.count, COLORS_HEX.length)
+    gl.uniform1f(L.zoom, 49*0.028+0.2)
+    gl.uniform2f(L.pan, -1.2917147663632156, -1.2322853637889368)
+    gl.uniform1f(L.flow, 25*0.02)
+    gl.uniform1f(L.liquid, 25*0.02)
+    gl.uniform1f(L.morph, 69/100.0*3.0)
+    gl.uniform1f(L.rotation, 80*(Math.PI/180.0))
+    gl.uniform1i(L.colorMode, 1)
+    gl.uniform1f(L.blendBias, 0.65)
+    gl.uniform1f(L.blendSh, 0.0)
+    gl.drawArrays(gl.TRIANGLES, 0, 6)
+    requestAnimationFrame(frame)
+  }
+  requestAnimationFrame(frame)
+})()
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Init
+// ─────────────────────────────────────────────────────────────────────────────
+buildPanel()
+renderConfig()
+updateBackdrop()
+
+setTimeout(() => { lastW = 0; lastH = 0; computeMap() }, 60)
+const ro = new ResizeObserver(() => { lastW = 0; lastH = 0; setTimeout(computeMap, 16) })
+ro.observe(navHost)
+</script>
+</body>
+</html>
