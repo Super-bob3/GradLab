@@ -711,18 +711,12 @@ function _initImagePicker() {
         reader.onload = (event) => {
             const img = new Image();
             img.onload = () => {
-                const MAX_H = window.innerHeight * 0.6;
-                const MAX_W = window.innerWidth  * 0.8;
-                let w = img.width, h = img.height;
-                if (w > MAX_W || h > MAX_H) {
-                    const ratio = Math.min(MAX_W / w, MAX_H / h);
-                    w *= ratio; h *= ratio;
-                }
-                pickerContainer.style.width  = w + 'px';
-                pickerContainer.style.height = h + 'px';
                 pickerCanvas.width  = img.width;
                 pickerCanvas.height = img.height;
                 pickerCtx.drawImage(img, 0, 0);
+                pickerContainer.style.aspectRatio = `${img.width} / ${img.height}`;
+                pickerContainer.style.width  = '';
+                pickerContainer.style.height = '';
                 initPickerMarkers(true);
                 sound.open();
                 modal.style.display = 'flex';
