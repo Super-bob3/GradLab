@@ -1,6 +1,52 @@
 ---
 title: FAQ
 description: Common questions about GradLab — browser support, export quality, performance, and use cases.
+head:
+  - - script
+    - type: application/ld+json
+    - {}
+    - |
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is GradLab free to use?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. GradLab is free and runs entirely in your browser with no account required." }
+          },
+          {
+            "@type": "Question",
+            "name": "Do I need to install anything?",
+            "acceptedAnswer": { "@type": "Answer", "text": "No. GradLab runs as a web application — open the URL and start creating. No plugins, no desktop app, no dependencies." }
+          },
+          {
+            "@type": "Question",
+            "name": "Which browsers are supported?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Any browser with WebGL support: Chrome, Firefox, Safari, and Edge on desktop and mobile. For video recording, Chrome and Edge offer the best codec support (MP4/H.264). Safari exports WebM as fallback." }
+          },
+          {
+            "@type": "Question",
+            "name": "What resolution are exported PNGs?",
+            "acceptedAnswer": { "@type": "Answer", "text": "PNG exports match the WebGL render buffer, which renders at a minimum of 2× device pixel ratio. On a standard display, a 1280×720 canvas exports at 2560×1440." }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I use GradLab outputs in commercial projects?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. Exports are yours to use. There are no watermarks or usage restrictions on exported PNG, video, or HTML files." }
+          },
+          {
+            "@type": "Question",
+            "name": "How do I embed the gradient in my website?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Use Export Code to get a self-contained HTML file, then embed it via an iframe in your page. Set width: 100% and height: 100% on the iframe for a full-bleed background." }
+          },
+          {
+            "@type": "Question",
+            "name": "Does GradLab work on mobile?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. The WebGL engine runs on mobile browsers. Video recording is not available on iOS due to MediaRecorder API limitations. PNG export and HTML export work on all platforms." }
+          }
+        ]
+      }
 ---
 
 # FAQ
