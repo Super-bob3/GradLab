@@ -368,6 +368,24 @@ export function initControls(onMatrixRebuild) {
         }
     });
 
+    // Shuffle color order — guaranteed different from current order
+    document.getElementById('btn-shuffle-colors').addEventListener('click', () => {
+        if (currentColors.length < 2) return;
+        sound.tap();
+        const original = [...currentColors];
+        let attempts = 0;
+        do {
+            for (let i = currentColors.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [currentColors[i], currentColors[j]] = [currentColors[j], currentColors[i]];
+            }
+            attempts++;
+        } while (attempts < 10 && currentColors.every((c, i) => c === original[i]));
+        saveToCurrentTheme();
+        renderColorList();
+        if (typeof umami !== 'undefined') umami.track('shuffle_colors');
+    });
+
     // Select auto-width: hug selected option text, max 240px
     const _measureSpan = document.createElement('span');
     _measureSpan.style.cssText = 'position:absolute;visibility:hidden;pointer-events:none;font-size:14px;font-family:"Geist",sans-serif;padding:0 10px;white-space:nowrap;';

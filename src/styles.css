@@ -886,16 +886,38 @@ input[type="color"]::-webkit-color-swatch {
     box-shadow: inset 0 0 0 0.5px var(--border-color);
 }
 
-/* ── Add Color button ── */
+/* ── Add Color row ── */
+.color-actions-row {
+    display: flex;
+    gap: var(--space-1_5);
+    margin-top: var(--space-1);
+}
+
+.color-actions-row #btn-add-color {
+    flex: 1;
+    margin-top: 0;
+}
+
 #btn-add-color {
     min-height: var(--h-ctrl);
-    margin-top: var(--space-1);
     border-radius: var(--radius-xl);
     font-size: var(--fs-ctrl);
 }
 
 #btn-add-color:hover {
     background: var(--gray-a3);
+}
+
+.btn-icon-sq {
+    flex-shrink: 0;
+    width: var(--h-ctrl);
+    min-height: var(--h-ctrl);
+    padding: 0;
+    font-size: 15px;
+    border-radius: var(--radius-xl);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* ── Upload Area ── */
