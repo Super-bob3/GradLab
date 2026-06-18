@@ -6,6 +6,7 @@
 
 import { sound } from './sound.js';
 import { openColorPicker } from './color-picker.js';
+import { attachGlider } from './components.js';
 
 // ── Color State ───────────────────────────────────────────────
 export const MAX_COLORS = 8;
@@ -282,7 +283,7 @@ export function applyStateObject(t) {
     currentColors = [...t.colors];
     renderColorList();
 
-    _setCtrl('color-mode',    t.colorMode ?? true);
+    _setCtrl('color-mode',    typeof t.colorMode === 'boolean' ? (t.colorMode ? 1 : 0) : (parseInt(t.colorMode) || 0));
     _setCtrl('blend-bias',    t.blendBias);
     _setCtrl('blend-sharp',   t.blendSharp);
     _setCtrl('type',          t.type);
@@ -347,6 +348,7 @@ export function initControls(onMatrixRebuild) {
     document.getElementById('btn-lang').addEventListener('click', () => { sound.tap(); toggleLanguage(); });
 
     // Preset buttons — apply full theme (colors + all parameters)
+    const _presetGlider = attachGlider(document.querySelector('.preset-group'));
     window.applyColorPreset = function(name, btnEl, _fromInit = false) {
         sound.preset();
         if (!_fromInit && typeof umami !== 'undefined') umami.track('apply_preset', { preset: name });
@@ -354,7 +356,7 @@ export function initControls(onMatrixRebuild) {
         currentThemeKey = name;
         applyStateObject(themeStates[name]);
         document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
-        if (btnEl) btnEl.classList.add('active');
+        if (btnEl) { btnEl.classList.add('active'); _presetGlider(btnEl); }
     };
 
     // Add color

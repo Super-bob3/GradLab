@@ -23,7 +23,7 @@ export function exportParamsJson() {
     return {
         v:            1,
         colors:       currentColors,
-        colorMode:    rb('color-mode'),
+        colorMode:    parseInt(document.getElementById('ctrl-color-mode')?.value) || 0,
         blendBias:    r('blend-bias'),
         blendSharp:   r('blend-sharp'),
         type:         r('type'),
@@ -70,7 +70,7 @@ export function exportParams() {
     return [
         'GL',
         currentColors.map(h => h.replace('#', '')).join(','),
-        rb('color-mode'),
+        parseInt(document.getElementById('ctrl-color-mode')?.value) || 0,
         r('blend-bias'),
         r('blend-sharp'),
         r('type'),
@@ -115,7 +115,7 @@ export function importParams(str) {
         if (f.length < 34) return false;
         applyStateObject({
             colors:      f[1].split(',').map(h => '#' + h),
-            colorMode:   f[2] === '1',
+            colorMode:   parseInt(f[2]) || 0,
             blendBias:   f[3],
             blendSharp:  f[4],
             type:        f[5],

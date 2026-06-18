@@ -207,7 +207,6 @@ export function createSelect({ label, id, options, groupId, hidden, placeholder 
 // CSS 依赖：.control-group:has(input[type="checkbox"])
 // ─────────────────────────────────────────────────────────────────
 export const TOGGLE_CONFIGS = {
-    'color-mode':   { label: 'OKLch Color',       id: 'color-mode'   },
     'art-enable':   { label: 'Enable Effect',    id: 'art-enable'   },
     'ascii-enable': { label: 'Enable Matrix',    id: 'ascii-enable' },
     'pingpong':     { label: 'Loop (Pingpong)',   id: 'pingpong'     },
@@ -223,6 +222,92 @@ export function createToggle({ label, id }) {
             <span class="toggle-track"><span class="toggle-thumb"></span></span>
         </label>`;
     return group;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// SEGMENTED CONTROL
+// CSS 依赖：.sg-control / .sg-glider / .sg-btn
+// 生成的 id：hidden input → ctrl-{id}
+// ─────────────────────────────────────────────────────────────────
+export const SEGMENT_CONFIGS = {
+    'color-mode': {
+        id:      'color-mode',
+        label:   'Color Space',
+        options: ['RGB', 'OKLCH', 'OKLAB'],
+        default: 1,
+    },
+};
+
+export function createSegmentedControl({ id, label, options, default: defaultIndex = 0 }) {
+    const group = document.createElement('div');
+    group.className = 'control-group control-group--segment';
+
+    const n = options.length;
+    const optionsHtml = options.map((opt, i) =>
+        `<button type="button" class="sg-btn" data-index="${i}" aria-selected="${i === defaultIndex}">${opt}</button>`
+    ).join('');
+
+    group.innerHTML = `
+        <label>${label}</label>
+        <div class="sg-control" role="group">
+            <div class="sg-glider"></div>
+            ${optionsHtml}
+            <input type="hidden" id="ctrl-${id}" value="${defaultIndex}">
+        </div>`;
+
+    const glider  = group.querySelector('.sg-glider');
+    const buttons = group.querySelectorAll('.sg-btn');
+    const hidden  = group.querySelector(`#ctrl-${id}`);
+
+    function _move(index, animate = true) {
+        const btn = buttons[index];
+        if (!animate) glider.style.transition = 'none';
+        glider.style.left  = btn.offsetLeft + 'px';
+        glider.style.width = btn.offsetWidth + 'px';
+        if (!animate) requestAnimationFrame(() => { glider.style.transition = ''; });
+        buttons.forEach((b, i) => b.setAttribute('aria-selected', i === index ? 'true' : 'false'));
+        hidden.value = index;
+        hidden.dispatchEvent(new Event('input'));
+    }
+
+    buttons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+            import('./sound.js').then(m => m.sound.tap());
+            _move(parseInt(btn.dataset.index));
+        });
+    });
+
+    // Init after layout so offsetLeft/offsetWidth are available
+    requestAnimationFrame(() => _move(defaultIndex, false));
+
+    return group;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// GLIDER UTILITY — 给任意 preset-group 类容器附加滑块动画
+// 用法：const update = attachGlider(containerEl);  update(activeBtn);
+// ─────────────────────────────────────────────────────────────────
+export function attachGlider(container) {
+    let glider = container.querySelector('.sg-glider');
+    if (!glider) {
+        glider = document.createElement('div');
+        glider.className = 'sg-glider';
+        container.prepend(glider);
+    }
+
+    function update(btn, animate = true) {
+        if (!btn) return;
+        if (!animate) glider.style.transition = 'none';
+        glider.style.left  = btn.offsetLeft + 'px';
+        glider.style.width = btn.offsetWidth + 'px';
+        if (!animate) requestAnimationFrame(() => { glider.style.transition = ''; });
+    }
+
+    requestAnimationFrame(() => {
+        update(container.querySelector('.active'), false);
+    });
+
+    return update;
 }
 
 // ─────────────────────────────────────────────────────────────────
@@ -383,6 +468,10 @@ export function mountControls() {
     document.querySelectorAll('[data-toggle]').forEach(p => {
         const c = TOGGLE_CONFIGS[p.dataset.toggle];
         if (c) p.replaceWith(createToggle(c));
+    });
+    document.querySelectorAll('[data-segment]').forEach(p => {
+        const c = SEGMENT_CONFIGS[p.dataset.segment];
+        if (c) p.replaceWith(createSegmentedControl(c));
     });
     document.querySelectorAll('[data-colorpill]').forEach(p => {
         const c = COLORPILL_CONFIGS[p.dataset.colorpill];

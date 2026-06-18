@@ -3,6 +3,7 @@
  */
 
 import { sound } from './sound.js';
+import { attachGlider } from './components.js';
 
 const PRESETS = [
     { w: 640, h: 360 },  // 16:9
@@ -44,10 +45,13 @@ function _applySize(w, h) {
     _triggeringEngineResize = false;
 }
 
+let _canvasGlider = null;
+
 function _updatePresetActive(w, h) {
     document.querySelectorAll('.canvas-preset-btn').forEach(btn => {
         const match = parseInt(btn.dataset.w) === w && parseInt(btn.dataset.h) === h;
         btn.classList.toggle('active', match);
+        if (match && _canvasGlider) _canvasGlider(btn);
     });
 }
 
@@ -55,6 +59,8 @@ export function initCanvasSize() {
     const inputW      = document.getElementById('ctrl-canvas-w');
     const inputH      = document.getElementById('ctrl-canvas-h');
     const presetBtns  = document.querySelectorAll('.canvas-preset-btn');
+
+    _canvasGlider = attachGlider(document.querySelector('.canvas-size-presets'));
 
     // Preset clicks
     presetBtns.forEach(btn => {
