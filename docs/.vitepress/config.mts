@@ -17,6 +17,33 @@ const enSidebar = [
     ]
   },
   {
+    text: 'Guides',
+    items: [
+      { text: 'Animated gradient background', link: '/guides/animated-gradient-background' },
+      { text: 'Download & export', link: '/guides/download-export' },
+      { text: 'Embed in your website', link: '/guides/embed-in-website' },
+      { text: 'Gradient video background', link: '/guides/gradient-video-background' },
+      { text: 'Extract colors from image', link: '/guides/extract-colors-from-image' }
+    ]
+  },
+  {
+    text: 'Concepts',
+    items: [
+      { text: 'What is a mesh gradient?', link: '/concepts/what-is-mesh-gradient' },
+      { text: 'Mesh gradient vs CSS gradient', link: '/concepts/mesh-gradient-vs-css-gradient' },
+      { text: 'OKLab color space', link: '/concepts/oklab-color-space' },
+      { text: 'Halftone effect', link: '/concepts/halftone-effect' }
+    ]
+  },
+  {
+    text: 'Use Cases',
+    items: [
+      { text: 'Social media', link: '/use-cases/social-media' },
+      { text: 'UI & presentations', link: '/use-cases/ui-presentations' },
+      { text: 'Gradient wallpaper', link: '/use-cases/gradient-wallpaper' }
+    ]
+  },
+  {
     text: 'Features',
     items: [
       { text: 'Palette', link: '/features/palette' },
@@ -41,6 +68,33 @@ const zhSidebar = [
     items: [
       { text: '介绍', link: '/zh/' },
       { text: '快速上手', link: '/zh/quickstart' }
+    ]
+  },
+  {
+    text: '指南',
+    items: [
+      { text: '动态渐变背景', link: '/zh/guides/animated-gradient-background' },
+      { text: '下载与导出', link: '/zh/guides/download-export' },
+      { text: '嵌入网站', link: '/zh/guides/embed-in-website' },
+      { text: '渐变视频背景', link: '/zh/guides/gradient-video-background' },
+      { text: '从图片提取颜色', link: '/zh/guides/extract-colors-from-image' }
+    ]
+  },
+  {
+    text: '概念',
+    items: [
+      { text: '什么是网格渐变？', link: '/zh/concepts/what-is-mesh-gradient' },
+      { text: '网格渐变 vs CSS 渐变', link: '/zh/concepts/mesh-gradient-vs-css-gradient' },
+      { text: 'OKLab 色彩空间', link: '/zh/concepts/oklab-color-space' },
+      { text: '半调效果', link: '/zh/concepts/halftone-effect' }
+    ]
+  },
+  {
+    text: '使用场景',
+    items: [
+      { text: '社交媒体', link: '/zh/use-cases/social-media' },
+      { text: 'UI 设计与演示文稿', link: '/zh/use-cases/ui-presentations' },
+      { text: '渐变壁纸', link: '/zh/use-cases/gradient-wallpaper' }
     ]
   },
   {
