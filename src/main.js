@@ -60,7 +60,10 @@ document.addEventListener('DOMContentLoaded', () => {
     initCodeExport(getCurrentColors);
 
     // 6. Split hover text effect — logo only
-    splitHover(document.querySelector('.title-name'), { stagger: 40, duration: 400 });
+    splitHover(document.querySelector('.title-name'), {
+        stagger: 40, duration: 400,
+        trigger: document.querySelector('.title-left'),
+    });
 
     // 7. Feedback widget
     initFeedback();

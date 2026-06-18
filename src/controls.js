@@ -858,6 +858,7 @@ function _initImagePicker() {
     const closeModal = () => { sound.close(); modal.style.display = 'none'; };
     document.getElementById('btn-close-modal').addEventListener('click', closeModal);
     document.getElementById('btn-picker-done').addEventListener('click', closeModal);
+
 }
 
 function _initBgDropZone() {
