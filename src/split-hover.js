@@ -13,6 +13,7 @@ export function splitHover(el, {
     stagger  = 28,
     duration = 360,
     ease     = 'cubic-bezier(.22,1,.36,1)',
+    trigger  = null,
 } = {}) {
     const text = el.textContent.trim();
     el.textContent = '';
@@ -62,11 +63,12 @@ export function splitHover(el, {
     const spansA = [...layerA.querySelectorAll('span')];
     const spansB = [...layerB.querySelectorAll('span')];
 
-    el.addEventListener('mouseenter', () => {
+    const hitTarget = trigger || el;
+    hitTarget.addEventListener('mouseenter', () => {
         spansA.forEach(s => s.style.transform = 'translateY(-105%)');
         spansB.forEach(s => s.style.transform = 'translateY(0)');
     });
-    el.addEventListener('mouseleave', () => {
+    hitTarget.addEventListener('mouseleave', () => {
         spansA.forEach(s => s.style.transform = 'translateY(0)');
         spansB.forEach(s => s.style.transform = 'translateY(105%)');
     });

@@ -214,7 +214,7 @@ function render(time, canvasEl, noiseOverlayEl, getColors) {
     gl.uniform1i(locs.bgTexture,    0);
     gl.uniform1i(locs.hasBgTexture, hasBgTextureFlag ? 1 : 0);
 
-    gl.uniform1i(locs.colorMode,  _ctrl('color-mode').checked ? 1 : 0);
+    gl.uniform1i(locs.colorMode,  parseInt(_ctrl('color-mode').value) || 0);
     gl.uniform1f(locs.blendBias,  parseFloat(_ctrl('blend-bias').value) / 100.0);
     gl.uniform1f(locs.blendSharp, parseFloat(_ctrl('blend-sharp').value) / 100.0);
 

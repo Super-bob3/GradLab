@@ -168,6 +168,11 @@ vec3 mixOklab(vec3 a, vec3 b, float t) {
     if (u_color_mode == 0) {
         return mix(a, b, bt);
     }
+    if (u_color_mode == 2) {
+        vec3 labA = linearToOklab(srgbToLinear(a));
+        vec3 labB = linearToOklab(srgbToLinear(b));
+        return linearToSrgb(oklabToLinear(mix(labA, labB, bt)));
+    }
     vec3 lchA = oklabToOklch(linearToOklab(srgbToLinear(a)));
     vec3 lchB = oklabToOklch(linearToOklab(srgbToLinear(b)));
     float L = mix(lchA.x, lchB.x, bt);
