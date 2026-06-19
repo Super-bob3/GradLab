@@ -213,6 +213,16 @@
         <div class="color-actions-row">
           <button class="btn-line" id="btn-add-color">+ Add Color</button>
           <button class="btn-line btn-icon-sq" id="btn-shuffle-colors" title="Shuffle color order"><i class="ri-shuffle-line"></i></button>
+          <div class="btn-random-group">
+            <button class="btn-line btn-icon-sq btn-random-main" id="btn-random-colors" title="Random colors"><i class="ri-dice-line"></i></button>
+            <button class="btn-line btn-icon-sq btn-random-chevron" id="btn-random-opts" title="Random options"><i class="ri-arrow-down-s-line"></i></button>
+            <div class="random-opts-dropdown" id="random-opts-dropdown">
+              <label class="random-opt-item">
+                <input type="checkbox" id="random-count-toggle">
+                <span>随机数量</span>
+              </label>
+            </div>
+          </div>
         </div>
 
         <!-- Blend Transition -->

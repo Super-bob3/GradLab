@@ -370,6 +370,76 @@ export function initControls(onMatrixRebuild) {
         }
     });
 
+    // ── Random colors ────────────────────────────────────────────
+    function _oklchToHex(L, C, H) {
+        const h = H * Math.PI / 180;
+        const a = C * Math.cos(h), b = C * Math.sin(h);
+        const l_ = L + 0.3963377774 * a + 0.2158037573 * b;
+        const m_ = L - 0.1055613458 * a - 0.0638541728 * b;
+        const s_ = L - 0.0894841775 * a - 1.2914855480 * b;
+        const l = l_ * l_ * l_, m = m_ * m_ * m_, s = s_ * s_ * s_;
+        let r =  4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s;
+        let g = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s;
+        let bv = -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s;
+        const gamma = c => c <= 0.0031308 ? 12.92 * c : 1.055 * Math.pow(c, 1 / 2.4) - 0.055;
+        r = Math.round(Math.min(1, Math.max(0, gamma(r))) * 255);
+        g = Math.round(Math.min(1, Math.max(0, gamma(g))) * 255);
+        bv = Math.round(Math.min(1, Math.max(0, gamma(bv))) * 255);
+        return '#' + [r, g, bv].map(v => v.toString(16).padStart(2, '0')).join('');
+    }
+
+    function _randomColors(n) {
+        const baseH = Math.random() * 360;
+        const step  = 360 / n;
+        return Array.from({ length: n }, (_, i) => {
+            const H = (baseH + step * i) % 360;
+            const L = 0.50 + Math.random() * 0.22;
+            const C = 0.10 + Math.random() * 0.10;
+            return _oklchToHex(L, C, H);
+        });
+    }
+
+    function _weightedRandomCount() {
+        const weights = [0, 0, 1, 2, 3, 3, 2, 1, 1]; // index = count (2–8)
+        const total   = weights.reduce((s, w) => s + w, 0);
+        let r = Math.random() * total;
+        for (let i = 2; i <= 8; i++) { r -= weights[i]; if (r <= 0) return i; }
+        return 4;
+    }
+
+    const _randomOptsDropdown = document.getElementById('random-opts-dropdown');
+    const _btnRandomOpts      = document.getElementById('btn-random-opts');
+
+    document.getElementById('btn-random-colors').addEventListener('click', () => {
+        const randomizeCount = document.getElementById('random-count-toggle').checked;
+        const n = randomizeCount ? _weightedRandomCount() : currentColors.length;
+        currentColors.length = 0;
+        _randomColors(n).forEach(c => currentColors.push(c));
+        saveToCurrentTheme();
+        renderColorList();
+        sound.preset();
+        if (typeof umami !== 'undefined') umami.track('random_colors', { count: n, randomize_count: randomizeCount });
+    });
+
+    _btnRandomOpts.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = _randomOptsDropdown.classList.contains('open');
+        isOpen ? sound.close() : sound.open();
+        _randomOptsDropdown.classList.toggle('open', !isOpen);
+        _btnRandomOpts.classList.toggle('open', !isOpen);
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.btn-random-group')) {
+            _randomOptsDropdown.classList.remove('open');
+            _btnRandomOpts.classList.remove('open');
+        }
+    });
+
+    document.getElementById('random-count-toggle').addEventListener('change', (e) => {
+        sound.toggle(e.target.checked);
+    });
+
     // Shuffle color order — guaranteed different from current order
     document.getElementById('btn-shuffle-colors').addEventListener('click', () => {
         if (currentColors.length < 2) return;
