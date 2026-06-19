@@ -390,9 +390,18 @@ export function initControls(onMatrixRebuild) {
 
     function _randomColors(n) {
         const baseH = Math.random() * 360;
-        const step  = 360 / n;
-        return Array.from({ length: n }, (_, i) => {
-            const H = (baseH + step * i) % 360;
+        let hues;
+        if (n === 2) {
+            hues = Math.random() < 0.5
+                ? [baseH, (baseH + 180) % 360]
+                : [baseH, (baseH + 45) % 360];
+        } else if (n === 4) {
+            hues = [baseH, (baseH + 60) % 360, (baseH + 180) % 360, (baseH + 240) % 360];
+        } else {
+            const step = 360 / n;
+            hues = Array.from({ length: n }, (_, i) => (baseH + step * i) % 360);
+        }
+        return hues.map(H => {
             const L = 0.50 + Math.random() * 0.22;
             const C = 0.10 + Math.random() * 0.10;
             return _oklchToHex(L, C, H);
