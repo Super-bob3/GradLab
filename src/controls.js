@@ -382,8 +382,8 @@ export function initControls(onMatrixRebuild) {
         let g = -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s;
         let bv = -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s;
         const gamma = c => c <= 0.0031308 ? 12.92 * c : 1.055 * Math.pow(c, 1 / 2.4) - 0.055;
-        r = Math.round(Math.min(1, Math.max(0, gamma(r))) * 255);
-        g = Math.round(Math.min(1, Math.max(0, gamma(g))) * 255);
+        r  = Math.round(Math.min(1, Math.max(0, gamma(r)))  * 255);
+        g  = Math.round(Math.min(1, Math.max(0, gamma(g)))  * 255);
         bv = Math.round(Math.min(1, Math.max(0, gamma(bv))) * 255);
         return '#' + [r, g, bv].map(v => v.toString(16).padStart(2, '0')).join('');
     }
@@ -401,9 +401,11 @@ export function initControls(onMatrixRebuild) {
             const step = 360 / n;
             hues = Array.from({ length: n }, (_, i) => (baseH + step * i) % 360);
         }
+        const baseL = 0.65 + Math.random() * 0.08;  // [0.65, 0.73]
+        const baseC = 0.16 + Math.random() * 0.08;  // [0.16, 0.24]
         return hues.map(H => {
-            const L = 0.50 + Math.random() * 0.22;
-            const C = 0.10 + Math.random() * 0.10;
+            const L = baseL + (Math.random() - 0.5) * 0.04;
+            const C = baseC + (Math.random() - 0.5) * 0.03;
             return _oklchToHex(L, C, H);
         });
     }
