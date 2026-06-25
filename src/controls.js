@@ -772,10 +772,11 @@ function renderColorList() {
         }
 
         swatch.addEventListener('click', () => {
+            const _initialHex = (inputColor.value || hex).toLowerCase();
             let _changed = false;
-            openColorPicker(swatch, inputColor.value || hex, (newHex) => {
+            openColorPicker(swatch, _initialHex, (newHex) => {
                 _syncPill(newHex);
-                _changed = true;
+                if (newHex.toLowerCase() !== _initialHex) _changed = true;
             }, () => {
                 if (_changed && typeof umami !== 'undefined') umami.track('edit_color', { method: 'picker' });
             });
