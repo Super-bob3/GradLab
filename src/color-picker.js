@@ -65,6 +65,7 @@ let _pop     = null;
 let _state   = { h: 0, s: 100, b: 100 };  // internal HSB
 let _space   = 'hsl';
 let _onChange = null;
+let _onClose  = null;
 let _anchor  = null;
 
 // Assigned during initColorPicker, called from openColorPicker
@@ -261,7 +262,7 @@ export function initColorPicker() {
 
 // ── Public API ─────────────────────────────────────────────────
 
-export function openColorPicker(swatchEl, hex, onChangeFn) {
+export function openColorPicker(swatchEl, hex, onChangeFn, onCloseFn) {
     if (!_pop) return;
 
     // Toggle if clicking the same swatch while open
@@ -272,6 +273,7 @@ export function openColorPicker(swatchEl, hex, onChangeFn) {
 
     _anchor   = swatchEl;
     _onChange = onChangeFn;
+    _onClose  = onCloseFn || null;
 
     const [r, g, b]   = hexToRgb(hex);
     const [h, s, bv]  = rgbToHsb(r, g, b);
@@ -317,6 +319,7 @@ function _hide() {
     if (!_pop || _pop.style.display === 'none') return;
     _pop.style.display = 'none';
     _anchor = null;
+    if (_onClose) { _onClose(); _onClose = null; }
     sound.close();
 }
 
