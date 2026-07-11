@@ -154,7 +154,7 @@ function _saveThemeState(key) {
     function r(id) { const el = document.getElementById('ctrl-' + id); return el ? el.value : undefined; }
     function rb(id) { const el = document.getElementById('ctrl-' + id); return el ? el.checked : false; }
     s.colors      = [...currentColors];
-    s.colorMode   = rb('color-mode');
+    s.colorMode   = r('color-mode');
     s.blendBias   = r('blend-bias');
     s.blendSharp  = r('blend-sharp');
     s.type        = r('type');
