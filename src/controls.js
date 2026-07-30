@@ -391,6 +391,23 @@ export function initControls(onMatrixRebuild) {
         return _oklchToLinearRGB(L, C, H).every(v => v >= -0.001 && v <= 1.001);
     }
 
+    function _hexToOklch(hex) {
+        const n = parseInt(hex.slice(1), 16);
+        const toLinear = c => (c /= 255) <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+        const r = toLinear((n >> 16) & 255), g = toLinear((n >> 8) & 255), b = toLinear(n & 255);
+        const l = 0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b;
+        const m = 0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b;
+        const s = 0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b;
+        const l_ = Math.cbrt(l), m_ = Math.cbrt(m), s_ = Math.cbrt(s);
+        const L = 0.2104542553 * l_ + 0.7936177850 * m_ - 0.0040720468 * s_;
+        const a = 1.9779984951 * l_ - 2.4285922050 * m_ + 0.4505937099 * s_;
+        const bH = 0.0259040371 * l_ + 0.7827717662 * m_ - 0.8086757660 * s_;
+        const C = Math.sqrt(a * a + bH * bH);
+        let H = Math.atan2(bH, a) * 180 / Math.PI;
+        if (H < 0) H += 360;
+        return { L, C, H };
+    }
+
     function _maxChroma(L, H) {
         let lo = 0, hi = 0.4;
         for (let i = 0; i < 20; i++) {
@@ -430,6 +447,72 @@ export function initControls(onMatrixRebuild) {
         });
     }
 
+    function _hexToHSL(hex) {
+        const n = parseInt(hex.slice(1), 16);
+        const r = ((n >> 16) & 255) / 255, g = ((n >> 8) & 255) / 255, b = (n & 255) / 255;
+        const max = Math.max(r, g, b), min = Math.min(r, g, b);
+        const l = (max + min) / 2;
+        let h = 0, s = 0;
+        if (max !== min) {
+            const d = max - min;
+            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+            switch (max) {
+                case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                case g: h = (b - r) / d + 2; break;
+                default: h = (r - g) / d + 4;
+            }
+            h *= 60;
+        }
+        return { h, s: s * 100, l: l * 100 };
+    }
+
+    function _hslToHex(h, s, l) {
+        s /= 100; l /= 100;
+        const c = (1 - Math.abs(2 * l - 1)) * s;
+        const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+        const m = l - c / 2;
+        let r = 0, g = 0, b = 0;
+        if (h < 60) { r = c; g = x; b = 0; }
+        else if (h < 120) { r = x; g = c; b = 0; }
+        else if (h < 180) { r = 0; g = c; b = x; }
+        else if (h < 240) { r = 0; g = x; b = c; }
+        else if (h < 300) { r = x; g = 0; b = c; }
+        else { r = c; g = 0; b = x; }
+        return '#' + [r, g, b].map(v => Math.round((v + m) * 255).toString(16).padStart(2, '0')).join('');
+    }
+
+    // ── Phase 1：每个颜色基于它"原有"的色相做 0~10° 抖动，S/L 按实测的通用公式随机 ──
+    // 临时测试用，未接入正式 UI。浏览器 console 里调用 window.__testPhase1(n) 预览。
+    function _randomColorsPhase1(n, existingColors) {
+        const hueJitterMax = 10;
+        const sMin = 78, sMax = 100;
+
+        return Array.from({ length: n }, (_, i) => {
+            const source = existingColors[i] || existingColors[existingColors.length - 1] || '#888888';
+            const originalH = _hexToHSL(source).h;
+            const jitter = (Math.random() * 2 - 1) * hueJitterMax; // 基于该颜色原有色相抖动
+            const H = (originalH + jitter + 360) % 360;
+
+            const S = sMin + Math.random() * (sMax - sMin);
+            const Lmin = 68.3 - 0.229 * S;
+            const Lmax = 1.63 * S - 75;
+            const L = Lmin + Math.random() * (Lmax - Lmin);
+
+            return _hslToHex(H, S, L);
+        });
+    }
+
+    window.__testPhase1 = (n = 3) => {
+        const existing = [...currentColors];
+        const colors = _randomColorsPhase1(n, existing);
+        currentColors.length = 0;
+        colors.forEach(c => currentColors.push(c));
+        saveToCurrentTheme();
+        renderColorList();
+        console.log(colors);
+        return colors;
+    };
+
     function _weightedRandomCount() {
         const weights = [0, 0, 1, 2, 3, 3, 2, 1, 1]; // index = count (2–8)
         const total   = weights.reduce((s, w) => s + w, 0);
@@ -444,8 +527,10 @@ export function initControls(onMatrixRebuild) {
     document.getElementById('btn-random-colors').addEventListener('click', () => {
         const randomizeCount = document.getElementById('random-count-toggle').checked;
         const n = randomizeCount ? _weightedRandomCount() : currentColors.length;
+        const existing = [...currentColors]; // 抖动前先存一份原有颜色，供 Phase 1 取原色相用
         currentColors.length = 0;
-        _randomColors(n).forEach(c => currentColors.push(c));
+        // 临时接入 Phase 1 实验算法（评估用，评估完须换回 _randomColors(n)）
+        _randomColorsPhase1(n, existing).forEach(c => currentColors.push(c));
         saveToCurrentTheme();
         renderColorList();
         sound.preset();
