@@ -92,6 +92,10 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelector('a.feedback-trigger')
         ?.addEventListener('click', () => sound.tap());
 
+    // 8c. GitHub link sound
+    document.getElementById('btn-github')
+        ?.addEventListener('click', () => sound.tap());
+
     // 9. Mobile bottom sheet
     initBottomSheet();
 });
