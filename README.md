@@ -1,84 +1,69 @@
-# Pipeline Shader V7
+# GradLab
 
-> WebGL fluid shader engine with OKLab color science, halftone effects, and an interactive ASCII character matrix.
+> Free, browser-native WebGL gradient generator — animated mesh gradients with OKLab color science, halftone effects, and an interactive ASCII character matrix. No install, no account, no export limits.
+
+**Live:** [gradlab.app](https://gradlab.app) · **Docs:** [docs.gradlab.app](https://docs.gradlab.app)
+
+## Features
+
+- **Palette** — up to 8 colors, drag-to-reorder, image color extraction, RGB / OKLCH / OKLAB blend modes
+- **Shape & Flow** — multiple algorithms: fluid chaos, structured mapping, diffusion, nested SDF topology
+- **Post-Processing** — film grain, inner border, corner radius, 3D tilt
+- **Halftone** — dither matrices × multiple shapes, contrast control
+- **Interactive Matrix** — ASCII character overlay with heatmap decay or dynamic background mode
+- **Export** — PNG screenshot, MP4 / WebM video (with pingpong loop), standalone HTML code export
+- Real-time preview, light/dark theme, English / 中文 language toggle
 
 ## Project Structure
 
 ```
-pipeline-shader/
+GradLab/
 ├── index.html          ← Main entry point (HTML shell)
 ├── src/
-│   ├── styles.css      ← All UI styles & CSS variables
-│   ├── shaders.js      ← GLSL vertex + fragment shader source
-│   ├── engine.js       ← WebGL context, render loop, camera input
-│   ├── matrix.js       ← Stage 5: ASCII character matrix overlay
-│   ├── controls.js     ← Control panel UI: colors, presets, sliders
-│   ├── export.js       ← Screenshot, MP4 recording, code export
-│   └── main.js         ← App entry point — wires all modules
-├── vercel.json         ← Vercel deployment config
-├── netlify.toml        ← Netlify deployment config
-└── package.json        ← npm scripts for local dev
+│   ├── styles.css       ← All UI styles & CSS variables
+│   ├── shaders.js       ← GLSL vertex + fragment shader source
+│   ├── engine.js        ← WebGL context, render loop, camera input
+│   ├── matrix.js        ← ASCII character matrix overlay
+│   ├── controls.js      ← Control panel UI: colors, presets, sliders
+│   ├── components.js    ← Reusable UI component mounting
+│   ├── color-picker.js  ← Custom color picker
+│   ├── canvas-size.js   ← Canvas size control
+│   ├── split-hover.js   ← Logo hover text effect
+│   ├── feedback.js      ← Feedback widget
+│   ├── sound.js         ← Web Audio UI sound effects
+│   ├── barcode.js       ← PDF417 param import/share
+│   ├── params.js        ← Param encode/decode
+│   ├── export.js        ← Screenshot, MP4 recording, code export
+│   └── main.js           ← App entry point — wires all modules
+├── vercel.json          ← Vercel deployment config (headers, caching, rewrites)
+└── package.json         ← Vite scripts & dependencies
 ```
-
-## Features
-
-- **Stage 1 · Palette** — up to 8 colors, drag-to-reorder, image color extraction, OKLch/RGB blend modes
-- **Stage 2 · Shape & Flow** — 13 algorithms: fluid chaos, structured mapping, diffusion, SDF topology
-- **Stage 3 · Post-Processing** — film grain, inner border, corner radius, 3D tilt
-- **Stage 4 · Halftone** — 4 dither matrices × 6 shapes, contrast control
-- **Stage 5 · Interactive Matrix** — ASCII character overlay with heatmap decay or dynamic background mode
-- **Export** — PNG screenshot, MP4 / WebM video (with pingpong loop), standalone HTML code export
 
 ## Local Development
 
-Requires a local HTTP server (ES modules don't work via `file://`):
+Built with [Vite](https://vitejs.dev):
 
 ```bash
-# Option 1 — npx (no install needed)
-npx serve . --cors -p 3000
-
-# Option 2 — Python
-python3 -m http.server 3000
-
-# Option 3 — npm script
-npm run dev
+npm install
+npm run dev      # local dev server with HMR
+npm run build    # production build → dist/
+npm run preview  # preview the production build locally
 ```
 
-Then open **http://localhost:3000**
+Then open **http://localhost:3000** (or whatever port Vite prints).
 
-## Deploy to Vercel (recommended)
+## Deploy
 
-```bash
-# Install Vercel CLI
-npm i -g vercel
+The production site runs on **Vercel**. `vercel.json` sets the `Cross-Origin-Opener-Policy` / `Cross-Origin-Embedder-Policy` headers required for MP4 recording, plus immutable caching for Vite's content-hashed `/assets/*` output — connect the repo at [vercel.com](https://vercel.com) and it will build with `npm run build` and serve `dist/`.
 
-# Deploy from project root
-vercel
-```
-
-Or connect your GitHub repo at **vercel.com** → Import Project → select this folder.
-
-## Deploy to Netlify
-
-Drag-and-drop the entire `pipeline-shader/` folder onto **app.netlify.com/drop**.
-
-Or via CLI:
-```bash
-npm i -g netlify-cli
-netlify deploy --prod --dir .
-```
-
-## Deploy to GitHub Pages
-
-1. Push this folder as a GitHub repository
-2. Go to **Settings → Pages → Source → Deploy from branch**
-3. Select `main` / `root`
-
-> **Note:** GitHub Pages does not send `Cross-Origin-Opener-Policy` headers.
-> The shader and canvas will work fine, but MP4 recording may fall back to WebM.
+> Other static hosts work for the UI, but without COOP/COEP headers MP4 recording falls back to WebM.
 
 ## Notes
 
-- **ES Modules** are used throughout (`type="module"`). No build step or bundler required.
-- The GLSL shaders are embedded as template literal strings in `src/shaders.js`.
+- ES Modules throughout (`type="module"`); Vite handles bundling and content-hash filenames for production.
+- GLSL shaders are embedded as template literal strings in `src/shaders.js`.
 - All state is in-memory; there is no backend or database.
+
+## License
+
+[MIT](LICENSE)
