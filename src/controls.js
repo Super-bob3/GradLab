@@ -366,87 +366,6 @@ export function initControls(onMatrixRebuild) {
     });
 
     // ── Random colors ────────────────────────────────────────────
-    function _oklchToLinearRGB(L, C, H) {
-        const h = H * Math.PI / 180;
-        const a = C * Math.cos(h), b = C * Math.sin(h);
-        const l_ = L + 0.3963377774 * a + 0.2158037573 * b;
-        const m_ = L - 0.1055613458 * a - 0.0638541728 * b;
-        const s_ = L - 0.0894841775 * a - 1.2914855480 * b;
-        const l = l_ * l_ * l_, m = m_ * m_ * m_, s = s_ * s_ * s_;
-        return [
-             4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
-            -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
-            -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s,
-        ];
-    }
-
-    function _oklchToHex(L, C, H) {
-        const gamma = c => c <= 0.0031308 ? 12.92 * c : 1.055 * Math.pow(c, 1 / 2.4) - 0.055;
-        return '#' + _oklchToLinearRGB(L, C, H)
-            .map(v => Math.round(Math.min(1, Math.max(0, gamma(v))) * 255).toString(16).padStart(2, '0'))
-            .join('');
-    }
-
-    function _isInSRGB(L, C, H) {
-        return _oklchToLinearRGB(L, C, H).every(v => v >= -0.001 && v <= 1.001);
-    }
-
-    function _hexToOklch(hex) {
-        const n = parseInt(hex.slice(1), 16);
-        const toLinear = c => (c /= 255) <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
-        const r = toLinear((n >> 16) & 255), g = toLinear((n >> 8) & 255), b = toLinear(n & 255);
-        const l = 0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b;
-        const m = 0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b;
-        const s = 0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b;
-        const l_ = Math.cbrt(l), m_ = Math.cbrt(m), s_ = Math.cbrt(s);
-        const L = 0.2104542553 * l_ + 0.7936177850 * m_ - 0.0040720468 * s_;
-        const a = 1.9779984951 * l_ - 2.4285922050 * m_ + 0.4505937099 * s_;
-        const bH = 0.0259040371 * l_ + 0.7827717662 * m_ - 0.8086757660 * s_;
-        const C = Math.sqrt(a * a + bH * bH);
-        let H = Math.atan2(bH, a) * 180 / Math.PI;
-        if (H < 0) H += 360;
-        return { L, C, H };
-    }
-
-    function _maxChroma(L, H) {
-        let lo = 0, hi = 0.4;
-        for (let i = 0; i < 20; i++) {
-            const mid = (lo + hi) / 2;
-            _isInSRGB(L, mid, H) ? (lo = mid) : (hi = mid);
-        }
-        return lo;
-    }
-
-    function _peakL(H) {
-        let bestL = 0.65, bestC = 0;
-        for (let L = 0.35; L <= 0.90; L += 0.02) {
-            const c = _maxChroma(L, H);
-            if (c > bestC) { bestC = c; bestL = L; }
-        }
-        return bestL;
-    }
-
-    function _randomColors(n) {
-        const baseH = Math.random() * 360;
-        let hues;
-        if (n === 2) {
-            hues = Math.random() < 0.5
-                ? [baseH, (baseH + 180) % 360]
-                : [baseH, (baseH + 45) % 360];
-        } else if (n === 4) {
-            hues = [baseH, (baseH + 60) % 360, (baseH + 180) % 360, (baseH + 240) % 360];
-        } else {
-            const step = 360 / n;
-            hues = Array.from({ length: n }, (_, i) => (baseH + step * i) % 360);
-        }
-        return hues.map(H => {
-            const peakL = _peakL(H);
-            const L = peakL * (0.82 + Math.random() * 0.12);
-            const C = _maxChroma(L, H) * (0.70 + Math.random() * 0.15);
-            return _oklchToHex(L, C, H);
-        });
-    }
-
     function _hexToHSL(hex) {
         const n = parseInt(hex.slice(1), 16);
         const r = ((n >> 16) & 255) / 255, g = ((n >> 8) & 255) / 255, b = (n & 255) / 255;
@@ -481,9 +400,9 @@ export function initControls(onMatrixRebuild) {
         return '#' + [r, g, b].map(v => Math.round((v + m) * 255).toString(16).padStart(2, '0')).join('');
     }
 
-    // ── Phase 1：每个颜色基于它"原有"的色相做 0~10° 抖动，S/L 按实测的通用公式随机 ──
-    // 临时测试用，未接入正式 UI。浏览器 console 里调用 window.__testPhase1(n) 预览。
-    function _randomColorsPhase1(n, existingColors) {
+    // 每个颜色基于它原有的色相做 0~10° 抖动；S/L 按手工实测拟合出的公式随机
+    // （目前公式只针对红色系测过，还没做色相相关的修正）
+    function _randomColors(n, existingColors) {
         const hueJitterMax = 10;
         const sMin = 78, sMax = 100;
 
@@ -502,17 +421,6 @@ export function initControls(onMatrixRebuild) {
         });
     }
 
-    window.__testPhase1 = (n = 3) => {
-        const existing = [...currentColors];
-        const colors = _randomColorsPhase1(n, existing);
-        currentColors.length = 0;
-        colors.forEach(c => currentColors.push(c));
-        saveToCurrentTheme();
-        renderColorList();
-        console.log(colors);
-        return colors;
-    };
-
     function _weightedRandomCount() {
         const weights = [0, 0, 1, 2, 3, 3, 2, 1, 1]; // index = count (2–8)
         const total   = weights.reduce((s, w) => s + w, 0);
@@ -529,8 +437,7 @@ export function initControls(onMatrixRebuild) {
         const n = randomizeCount ? _weightedRandomCount() : currentColors.length;
         const existing = [...currentColors]; // 抖动前先存一份原有颜色，供 Phase 1 取原色相用
         currentColors.length = 0;
-        // 临时接入 Phase 1 实验算法（评估用，评估完须换回 _randomColors(n)）
-        _randomColorsPhase1(n, existing).forEach(c => currentColors.push(c));
+        _randomColors(n, existing).forEach(c => currentColors.push(c));
         saveToCurrentTheme();
         renderColorList();
         sound.preset();
