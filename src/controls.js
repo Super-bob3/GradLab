@@ -421,46 +421,15 @@ export function initControls(onMatrixRebuild) {
         });
     }
 
-    function _weightedRandomCount() {
-        const weights = [0, 0, 1, 2, 3, 3, 2, 1, 1]; // index = count (2–8)
-        const total   = weights.reduce((s, w) => s + w, 0);
-        let r = Math.random() * total;
-        for (let i = 2; i <= 8; i++) { r -= weights[i]; if (r <= 0) return i; }
-        return 4;
-    }
-
-    const _randomOptsDropdown = document.getElementById('random-opts-dropdown');
-    const _btnRandomOpts      = document.getElementById('btn-random-opts');
-
     document.getElementById('btn-random-colors').addEventListener('click', () => {
-        const randomizeCount = document.getElementById('random-count-toggle').checked;
-        const n = randomizeCount ? _weightedRandomCount() : currentColors.length;
-        const existing = [...currentColors]; // 抖动前先存一份原有颜色，供 Phase 1 取原色相用
+        const n = currentColors.length;
+        const existing = [...currentColors]; // 抖动前先存一份原有颜色，供取原色相用
         currentColors.length = 0;
         _randomColors(n, existing).forEach(c => currentColors.push(c));
         saveToCurrentTheme();
         renderColorList();
         sound.preset();
-        if (typeof umami !== 'undefined') umami.track('random_colors', { count: n, randomize_count: randomizeCount });
-    });
-
-    _btnRandomOpts.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const isOpen = _randomOptsDropdown.classList.contains('open');
-        isOpen ? sound.close() : sound.open();
-        _randomOptsDropdown.classList.toggle('open', !isOpen);
-        _btnRandomOpts.classList.toggle('open', !isOpen);
-    });
-
-    document.addEventListener('click', (e) => {
-        if (!e.target.closest('.btn-random-group')) {
-            _randomOptsDropdown.classList.remove('open');
-            _btnRandomOpts.classList.remove('open');
-        }
-    });
-
-    document.getElementById('random-count-toggle').addEventListener('change', (e) => {
-        sound.toggle(e.target.checked);
+        if (typeof umami !== 'undefined') umami.track('random_colors', { count: n });
     });
 
     // Shuffle color order — guaranteed different from current order
